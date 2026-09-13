@@ -1,0 +1,369 @@
+/* ================================================================
+   poggy_core — menu and text input
+   Western / RDR2 look shared with the other Poggy UIs: dark panel,
+   parchment text, gold accents, serif headings. No fonts are shipped;
+   every stack ends in a system serif, so it renders the same offline.
+   ================================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── colours ────────────────────────────────────────────────────────
+   Every colour the page uses is one of these variables and nothing
+   below names a colour directly. There is no theme option yet (tabled
+   for all the Poggy UIs at once); when it comes, a theme layer only
+   has to redefine this block — the rules underneath stay as they are.
+   ───────────────────────────────────────────────────────────────── */
+:root {
+    --gold:          #c9a84c;
+    --gold-light:    #e4c572;
+    --gold-dim:      #7a6230;
+    --amber:         #9e6b14;
+    --bg-panel:      rgba(14, 11, 7, 0.92);
+    --bg-item:       rgba(255, 255, 255, 0.03);
+    --bg-hover:      rgba(201, 168, 76, 0.10);
+    --bg-selected:   rgba(201, 168, 76, 0.18);
+    --bg-input:      rgba(255, 255, 255, 0.06);
+    --bg-btn:        rgba(255, 255, 255, 0.05);
+    --bg-btn-hover:  rgba(255, 255, 255, 0.09);
+    --border:        rgba(201, 168, 76, 0.16);
+    --border-strong: rgba(201, 168, 76, 0.45);
+    --text:          #e8dfc8;
+    --text-muted:    #8d8470;
+    --text-dim:      #55503f;
+    --text-on-gold:  #1a1208;
+    --text-input:    #ffffff;
+    --red:           #c94c4c;
+    --shadow:        rgba(0, 0, 0, 0.7);
+    --glow:          rgba(201, 168, 76, 0.25);
+    --glow-strong:   rgba(201, 168, 76, 0.4);
+}
+
+/* ── layout tokens (not colours) ────────────────────────────────── */
+:root {
+    --font-heading:  'Cinzel', 'Playfair Display', 'Georgia', 'Times New Roman', serif;
+    --font-body:     'Crimson Text', 'Georgia', 'Times New Roman', serif;
+    --radius:        8px;
+    --radius-sm:     5px;
+    --panel-w:       400px;
+    /* the description strip under the list: a fixed line height so the
+       reserved area (3 lines min, 5 max) is the same whatever the text */
+    --desc-line:     18px;
+    --desc-pad-top:  10px;
+    --desc-pad-bot:  4px;
+}
+
+html, body {
+    background: transparent;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--text);
+    user-select: none;
+}
+
+.hidden { display: none !important; }
+
+/* ── panel ──────────────────────────────────────────────────────── */
+/*
+   Where a panel sits is decided by script.js (placePanel), from the
+   `position` and `margin` the Lua side sends out of PoggyCoreConfig.Ui.
+   It sets top/left/right/bottom in pixels and never a translateY(-50%)
+   centring: a centred transform moves the whole panel by half of any
+   height change, so the rows would creep as the description under them
+   wrapped. Instead the page anchors the panel's top edge (centre and top
+   positions, computed from the panel's fixed parts) or its bottom edge
+   (bottom positions), so any growth runs away from the rows.
+*/
+.pg-panel {
+    position: fixed;
+    width: var(--panel-w);
+    max-width: 92vw;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow:
+        0 10px 44px var(--shadow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    animation: pgIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pgIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.pg-input { animation: none; }
+
+/* ── header ─────────────────────────────────────────────────────── */
+.pg-head { padding: 16px 18px 0; }
+
+.pg-title {
+    font-family: var(--font-heading);
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    text-align: center;
+    line-height: 1.25;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+    word-wrap: break-word;
+}
+
+.pg-subtitle {
+    margin-top: 5px;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.35;
+    word-wrap: break-word;
+}
+.pg-subtitle:empty { display: none; }
+
+/* a gold rule with a diamond in the middle, the way the game divides a menu */
+.pg-rule {
+    position: relative;
+    height: 1px;
+    margin: 12px 6px 0;
+    background: linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold) 80%, transparent);
+}
+.pg-rule::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -3px;
+    width: 6px;
+    height: 6px;
+    transform: translateX(-50%) rotate(45deg);
+    background: var(--gold);
+    box-shadow: 0 0 0 2px var(--bg-panel);
+}
+
+/* ── items ──────────────────────────────────────────────────────── */
+.pg-items {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 10px 12px 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold-dim) transparent;
+}
+.pg-items::-webkit-scrollbar             { width: 5px; }
+.pg-items::-webkit-scrollbar-track       { background: transparent; }
+.pg-items::-webkit-scrollbar-thumb       { background: var(--gold-dim); border-radius: 3px; }
+.pg-items::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+.pg-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px 8px 14px;
+    min-height: 36px;
+    background: var(--bg-item);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    position: relative;
+    transition: background 0.12s ease, border-color 0.12s ease;
+}
+.pg-item:hover:not(.disabled) { background: var(--bg-hover); }
+
+/* the selected row: gold bar on the left, brighter text */
+.pg-item.selected {
+    background: var(--bg-selected);
+    border-color: var(--border-strong);
+}
+.pg-item.selected::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--gold);
+}
+.pg-item.selected .pg-label { color: var(--gold-light); }
+
+.pg-item.disabled {
+    cursor: default;
+    opacity: 0.45;
+}
+.pg-item.disabled .pg-label { color: var(--text-muted); }
+
+.pg-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 15px;
+    line-height: 1.3;
+    color: var(--text);
+    overflow-wrap: anywhere;
+}
+
+.pg-right {
+    flex: 0 0 auto;
+    max-width: 45%;
+    font-family: var(--font-heading);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--gold);
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.pg-right:empty { display: none; }
+
+/* description of the selected item, under the list.
+   A reserved area: never shorter than 3 lines, never taller than 5, the
+   overflow cut with an ellipsis on the last line. Between 3 and 5 lines
+   the panel grows away from the rows (see placePanel in script.js); past
+   5 the text is clipped, so the rows above it never move. Hidden entirely
+   when no row in the menu has a description. */
+.pg-desc {
+    flex: 0 0 auto;
+    margin: 0 18px;
+    padding: var(--desc-pad-top) 0 var(--desc-pad-bot);
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    font-style: italic;
+    line-height: var(--desc-line);
+    color: var(--text-muted);
+    text-align: center;
+    overflow-wrap: anywhere;
+    min-height: calc(3 * var(--desc-line) + var(--desc-pad-top) + var(--desc-pad-bot) + 1px);
+    max-height: calc(5 * var(--desc-line) + var(--desc-pad-top) + var(--desc-pad-bot) + 1px);
+    overflow: hidden;
+}
+.pg-desc-text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    overflow: hidden;
+}
+.pg-menu:not(.has-desc) .pg-desc { display: none; }
+
+/* Pinned by the bottom edge (bottom-left / bottom-right), any growth would
+   run upward and carry the rows with it — so there the area is reserved at
+   its full 5 lines and the panel's height never changes at all. */
+.pg-menu.pg-anchor-bottom .pg-desc {
+    min-height: calc(5 * var(--desc-line) + var(--desc-pad-top) + var(--desc-pad-bot) + 1px);
+}
+
+/* ── footer ─────────────────────────────────────────────────────── */
+.pg-foot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px 14px;
+}
+
+.pg-count {
+    flex: 1 1 auto;
+    font-family: var(--font-heading);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+}
+
+.pg-hint {
+    flex: 1 1 auto;
+    text-align: right;
+    font-size: 11px;
+    color: var(--text-dim);
+    white-space: nowrap;
+}
+.pg-hint span {
+    display: inline-block;
+    padding: 1px 5px;
+    margin-right: 2px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-family: var(--font-heading);
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.pg-btn {
+    flex: 0 0 auto;
+    height: 32px;
+    padding: 0 18px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-btn);
+    font-family: var(--font-heading);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.pg-btn:hover {
+    background: var(--bg-btn-hover);
+    color: var(--text);
+    border-color: var(--border-strong);
+}
+.pg-btn:active { transform: translateY(1px); }
+
+.pg-btn-primary {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--amber) 100%);
+    border-color: transparent;
+    color: var(--text-on-gold);
+    box-shadow: 0 2px 10px var(--glow);
+}
+.pg-btn-primary:hover {
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+    color: var(--text-on-gold);
+    box-shadow: 0 3px 16px var(--glow-strong);
+}
+
+/* ── text input ─────────────────────────────────────────────────── */
+.pg-input { width: 420px; }
+
+.pg-input-body { padding: 16px 18px 4px; }
+
+#pg-input-field {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-input);
+    font-family: var(--font-body);
+    font-size: 16px;
+    outline: none;
+    user-select: text;
+    transition: border-color 0.15s ease;
+}
+#pg-input-field:focus       { border-color: var(--border-strong); }
+#pg-input-field::placeholder { color: var(--text-dim); font-style: italic; }
+#pg-input-field.invalid     { border-color: var(--red); }
+
+/* one line, always the same height: the note flips between the counter
+   and "Numbers only" while typing, and the box must not move under the cursor */
+.pg-input-note {
+    margin-top: 7px;
+    height: 16px;
+    line-height: 16px;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.pg-input-note.error { color: var(--red); }
+
+.pg-foot-buttons { justify-content: flex-end; }
