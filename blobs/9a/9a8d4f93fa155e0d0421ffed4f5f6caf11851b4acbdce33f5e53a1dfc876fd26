@@ -1,0 +1,728 @@
+/* ================================================================
+   poggy_scene — Scene Placer UI
+   Web 3.0 · Glassmorphism · RDR2 Amber Theme
+   Panel lives in the bottom-right corner, out of the way.
+   ================================================================ */
+
+/* ── RESET & BASE ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold:             #c9a84c;
+  --gold-light:       #e4c572;
+  --gold-dim:         #7a6230;
+  --amber:            #9e6b14;
+  --bg-panel:         rgba(14, 11, 7, 0.90);
+  --bg-section:       rgba(255, 255, 255, 0.03);
+  --bg-hover:         rgba(201, 168, 76, 0.10);
+  --bg-input:         rgba(255, 255, 255, 0.06);
+  --border:           rgba(201, 168, 76, 0.14);
+  --border-strong:    rgba(201, 168, 76, 0.35);
+  --text:             #e8dfc8;
+  --text-muted:       #7a7260;
+  --text-dim:         #4a4438;
+  --red:              #c94c4c;
+  --green:            #5daa74;
+  /* Theme-switchable extras */
+  --accent-tint:      rgba(201, 168, 76, 0.04);
+  --btn-text:         #1a1208;
+  --btn-shadow:       rgba(201, 168, 76, 0.25);
+  --btn-shadow-hover: rgba(201, 168, 76, 0.40);
+  --panel-w:          480px;
+  --radius:           10px;
+  --radius-sm:        6px;
+  --transition:       0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html, body {
+  background: rgba(0, 0, 0, 0);
+  overflow: hidden;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* ── ROOT (pointer-events none so game receives input outside panels) */
+#scene-root {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  width: auto;            /* adapts to widest active panel */
+  pointer-events: none;   /* only panels get events */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+#status-root {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  width: auto;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+#scene-root.hidden { display: none; }
+#status-root.hidden { display: none; }
+
+/* ── PANEL ────────────────────────────────────────────────────── */
+.panel {
+  pointer-events: all;    /* panels capture mouse */
+  width: var(--panel-w);
+  background: var(--bg-panel);
+  /* backdrop-filter removed — CEF has no pixels behind the NUI to blur,
+     causing a solid black render instead of transparency */
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  animation: panelIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.panel.hidden { display: none !important; }
+
+@keyframes panelIn {
+  from { transform: translateY(16px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+
+/* ── PANEL HEADER ─────────────────────────────────────────────── */
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 14px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--accent-tint);
+}
+
+.header-icon {
+  color: var(--gold);
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.header-title {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--gold-light);
+  text-transform: uppercase;
+}
+
+/* ── PANEL BODY ───────────────────────────────────────────────── */
+.panel-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── FIELD LABEL ──────────────────────────────────────────────── */
+.field-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+}
+
+/* ── TEXTAREA / CONTENTEDITABLE (status panel) ────────────────── */
+div#status-text-input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 9px 11px;
+  min-height: 80px;
+  max-height: 180px;
+  overflow-y: auto;
+  outline: none;
+  text-transform: uppercase;
+  transition: border-color var(--transition);
+}
+div#status-text-input:focus {
+  border-color: var(--border-strong);
+}
+div#status-text-input:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-dim);
+  pointer-events: none;
+}
+
+/* Status color toolbar */
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.editor-colors {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* ── SCENE EDITOR (Phase 1 — contenteditable) ────────────────── */
+#editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#editor-font-size {
+  height: 28px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  padding: 0 6px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+#editor-font-size:focus { border-color: var(--border-strong); }
+#editor-font-size option { background: #1a1510; color: var(--text); }
+
+#editor-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.color-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color var(--transition), transform 0.12s;
+  flex-shrink: 0;
+}
+.color-swatch:hover {
+  transform: scale(1.2);
+}
+.color-swatch.active {
+  border-color: var(--gold-light);
+  box-shadow: 0 0 6px rgba(228, 197, 114, 0.5);
+}
+
+#scene-text-input {
+  width: 100%;
+  min-height: 100px;
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: #ffffff;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.5px;
+  line-height: 1.3;
+  padding: 10px 12px;
+  outline: none;
+  text-align: center;
+  text-transform: uppercase;
+  transition: border-color var(--transition);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+#scene-text-input:focus {
+  border-color: var(--border-strong);
+}
+#scene-text-input:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-dim);
+  font-style: italic;
+  text-transform: none;
+  font-size: 13px;
+  pointer-events: none;
+}
+
+/* ── CHAR COUNT ───────────────────────────────────────────────── */
+.char-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: -4px;
+}
+
+/* ── SCENE PREVIEW (Phase 2) ─────────────────────────────────── */
+.scene-preview {
+  background: var(--bg-section);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--gold-light);
+  font-style: italic;
+  line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ── AXIS BLOCK / ROW ─────────────────────────────────────────── */
+.axis-block {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.axis-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.axis-label {
+  width: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  flex-shrink: 0;
+}
+
+/* ── CC-STEPPER ───────────────────────────────────────────────── */
+.cc-stepper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+.cc-stepper:hover,
+.cc-stepper:focus-within {
+  border-color: var(--border-strong);
+}
+
+.step-btn {
+  flex-shrink: 0;
+  width: 28px;
+  height: 30px;
+  background: rgba(201, 168, 76, 0.07);
+  border: none;
+  border-right: 1px solid var(--border);
+  color: var(--gold);
+  font-size: 11px;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+.step-btn.step-right {
+  border-right: none;
+  border-left: 1px solid var(--border);
+}
+.step-btn:hover {
+  background: rgba(201, 168, 76, 0.18);
+  color: var(--gold-light);
+}
+.step-btn:active {
+  background: rgba(201, 168, 76, 0.28);
+}
+
+.cc-stepper input[type="number"] {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: 'Inter', monospace, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  outline: none;
+  padding: 0 4px;
+  /* Hide native number spinners */
+  -moz-appearance: textfield;
+}
+.cc-stepper input[type="number"]::-webkit-inner-spin-button,
+.cc-stepper input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ── HINT ROW ─────────────────────────────────────────────────── */
+.hint-row {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+/* ── BUTTON ROW ───────────────────────────────────────────────── */
+.btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.btn-row button {
+  flex: 1;
+  height: 34px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--amber) 100%);
+  color: var(--btn-text);
+  box-shadow: 0 2px 10px var(--btn-shadow);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+  box-shadow: 0 3px 16px var(--btn-shadow-hover);
+}
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: var(--text);
+  border-color: rgba(201, 168, 76, 0.25);
+}
+
+/* ── SCROLLBAR ────────────────────────────────────────────────── */
+::-webkit-scrollbar            { width: 4px; }
+::-webkit-scrollbar-track      { background: transparent; }
+::-webkit-scrollbar-thumb      { background: var(--gold-dim); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover{ background: var(--gold); }
+
+/* ── STATUS PANEL ────────────────────────────────────────────────── */
+#status-root .panel { width: 480px; pointer-events: all; }
+
+.preset-save-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+input.name-input {
+  flex: 1;
+  height: 30px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  padding: 0 10px;
+  outline: none;
+  transition: border-color var(--transition);
+}
+input.name-input:focus        { border-color: var(--border-strong); }
+input.name-input::placeholder { color: var(--text-dim); }
+
+.btn-save-preset {
+  flex-shrink: 0;
+  width: 34px;
+  height: 30px;
+  background: rgba(201, 168, 76, 0.08);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--gold);
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition);
+  line-height: 1;
+}
+.btn-save-preset:hover  { background: rgba(201, 168, 76, 0.22); }
+.btn-save-preset:active { background: rgba(201, 168, 76, 0.35); }
+
+.presets-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0 8px;
+}
+
+.presets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.preset-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-section);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  transition: border-color var(--transition), background var(--transition);
+}
+.preset-item:hover {
+  background: var(--bg-hover);
+  border-color: rgba(201, 168, 76, 0.25);
+}
+
+.preset-item-name {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  user-select: none;
+}
+.preset-item-name:hover { color: var(--gold-light); }
+
+.preset-btn {
+  flex-shrink: 0;
+  width: 26px;
+  height: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition), color var(--transition);
+}
+.preset-btn-apply { background: rgba(201, 168, 76, 0.08); color: var(--gold); }
+.preset-btn-apply:hover { background: rgba(201, 168, 76, 0.22); color: var(--gold-light); }
+.preset-btn-delete { background: rgba(201, 76, 76, 0.08); color: var(--red); }
+.preset-btn-delete:hover { background: rgba(201, 76, 76, 0.22); }
+
+.presets-empty {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 10px 0;
+}
+
+/* ================================================================
+   ME Display Box — top-center overlay for nearby /me messages
+   Styled to match poodlechat's dark semitransparent aesthetic
+   ================================================================ */
+
+#mebox-root {
+  position: fixed;
+  top: 7%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40%;
+  max-width: 800px;
+  pointer-events: none;
+  z-index: 800;
+  opacity: 1;
+  transition: opacity 1s ease, width 0.25s ease;
+}
+
+#mebox-root.mebox-small  { width: 20%; max-width: 400px; }
+#mebox-root.mebox-normal { width: 30%; max-width: 600px; }
+#mebox-root.mebox-large  { width: 40%; max-width: 800px; }
+
+#mebox-root.mebox-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#mebox-root.mebox-fading {
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+
+#mebox-container {
+  background-color: rgba(34, 34, 34, 0.514);
+  border-radius: 5px;
+  padding: 6px 10px;
+  max-height: 16vh;
+  overflow-y: auto;
+  pointer-events: all;
+  font-family: 'Lato', 'Inter', sans-serif;
+  font-size: 1.55vh;
+  line-height: 1.5;
+  color: #ffffff;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+
+#mebox-container::-webkit-scrollbar            { width: 10px; }
+#mebox-container::-webkit-scrollbar-track      { background: rgba(0,0,0,0.2); border-radius: 5px; }
+#mebox-container::-webkit-scrollbar-thumb      { background: rgba(255,255,255,0.25); border-radius: 5px; min-height: 30px; }
+#mebox-container::-webkit-scrollbar-thumb:hover{ background: rgba(255,255,255,0.45); }
+
+.mebox-line {
+  padding: 2px 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.mebox-name {
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.mebox-text {
+  color: #ffffff;
+  font-style: italic;
+}
+
+.mebox-move-placeholder {
+  color: rgba(230, 218, 196, 0.6);
+  font-style: italic;
+  text-align: center;
+}
+
+/* ================================================================
+   UI THEMES — applied via <html class="theme-X">
+   Each theme overrides only the CSS custom properties that change.
+   Active theme is set from Config.uitheme in config.lua.
+   ================================================================ */
+
+/* ── Amber Frontier (Old West — default, no override needed) ────── */
+/* This is the default :root theme. No class override required.      */
+
+/* ── Steel Blue (Modern dark navy / steel blue) ─────────────────── */
+html.theme-steel-blue {
+  --gold:             #5b9bd5;
+  --gold-light:       #86bbf5;
+  --gold-dim:         #2d5e8a;
+  --amber:            #1e4a80;
+  --bg-panel:         rgba(8, 14, 24, 0.92);
+  --bg-section:       rgba(91, 155, 213, 0.04);
+  --bg-hover:         rgba(91, 155, 213, 0.10);
+  --bg-input:         rgba(255, 255, 255, 0.05);
+  --border:           rgba(91, 155, 213, 0.18);
+  --border-strong:    rgba(91, 155, 213, 0.42);
+  --text:             #d0e4f7;
+  --text-muted:       #5a7ea0;
+  --text-dim:         #2a4460;
+  --accent-tint:      rgba(91, 155, 213, 0.05);
+  --btn-text:         #060e1c;
+  --btn-shadow:       rgba(91, 155, 213, 0.28);
+  --btn-shadow-hover: rgba(91, 155, 213, 0.44);
+}
+
+/* ── Ivory Noir (Black & White — no colour tint) ─────────────────── */
+html.theme-ivory-noir {
+  --gold:             #dcdcdc;
+  --gold-light:       #ffffff;
+  --gold-dim:         #888888;
+  --amber:            #606060;
+  --bg-panel:         rgba(8, 8, 8, 0.93);
+  --bg-section:       rgba(255, 255, 255, 0.03);
+  --bg-hover:         rgba(255, 255, 255, 0.07);
+  --bg-input:         rgba(255, 255, 255, 0.05);
+  --border:           rgba(200, 200, 200, 0.14);
+  --border-strong:    rgba(200, 200, 200, 0.42);
+  --text:             #e0e0e0;
+  --text-muted:       #707070;
+  --text-dim:         #3e3e3e;
+  --accent-tint:      rgba(200, 200, 200, 0.04);
+  --btn-text:         #080808;
+  --btn-shadow:       rgba(200, 200, 200, 0.20);
+  --btn-shadow-hover: rgba(200, 200, 200, 0.35);
+}
+
+/* ── Lavender Dusk (Pastel purple / soft) ───────────────────────── */
+html.theme-lavender-dusk {
+  --gold:             #c4a0dc;
+  --gold-light:       #e0c0f5;
+  --gold-dim:         #7a5a90;
+  --amber:            #9a70b5;
+  --bg-panel:         rgba(18, 10, 26, 0.91);
+  --bg-section:       rgba(175, 140, 220, 0.04);
+  --bg-hover:         rgba(175, 140, 220, 0.10);
+  --bg-input:         rgba(255, 255, 255, 0.05);
+  --border:           rgba(175, 140, 220, 0.16);
+  --border-strong:    rgba(175, 140, 220, 0.40);
+  --text:             #ecdff7;
+  --text-muted:       #8a6fa0;
+  --text-dim:         #483360;
+  --accent-tint:      rgba(175, 140, 220, 0.05);
+  --btn-text:         #120820;
+  --btn-shadow:       rgba(175, 140, 220, 0.28);
+  --btn-shadow-hover: rgba(175, 140, 220, 0.44);
+}
+
+/* ── Crimson Dusk (Deep red / dramatic) ─────────────────────────── */
+html.theme-crimson-dusk {
+  --gold:             #c94c4c;
+  --gold-light:       #e87070;
+  --gold-dim:         #7a2828;
+  --amber:            #8c2424;
+  --bg-panel:         rgba(14, 5, 5, 0.93);
+  --bg-section:       rgba(200, 76, 76, 0.04);
+  --bg-hover:         rgba(200, 76, 76, 0.10);
+  --bg-input:         rgba(255, 255, 255, 0.05);
+  --border:           rgba(200, 76, 76, 0.18);
+  --border-strong:    rgba(200, 76, 76, 0.42);
+  --text:             #f5e0e0;
+  --text-muted:       #8a5050;
+  --text-dim:         #502626;
+  --accent-tint:      rgba(200, 76, 76, 0.05);
+  --btn-text:         #1e0404;
+  --btn-shadow:       rgba(200, 76, 76, 0.28);
+  --btn-shadow-hover: rgba(200, 76, 76, 0.44);
+}
+
+/* ── Emerald Ridge (Forest green / earthy) ──────────────────────── */
+html.theme-emerald-ridge {
+  --gold:             #5daa74;
+  --gold-light:       #86cc9e;
+  --gold-dim:         #2e6644;
+  --amber:            #247a48;
+  --bg-panel:         rgba(5, 12, 8, 0.93);
+  --bg-section:       rgba(80, 160, 100, 0.04);
+  --bg-hover:         rgba(80, 160, 100, 0.10);
+  --bg-input:         rgba(255, 255, 255, 0.05);
+  --border:           rgba(80, 160, 100, 0.18);
+  --border-strong:    rgba(80, 160, 100, 0.42);
+  --text:             #d4f0dc;
+  --text-muted:       #507a5e;
+  --text-dim:         #2a4a34;
+  --accent-tint:      rgba(80, 160, 100, 0.05);
+  --btn-text:         #041208;
+  --btn-shadow:       rgba(80, 160, 100, 0.28);
+  --btn-shadow-hover: rgba(80, 160, 100, 0.44);
+}

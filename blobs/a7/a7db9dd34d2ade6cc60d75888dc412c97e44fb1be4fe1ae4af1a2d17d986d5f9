@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scene Placer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div id="scene-root" class="hidden">
+
+    <!-- ── PHASE 1: Rich-text scene editor ── -->
+    <div id="scene-text-panel" class="panel hidden">
+      <header class="panel-header">
+        <span class="header-icon">✦</span>
+        <span class="header-title">Scene Editor</span>
+      </header>
+      <div class="panel-body">
+
+        <!-- Toolbar -->
+        <div id="editor-toolbar">
+          <select id="editor-font-size" title="Font size">
+            <option value="10">10</option>
+            <option value="12">12</option>
+            <option value="14">14</option>
+            <option value="16">16</option>
+            <option value="18">18</option>
+            <option value="20" selected>20</option>
+            <option value="22">22</option>
+            <option value="24">24</option>
+            <option value="26">26</option>
+            <option value="28">28</option>
+            <option value="30">30</option>
+            <option value="36">36</option>
+            <option value="40">40</option>
+            <option value="48">48</option>
+            <option value="60">60</option>
+            <option value="80">80</option>
+            <option value="100">100</option>
+          </select>
+
+          <div id="editor-colors">
+            <!-- Swatches populated dynamically from Config.sceneColors -->
+          </div>
+        </div>
+
+        <!-- Editable area -->
+        <div id="scene-text-input"
+             contenteditable="true"
+             spellcheck="false"
+             data-placeholder="Type your scene text…"
+        ></div>
+
+        <div class="btn-row">
+          <button id="btn-text-cancel"  class="btn-secondary">✕ Cancel</button>
+          <button id="btn-text-confirm" class="btn-primary">Confirm →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PHASE 2: Position editor ── -->
+    <div id="scene-position-panel" class="panel hidden">
+      <header class="panel-header">
+        <span class="header-icon">⊕</span>
+        <span class="header-title">Adjust Position</span>
+      </header>
+      <div class="panel-body">
+
+        <div class="scene-preview" id="scene-preview-text"></div>
+
+        <div class="axis-block">
+
+          <div class="axis-row">
+            <span class="axis-label">X</span>
+            <div class="cc-stepper" data-axis="x">
+              <button class="step-btn step-left">◄</button>
+              <input id="input-x" type="number" step="0.1" />
+              <button class="step-btn step-right">►</button>
+            </div>
+          </div>
+
+          <div class="axis-row">
+            <span class="axis-label">Y</span>
+            <div class="cc-stepper" data-axis="y">
+              <button class="step-btn step-left">◄</button>
+              <input id="input-y" type="number" step="0.1" />
+              <button class="step-btn step-right">►</button>
+            </div>
+          </div>
+
+          <div class="axis-row">
+            <span class="axis-label">Z</span>
+            <div class="cc-stepper" data-axis="z">
+              <button class="step-btn step-left">◄</button>
+              <input id="input-z" type="number" step="0.1" />
+              <button class="step-btn step-right">►</button>
+            </div>
+          </div>
+
+        </div><!-- /axis-block -->
+
+        <div class="hint-row">Scroll on a value or use ◄ ► to fine-tune</div>
+
+        <div class="btn-row">
+          <button id="btn-position-cancel" class="btn-secondary">✕ Cancel</button>
+          <button id="btn-position-place"  class="btn-primary">✓ Place</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /#scene-root -->
+
+  <!-- ── STATUS: Preset Manager (separate root, same bottom-right anchor) ── -->
+  <div id="status-root" class="hidden">
+    <div id="status-panel" class="panel">
+      <header class="panel-header">
+        <span class="header-icon">◈</span>
+        <span class="header-title">Set Status</span>
+      </header>
+      <div class="panel-body">
+        <label class="field-label">Status Text</label>
+
+        <!-- Status color toolbar -->
+        <div id="status-editor-toolbar" class="editor-toolbar">
+          <div id="status-editor-colors" class="editor-colors">
+            <!-- Swatches populated dynamically from Config.sceneColors -->
+          </div>
+        </div>
+
+        <!-- Editable area -->
+        <div id="status-text-input"
+             contenteditable="true"
+             spellcheck="false"
+             data-placeholder="Enter status text\u2026"
+        ></div>
+
+        <div class="preset-save-row">
+          <input id="status-name-input" type="text" class="name-input"
+            placeholder="Preset name (optional)…"
+            autocomplete="off" spellcheck="false" />
+          <button id="btn-status-save" class="btn-save-preset" title="Save preset">💾</button>
+        </div>
+
+        <div class="btn-row">
+          <button id="btn-status-cancel" class="btn-secondary">✕ Cancel</button>
+          <button id="btn-status-clear"  class="btn-secondary">■ Clear</button>
+          <button id="btn-status-apply"  class="btn-primary">▶ Apply</button>
+        </div>
+
+        <div class="presets-divider"></div>
+        <div class="field-label" style="margin-bottom:4px">Saved Presets</div>
+        <div id="status-presets-list" class="presets-list">
+          <div class="presets-empty">No saved presets</div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /#status-root -->
+
+  <!-- ── ME Display Box (top-center, below poodlechat input) ── -->
+  <div id="mebox-root" class="mebox-hidden">
+    <div id="mebox-container">
+      <div id="mebox-messages"></div>
+    </div>
+  </div>
+
+  <!-- Move-mode overlay for mebox repositioning -->
+  <div id="mebox-move-overlay" style="display:none; position:fixed; inset:0; z-index:9998; cursor:default;">
+    <div style="position:fixed; top:20px; left:50%; transform:translateX(-50%);
+                background:rgba(0,0,0,0.72); color:rgba(230,218,196,0.95);
+                padding:8px 20px; border-radius:6px; font-size:12px; font-weight:600;
+                letter-spacing:0.12em; text-transform:uppercase;
+                font-family:'Inter',system-ui,sans-serif;
+                pointer-events:none; white-space:nowrap;
+                text-shadow:0 1px 4px rgba(0,0,0,0.8);">
+      Drag me-box &bull; Press ESC to save &amp; exit
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,3 @@
+# Poggy update feed: poggy_core checks every file's size and SHA-256.
+# Never let git rewrite line endings or anything else in these files.
+* -text

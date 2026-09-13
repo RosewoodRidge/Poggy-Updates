@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Poggy Storage</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <!-- ==================================================================
+         List menu.  Replaces vorp_menu; the Lua shim feeds it the same
+         { title, subtext, elements[] } shape the old menus already used.
+         ================================================================== -->
+    <div id="menu" class="menu" hidden>
+        <div class="menu__frame">
+            <header class="menu__head">
+                <h1 id="menu-title" class="menu__title"></h1>
+                <p id="menu-subtext" class="menu__subtext"></p>
+            </header>
+
+            <ul id="menu-list" class="menu__list" role="listbox" aria-labelledby="menu-title"></ul>
+
+            <footer class="menu__foot">
+                <span><b>&uarr;&darr;</b> Move</span>
+                <span><b>Enter</b> Select</span>
+                <span><b>Esc</b> Back</span>
+            </footer>
+        </div>
+    </div>
+
+    <!-- ==================================================================
+         Text prompt.  Replaces the vorp_inputs dependency, which this
+         resource used without ever declaring it.
+         ================================================================== -->
+    <div id="prompt" class="prompt" hidden>
+        <form id="prompt-form" class="prompt__frame">
+            <h2 id="prompt-header" class="prompt__header"></h2>
+            <p id="prompt-hint" class="prompt__hint"></p>
+
+            <input id="prompt-input" class="prompt__input" type="text" autocomplete="off" spellcheck="false" />
+            <p id="prompt-error" class="prompt__error" hidden></p>
+
+            <div class="prompt__actions">
+                <button type="button" id="prompt-cancel" class="btn btn--ghost">Cancel</button>
+                <button type="submit" id="prompt-confirm" class="btn btn--gold">Confirm</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

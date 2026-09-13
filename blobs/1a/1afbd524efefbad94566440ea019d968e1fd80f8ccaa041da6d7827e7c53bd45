@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poggy Badge</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ── EDITOR PANEL (left side) ──────────────────────────────────── -->
+  <div id="editor-root" class="hidden">
+    <div class="editor-panel">
+      <div class="editor-header">
+        <span class="editor-title">Badge Editor</span>
+        <button id="btn-close" class="editor-close" title="Close">&times;</button>
+      </div>
+
+      <!-- Badge image preview -->
+      <div class="badge-preview">
+        <img id="badge-preview-img" src="" alt="">
+      </div>
+
+      <!-- Position sliders -->
+      <div class="section-label">Position (Offset)</div>
+      <div class="slider-group">
+        <div class="slider-row" data-key="oz" data-label="X" data-min="-0.25" data-max="0.25" data-step="0.001">
+          <span class="slider-label">X <small>(L/R)</small></span>
+          <input type="range" class="slider" min="-0.25" max="0.25" step="0.001" value="0">
+          <input type="number" class="slider-val" step="0.001" value="0">
+        </div>
+        <div class="slider-row" data-key="oy" data-label="Y" data-min="-0.25" data-max="0.25" data-step="0.001">
+          <span class="slider-label">Y <small>(fwd)</small></span>
+          <input type="range" class="slider" min="-0.25" max="0.25" step="0.001" value="0">
+          <input type="number" class="slider-val" step="0.001" value="0">
+        </div>
+        <div class="slider-row" data-key="ox" data-label="Z" data-min="-0.25" data-max="0.25" data-step="0.001">
+          <span class="slider-label">Z <small>(up/dn)</small></span>
+          <input type="range" class="slider" min="-0.25" max="0.25" step="0.001" value="0">
+          <input type="number" class="slider-val" step="0.001" value="0">
+        </div>
+      </div>
+
+      <!-- Rotation sliders -->
+      <div class="section-label">Rotation</div>
+      <div class="slider-group">
+        <div class="slider-row" data-key="rx" data-label="Pitch" data-min="-180" data-max="180" data-step="0.25">
+          <span class="slider-label">Pitch</span>
+          <input type="range" class="slider" min="-180" max="180" step="0.25" value="0">
+          <input type="number" class="slider-val" step="0.25" value="0">
+        </div>
+        <div class="slider-row" data-key="ry" data-label="Roll" data-min="-180" data-max="180" data-step="0.25">
+          <span class="slider-label">Roll</span>
+          <input type="range" class="slider" min="-180" max="180" step="0.25" value="0">
+          <input type="number" class="slider-val" step="0.25" value="0">
+        </div>
+        <div class="slider-row" data-key="rz" data-label="Yaw" data-min="-180" data-max="180" data-step="0.25">
+          <span class="slider-label">Yaw</span>
+          <input type="range" class="slider" min="-180" max="180" step="0.25" value="0">
+          <input type="number" class="slider-val" step="0.25" value="0">
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="editor-actions">
+        <button id="btn-show" class="btn btn-show">Show Badge</button>
+        <button id="btn-toggle-attach" class="btn btn-attach">Attach</button>
+      </div>
+
+      <!-- Presets -->
+      <div class="section-label">Presets</div>
+      <div class="preset-save-row">
+        <input type="text" id="preset-name" placeholder="Preset name…" maxlength="32">
+        <button id="btn-save-preset" class="btn btn-small">Save</button>
+      </div>
+      <div id="preset-list" class="preset-list">
+        <div class="presets-empty">No saved presets</div>
+      </div>
+
+      <!-- Bone selector -->
+      <div class="section-label">Attachment Bone</div>
+      <div class="bone-select-row">
+        <select id="bone-select" class="bone-select">
+          <option value="SKEL_Spine5">Collar / Upper Chest</option>
+          <option value="SKEL_Spine4">Upper Chest</option>
+          <option value="SKEL_Spine3">Mid Chest (Heart)</option>
+          <option value="SKEL_Spine2">Lower Chest</option>
+          <option value="SKEL_Spine1">Stomach</option>
+          <option value="SKEL_Spine0">Waist / Belt</option>
+          <option value="SKEL_SpineRoot">Pelvis / Hip</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BADGE DISPLAY (bottom-right flash to nearby players) ──── -->
+  <div id="badge-display" class="badge-display hidden">
+    <p id="badge-server" class="badge-text"></p>
+    <div id="badge-image"></div>
+    <p id="badge-name" class="badge-text"></p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

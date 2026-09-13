@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poggy Transform</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app" class="hidden">
+        <!-- Glass container -->
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-glow"></div>
+                <div class="header-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+                        <path d="M8 10c0-1 .5-2 2-2.5S13 7 13 8.5c0 1.5-1 2-1 3"/>
+                        <circle cx="12" cy="15" r="0.5" fill="currentColor"/>
+                    </svg>
+                </div>
+                <h1 class="title">SHAPESHIFTER</h1>
+                <p class="subtitle">Choose your form</p>
+                <div class="header-line"></div>
+            </div>
+
+            <!-- Revert button (shown when transformed) -->
+            <div id="revertSection" class="revert-section hidden">
+                <button class="revert-btn" id="revertBtn">
+                    <span class="revert-icon">↩</span>
+                    <span>Revert to Human</span>
+                </button>
+            </div>
+
+            <!-- Custom Ped Input (admin only) -->
+            <div id="customPedSection" class="custom-ped-section hidden">
+                <div class="custom-ped-label">⚡ Custom Ped Model</div>
+                <div class="custom-ped-row">
+                    <input type="text" id="customPedInput" placeholder="Enter any ped model name... (e.g. A_C_Wolf)" autocomplete="off" spellcheck="false">
+                    <button id="customPedBtn" class="custom-ped-btn">Transform</button>
+                </div>
+            </div>
+
+            <!-- Category Tabs -->
+            <div class="tabs" id="categoryTabs">
+                <!-- Tabs injected by JS -->
+            </div>
+
+            <!-- Search -->
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search by name..." autocomplete="off" spellcheck="false">
+            </div>
+
+            <!-- Animal Grid -->
+            <div class="grid" id="animalGrid">
+                <!-- Cards injected by JS -->
+            </div>
+
+            <!-- Close hint -->
+            <div class="close-hint">
+                <kbd>ESC</kbd> to close
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         Animal Emote Picker
+         Opened via /ae with no arguments while transformed as an animal.
+         ================================================================ -->
+    <div id="emote-menu" class="hidden">
+        <div class="emote-container">
+
+            <!-- Animal identity header -->
+            <div class="emote-header">
+                <div class="emote-animal-img-wrap" id="emote-img-wrap">
+                    <img id="emote-animal-img" src="" alt=""
+                         onerror="this.style.display='none'; document.getElementById('emote-animal-fallback').style.display='flex';">
+                    <div id="emote-animal-fallback" class="emote-fallback-icon">🐾</div>
+                </div>
+                <div class="emote-animal-info">
+                    <div class="emote-animal-name" id="emote-animal-name">Animal</div>
+                    <div class="emote-animal-sub">EMOTES</div>
+                </div>
+            </div>
+
+            <div class="emote-divider"></div>
+
+            <!-- Emote buttons — injected by script.js -->
+            <div class="emote-list" id="emote-list"></div>
+
+            <!-- Stop / cancel current looping emote -->
+            <button class="emote-stop-btn" id="emote-stop-btn">⏹ Stop Emote</button>
+
+            <!-- Close hint -->
+            <div class="emote-hint">
+                <kbd>ESC</kbd> close &nbsp;·&nbsp; <kbd>Backspace</kbd> cancel emote in-game
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en" style="background:transparent !important;background-color:transparent !important;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auction House</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="background:transparent !important;background-color:transparent !important;">
+    <!-- ================================================================ -->
+    <!-- MAIN AUCTION HOUSE CONTAINER                                     -->
+    <!-- ================================================================ -->
+    <div id="auction-container" class="container hidden">
+        <div class="auction-header">
+            <h1 id="auction-title">AUCTION HOUSE</h1>
+            <button id="btn-close" class="btn-close">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11 3L3 11M3 3l8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+        </div>
+
+        <!-- Tab Bar -->
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="browse">Browse</button>
+            <button class="tab-btn" data-tab="sell">Sell</button>
+            <button class="tab-btn" data-tab="myauctions">My Auctions</button>
+            <button class="tab-btn" data-tab="mybids">My Bids</button>
+            <button class="tab-btn" data-tab="mailbox">Mailbox</button>
+            <button class="tab-btn" data-tab="catalogue">Order Catalogue</button>
+            <button class="tab-btn" data-tab="requests">Want Requests</button>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- BROWSE TAB                                                   -->
+        <!-- ============================================================ -->
+        <div id="tab-browse" class="tab-content active">
+            <div class="browse-layout">
+                <!-- Category Sidebar -->
+                <div class="category-sidebar">
+                    <div id="category-list" class="category-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Main Listings Area -->
+                <div class="listings-area">
+                    <!-- Search & Sort Bar -->
+                    <div class="search-bar">
+                        <input type="text" id="search-input" class="input-field" placeholder="Search items...">
+                        <select id="sort-select" class="input-field sort-select">
+                            <option value="time_asc">Time: Ending Soon</option>
+                            <option value="time_desc">Time: Newest</option>
+                            <option value="price_asc">Price: Low to High</option>
+                            <option value="price_desc">Price: High to Low</option>
+                            <option value="name">Name: A to Z</option>
+                        </select>
+                        <button id="btn-search" class="btn-action">Search</button>
+                    </div>
+
+                    <!-- Listings Table -->
+                    <div class="listings-table-wrapper">
+                        <table class="listings-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-item">Item</th>
+                                    <th class="col-qty">Qty</th>
+                                    <th class="col-bid">Current Bid</th>
+                                    <th class="col-buyout">Buyout</th>
+                                    <th class="col-time">Time Left</th>
+                                    <th class="col-seller">Seller</th>
+                                    <th class="col-bids">Bids</th>
+                                    <th class="col-actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listings-tbody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination">
+                        <span id="listings-count" class="listings-count">0 listings</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- SELL TAB                                                     -->
+        <!-- ============================================================ -->
+        <div id="tab-sell" class="tab-content">
+            <div class="sell-layout">
+                <!-- Inventory Panel -->
+                <div class="inventory-panel">
+                    <h3 class="panel-title">Your Inventory</h3>
+                    <div class="inventory-search-wrapper">
+                        <input type="text" id="inventory-search" class="input-field" placeholder="Search inventory...">
+                    </div>
+                    <div id="inventory-list" class="inventory-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Listing Form -->
+                <div class="listing-form-panel">
+                    <div class="listing-form hidden">
+                        <h3 class="panel-title">List This Item</h3>
+                        <div class="selected-item-preview">
+                            <span class="item-preview-name"></span>
+                            <span class="item-preview-count"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <input type="number" id="sell-quantity" class="input-field" min="1" value="1">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Starting Price Per Piece ($)</label>
+                            <input type="number" id="sell-starting-price" class="input-field" min="0.50" step="0.50" value="" placeholder="Price per item">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Buyout Price Per Piece ($) <span class="optional">(optional)</span></label>
+                            <input type="number" id="sell-buyout-price" class="input-field" min="0" step="0.50" value="" placeholder="Buyout per item">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Duration</label>
+                            <select id="sell-duration" class="input-field">
+                                <!-- Populated by JS from config -->
+                            </select>
+                        </div>
+
+                        <div class="fee-breakdown">
+                            <h4>Listing Summary</h4>
+                            <div class="fee-row fee-row-total" id="fee-total-row">
+                                <span>Total Listing Price:</span>
+                                <span id="fee-total">$0.00</span>
+                            </div>
+                            <div class="fee-row fee-row-total" id="fee-buyout-total-row" style="display:none">
+                                <span>Total Buyout Price:</span>
+                                <span id="fee-buyout-total">$0.00</span>
+                            </div>
+                            <div class="fee-row">
+                                <span>Deposit:</span>
+                                <span id="fee-deposit">$0.00</span>
+                            </div>
+                            <div class="fee-row">
+                                <span>Est. Sales Tax:</span>
+                                <span id="fee-tax">~$0.00</span>
+                            </div>
+                        </div>
+
+                        <button id="btn-create-listing" class="btn-submit">LIST ITEM</button>
+                        <button id="btn-cancel-form" class="btn-cancel-form">CANCEL</button>
+                    </div>
+
+                    <div class="form-placeholder">
+                        <p>Select an item from your inventory to list.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- MY AUCTIONS TAB                                              -->
+        <!-- ============================================================ -->
+        <div id="tab-myauctions" class="tab-content">
+            <div class="myauctions-wrapper">
+                <table class="listings-table">
+                    <thead>
+                        <tr>
+                            <th class="col-item">Item</th>
+                            <th class="col-qty">Qty</th>
+                            <th class="col-bid">Current Bid</th>
+                            <th class="col-buyout">Buyout</th>
+                            <th class="col-time">Time Left</th>
+                            <th class="col-status">Status</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myauctions-tbody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- MY BIDS TAB                                                  -->
+        <!-- ============================================================ -->
+        <div id="tab-mybids" class="tab-content">
+            <div class="myauctions-wrapper">
+                <table class="listings-table">
+                    <thead>
+                        <tr>
+                            <th class="col-item">Item</th>
+                            <th class="col-qty">Qty</th>
+                            <th class="col-bid">Your Bid</th>
+                            <th class="col-bid">Current Bid</th>
+                            <th class="col-buyout">Buyout</th>
+                            <th class="col-time">Time Left</th>
+                            <th class="col-seller">Seller</th>
+                            <th class="col-status">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mybids-tbody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- MAILBOX TAB                                                  -->
+        <!-- ============================================================ -->
+        <div id="tab-mailbox" class="tab-content">
+            <div class="mailbox-header">
+                <h3 class="panel-title">Mailbox</h3>
+                <button id="btn-collect-all" class="btn-action hidden">Collect All</button>
+            </div>
+            <div class="mailbox-wrapper">
+                <div id="mailbox-list" class="mailbox-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+    <!-- ================================================================ -->
+    <!-- BID MODAL                                                        -->
+    <!-- ================================================================ -->
+    <div id="bid-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h2>Place Bid</h2>
+            <p class="modal-item-name"></p>
+            <div class="modal-form-group">
+                <label>Current Bid: <span id="bid-current">$0.00</span></label>
+            </div>
+            <div class="modal-form-group">
+                <label>Minimum Bid: <span id="bid-minimum">$0.00</span></label>
+            </div>
+            <div class="modal-form-group">
+                <label for="bid-amount">Your Bid ($)</label>
+                <input type="number" id="bid-amount" class="input-field" step="0.50">
+            </div>
+            <div class="modal-actions">
+                <button id="btn-confirm-bid" class="btn-submit">PLACE BID</button>
+                <button class="btn-cancel-form modal-close">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- BUYOUT CONFIRMATION MODAL                                        -->
+    <!-- ================================================================ -->
+    <div id="buyout-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h2>Confirm Purchase</h2>
+            <p class="modal-item-name"></p>
+            <p id="buyout-price" class="modal-detail"></p>
+            <div class="modal-actions">
+                <button id="btn-confirm-buyout" class="btn-submit">BUY NOW</button>
+                <button class="btn-cancel-form modal-close">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- CANCEL CONFIRMATION MODAL                                        -->
+    <!-- ================================================================ -->
+    <div id="cancel-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h2>Cancel Listing</h2>
+            <p class="modal-item-name"></p>
+            <p class="modal-detail">Are you sure you want to cancel this listing?</p>
+            <div class="modal-actions">
+                <button id="btn-confirm-cancel" class="btn-submit btn-danger">CONFIRM CANCEL</button>
+                <button class="btn-cancel-form modal-close">GO BACK</button>
+            </div>
+        </div>
+    </div>
+
+        <!-- ============================================================ -->
+        <!-- CATALOGUE TAB                                               -->
+        <!-- ============================================================ -->
+        <div id="tab-catalogue" class="tab-content">
+            <div class="catalogue-layout">
+
+                <!-- Left Sidebar: Filters -->
+                <div class="catalogue-sidebar">
+                    <div class="sidebar-section">
+                        <h4 class="sidebar-title">Source</h4>
+                        <div id="catalogue-category-list" class="filter-list">
+                            <button class="filter-btn active" data-category="all">All Items</button>
+                            <button class="filter-btn" data-category="lumberjacking">🪵 Lumberjacking</button>
+                            <button class="filter-btn" data-category="mining">⛏️ Mining</button>
+                            <button class="filter-btn" data-category="farming">🌾 Farming</button>
+                            <button class="filter-btn" data-category="hunting">🦌 Hunting</button>
+                            <button class="filter-btn" data-category="fishing">🎣 Fishing</button>
+                            <button class="filter-btn" data-category="crafted">⚒️ Crafted</button>
+                        </div>
+                    </div>
+                    <div class="sidebar-section">
+                        <button id="btn-my-orders" class="btn-action btn-full">📦 My Orders</button>
+                    </div>
+                </div>
+
+                <!-- Main Grid Area -->
+                <div class="catalogue-main">
+
+                    <!-- Catalogue browse view (shown by default) -->
+                    <div id="catalogue-view" class="catalogue-view">
+                        <div class="catalogue-search-bar">
+                            <input type="text" id="catalogue-search" class="input-field" placeholder="Search catalog...">
+                        </div>
+                        <div id="catalogue-grid" class="catalogue-grid">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Orders view (shown when My Orders is clicked) -->
+                    <div id="orders-view" class="orders-view hidden">
+                        <div class="orders-view-header">
+                            <span class="orders-view-title">📦 My Orders</span>
+                            <button id="btn-back-catalogue" class="btn-action btn-sm">← Back to Catalogue</button>
+                        </div>
+                        <div id="orders-list" class="orders-scroll">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- REQUESTS TAB                                                 -->
+        <!-- ============================================================ -->
+        <div id="tab-requests" class="tab-content">
+            <div class="requests-subnav">
+                <button class="subnav-btn active" data-panel="browse-requests">Browse Requests</button>
+                <button class="subnav-btn" data-panel="post-request">Post a Request</button>
+                <button class="subnav-btn" data-panel="my-requests">My Requests</button>
+            </div>
+
+            <!-- Browse Requests Panel -->
+            <div id="panel-browse-requests" class="requests-panel active">
+                <div class="requests-search-bar">
+                    <div class="requests-search-inner">
+                        <input type="text" id="requests-search" class="input-field" placeholder="Search by item name...">
+                        <select id="requests-sort" class="input-field sort-select">
+                            <option value="newest">Newest First</option>
+                            <option value="price_desc">Pay: High to Low</option>
+                            <option value="price_asc">Pay: Low to High</option>
+                            <option value="time_asc">Expiring Soon</option>
+                            <option value="name">Name: A to Z</option>
+                        </select>
+                        <button id="btn-search-requests" class="btn-action">Search</button>
+                    </div>
+                </div>
+                <div class="listings-table-wrapper">
+                    <table class="listings-table requests-table">
+                        <thead>
+                            <tr>
+                                <th class="col-req-img"></th>
+                                <th class="col-item">Item</th>
+                                <th class="col-qty">Qty Left</th>
+                                <th class="col-bid">Pay/Unit</th>
+                                <th class="col-bid">Escrow</th>
+                                <th class="col-seller">Posted By</th>
+                                <th class="col-time">Expires</th>
+                                <th class="col-actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requests-tbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Post Request Panel -->
+            <div id="panel-post-request" class="requests-panel">
+                <div class="post-request-form">
+                    <h3 class="panel-title">Post a Want Request</h3>
+                    <p class="panel-subtitle">Search for the item you want. Other players can sell from their inventory to fill your request.</p>
+
+                    <!-- Step 1: Item Search -->
+                    <div id="req-search-step">
+                        <div class="form-group">
+                            <label>Search for an Item</label>
+                            <div class="req-item-search-bar">
+                                <input type="text" id="req-item-search" class="input-field" placeholder="Type item name…" autocomplete="off">
+                                <button id="btn-req-search" class="btn-action">Search</button>
+                            </div>
+                        </div>
+                        <div id="req-item-results" class="req-item-results hidden">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Selected item preview + form (hidden until item chosen) -->
+                    <div id="req-form-step" class="hidden">
+                        <div class="req-selected-item" id="req-selected-preview">
+                            <!-- Populated by JS -->
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Quantity Wanted</label>
+                                <input type="number" id="req-quantity" class="input-field" min="1" value="1">
+                            </div>
+                            <div class="form-group">
+                                <label>Price per Unit ($)</label>
+                                <input type="number" id="req-price" class="input-field" min="0.01" step="0.01" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Duration</label>
+                            <select id="req-duration" class="input-field">
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                        <div class="fee-breakdown">
+                            <h4>Escrow Summary</h4>
+                            <div class="fee-row">
+                                <span>Escrow Required:</span>
+                                <span id="req-escrow">$0.00</span>
+                            </div>
+                            <div class="fee-row subtle">
+                                <span>Seller Tax (deducted from seller):</span>
+                                <span id="req-seller-tax">8%</span>
+                            </div>
+                        </div>
+                        <div class="req-form-actions">
+                            <button id="btn-req-change-item" class="btn-action btn-sm">← Change Item</button>
+                            <button id="btn-submit-request" class="btn-submit">POST REQUEST</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Requests Panel -->
+            <div id="panel-my-requests" class="requests-panel">
+                <div class="listings-table-wrapper">
+                    <table class="listings-table requests-table">
+                        <thead>
+                            <tr>
+                                <th class="col-item">Item</th>
+                                <th class="col-qty">Qty</th>
+                                <th class="col-qty">Filled</th>
+                                <th class="col-bid">Pay/Unit</th>
+                                <th class="col-bid">Escrow Left</th>
+                                <th class="col-time">Expires</th>
+                                <th class="col-status">Status</th>
+                                <th class="col-actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="my-requests-tbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </div><!-- end #auction-app -->
+
+    <!-- ================================================================ -->
+    <!-- ORDER MODAL (Shipment Catalog)                                   -->
+    <!-- ================================================================ -->
+    <div id="order-modal" class="modal-overlay hidden">
+        <div class="modal-box modal-order">
+            <div class="modal-order-header">
+                <img id="order-modal-img" class="modal-item-img" src="" alt="">
+                <div>
+                    <h2 id="order-modal-name">Item Name</h2>
+                    <p id="order-modal-company" class="modal-company-badge"></p>
+                </div>
+            </div>
+            <p id="order-modal-desc" class="modal-desc"></p>
+            <div class="modal-form-group">
+                <label for="order-qty">Quantity</label>
+                <input type="number" id="order-qty" class="input-field" min="1" value="1">
+            </div>
+            <div class="modal-form-group" id="order-shop-group">
+                <label for="order-shop-id">Deliver to Shop ID <span style="font-size:11px;opacity:0.6">(optional — leave empty for mailbox)</span></label>
+                <input type="number" id="order-shop-id" class="input-field" min="0" value="" placeholder="e.g. 5">
+            </div>
+            <div class="fee-breakdown">
+                <div class="fee-row">
+                    <span>Price per unit:</span>
+                    <span id="order-price-unit">$0.00</span>
+                </div>
+                <div class="fee-row">
+                    <span>Subtotal:</span>
+                    <span id="order-subtotal">$0.00</span>
+                </div>
+                <div class="fee-row">
+                    <span>Shipping &amp; Handling:</span>
+                    <span id="order-shipping">$0.00</span>
+                </div>
+                <div class="fee-row fee-total">
+                    <span>Order Total:</span>
+                    <span id="order-total">$0.00</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-confirm-order" class="btn-submit">PLACE ORDER</button>
+                <button class="btn-cancel-form modal-close">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- FULFILL MODAL (Requests)                                         -->
+    <!-- ================================================================ -->
+    <div id="fulfill-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h2>Fulfill Request</h2>
+            <p id="fulfill-item-name" class="modal-item-name"></p>
+            <p id="fulfill-requester" class="modal-detail"></p>
+            <div class="modal-form-group">
+                <label>Quantity to Sell (max: <span id="fulfill-max-qty">0</span>)</label>
+                <input type="number" id="fulfill-qty" class="input-field" min="1" value="1">
+            </div>
+            <div class="fee-breakdown">
+                <div class="fee-row">
+                    <span>Pay per unit:</span>
+                    <span id="fulfill-pay-unit">$0.00</span>
+                </div>
+                <div class="fee-row">
+                    <span>Gross Pay:</span>
+                    <span id="fulfill-gross">$0.00</span>
+                </div>
+                <div class="fee-row">
+                    <span>Seller Tax:</span>
+                    <span id="fulfill-tax">$0.00</span>
+                </div>
+                <div class="fee-row fee-total">
+                    <span>You Receive:</span>
+                    <span id="fulfill-net">$0.00</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-confirm-fulfill" class="btn-submit">SELL ITEMS</button>
+                <button class="btn-cancel-form modal-close">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

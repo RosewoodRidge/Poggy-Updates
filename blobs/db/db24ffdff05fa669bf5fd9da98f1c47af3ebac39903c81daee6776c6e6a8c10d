@@ -1,0 +1,830 @@
+/* ============================================================================
+   Poggy Transform — Web 3.0 Glassmorphism UI
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cinzel:wght@400;600;700&display=swap');
+
+/* ---- Reset ---- */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --accent: #a78bfa;
+    --accent-glow: rgba(167, 139, 250, 0.4);
+    --accent-bright: #c4b5fd;
+    --danger: #f87171;
+    --danger-glow: rgba(248, 113, 113, 0.3);
+    --glass-bg: rgba(15, 10, 30, 0.65);
+    --glass-border: rgba(167, 139, 250, 0.15);
+    --glass-hover: rgba(167, 139, 250, 0.08);
+    --text-primary: #f1f0f5;
+    --text-secondary: rgba(241, 240, 245, 0.55);
+    --card-bg: rgba(20, 15, 40, 0.5);
+    --card-border: rgba(167, 139, 250, 0.12);
+    --aggressive-accent: #ef4444;
+    --aggressive-glow: rgba(239, 68, 68, 0.3);
+    --passive-accent: #34d399;
+    --passive-glow: rgba(52, 211, 153, 0.3);
+    --legendary-accent: #f59e0b;
+    --legendary-glow: rgba(245, 158, 11, 0.35);
+    --people-accent: #60a5fa;
+    --people-glow: rgba(96, 165, 250, 0.3);
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: transparent;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-primary);
+    user-select: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ---- Particle BG (disabled for performance) ---- */
+.bg-particles {
+    display: none;
+}
+
+/* ---- App wrapper ---- */
+#app {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: scale(1); }
+    to   { opacity: 0; transform: scale(0.96); }
+}
+
+.app-closing {
+    animation: fadeOut 0.25s ease-in forwards;
+}
+
+/* ---- Container ---- */
+.container {
+    position: relative;
+    width: 920px;
+    max-height: 85vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+
+    box-shadow:
+        0 0 80px rgba(167, 139, 250, 0.08),
+        0 25px 60px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    padding: 36px 32px 28px;
+    z-index: 1;
+}
+
+/* Scrollbar */
+.container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.container::-webkit-scrollbar-thumb {
+    background: rgba(167, 139, 250, 0.25);
+    border-radius: 3px;
+}
+
+.container::-webkit-scrollbar-thumb:hover {
+    background: rgba(167, 139, 250, 0.4);
+}
+
+/* ---- Header ---- */
+.header {
+    text-align: center;
+    margin-bottom: 28px;
+    position: relative;
+}
+
+.header-glow {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 120px;
+    background: radial-gradient(ellipse, var(--accent-glow), transparent 70%);
+    pointer-events: none;
+    filter: blur(30px);
+}
+
+.header-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 12px;
+    color: var(--accent);
+    opacity: 0.9;
+}
+
+.header-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.title {
+    font-family: 'Cinzel', serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 6px;
+    background: linear-gradient(135deg, var(--accent-bright) 0%, var(--accent) 50%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+}
+
+.subtitle {
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--text-secondary);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.header-line {
+    margin-top: 20px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--glass-border), var(--accent-glow), var(--glass-border), transparent);
+}
+
+/* ---- Revert Section ---- */
+.revert-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.revert-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 14px;
+    color: var(--danger);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.revert-btn:hover {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(239, 68, 68, 0.1));
+    border-color: rgba(239, 68, 68, 0.5);
+    box-shadow: 0 0 15px var(--danger-glow);
+}
+
+.revert-btn:active {
+    transform: translateY(0);
+}
+
+.revert-icon {
+    font-size: 18px;
+}
+
+/* ---- Animal Grid ---- */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 16px;
+}
+
+/* ---- Animal Card ---- */
+.animal-card {
+    position: relative;
+    border-radius: 18px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.animal-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.animal-card:active {
+    opacity: 0.8;
+}
+
+/* Aggressive glow on hover */
+.animal-card.aggressive:hover {
+    border-color: var(--aggressive-accent);
+    box-shadow: 0 0 20px var(--aggressive-glow);
+}
+
+/* Passive glow on hover */
+.animal-card.passive:hover {
+    border-color: var(--passive-accent);
+    box-shadow: 0 0 20px var(--passive-glow);
+}
+
+/* Card image area */
+.card-image {
+    width: 100%;
+    height: 140px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(30, 20, 60, 0.8), rgba(15, 10, 30, 0.9));
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.85;
+}
+
+.animal-card:hover .card-image img {
+    opacity: 1;
+}
+
+/* Fallback icon when no image */
+.card-image .fallback-icon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    opacity: 0.3;
+}
+
+/* Aggressive badge */
+.badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    z-index: 2;
+}
+
+.badge.aggressive {
+    background: rgba(239, 68, 68, 0.25);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+
+.badge.passive {
+    background: rgba(52, 211, 153, 0.2);
+    border: 1px solid rgba(52, 211, 153, 0.35);
+    color: #6ee7b7;
+}
+
+/* Card body */
+.card-body {
+    padding: 14px 16px 16px;
+    text-align: center;
+}
+
+.card-name {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.card-model {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+    font-family: 'Inter', monospace;
+}
+
+/* Shimmer effect — disabled for performance */
+
+/* ---- Category Tabs ---- */
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(167, 139, 250, 0.08);
+}
+
+.tab {
+    padding: 8px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(167, 139, 250, 0.12);
+    background: rgba(20, 15, 40, 0.4);
+    color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tab:hover {
+    background: var(--glass-hover);
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.tab.active {
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.18), rgba(167, 139, 250, 0.06));
+    border-color: var(--accent);
+    color: var(--accent-bright);
+    box-shadow: 0 0 20px rgba(167, 139, 250, 0.1);
+}
+
+.tab .tab-icon {
+    font-size: 14px;
+}
+
+.tab .tab-count {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    background: rgba(167, 139, 250, 0.12);
+    color: var(--text-secondary);
+    margin-left: 2px;
+}
+
+.tab.active .tab-count {
+    background: rgba(167, 139, 250, 0.25);
+    color: var(--accent-bright);
+}
+
+/* ---- Search Bar ---- */
+.search-bar {
+    margin-bottom: 16px;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    background: rgba(20, 15, 40, 0.4);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+.search-bar input::placeholder {
+    color: var(--text-secondary);
+}
+
+.search-bar input:focus {
+    border-color: var(--accent);
+    background: rgba(20, 15, 40, 0.6);
+    box-shadow: 0 0 20px rgba(167, 139, 250, 0.1);
+}
+
+/* ---- Legendary Card ---- */
+.animal-card.legendary {
+    border-color: rgba(245, 158, 11, 0.25);
+    background: linear-gradient(135deg, rgba(40, 25, 10, 0.6), var(--card-bg));
+}
+
+.animal-card.legendary:hover {
+    border-color: var(--legendary-accent);
+    box-shadow: 0 0 25px var(--legendary-glow);
+}
+
+.animal-card.legendary .card-name {
+    background: linear-gradient(135deg, #ffd700, #f59e0b, #d97706);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.animal-card.legendary .badge.legendary-badge {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.15));
+    border: 1px solid rgba(245, 158, 11, 0.5);
+    color: #fcd34d;
+}
+
+/* Legendary shimmer — disabled for performance */
+
+/* Legendary star — static */
+.badge.legendary-badge .star {
+    text-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+}
+
+/* ---- People Card ---- */
+.animal-card.people-card {
+    border-color: rgba(96, 165, 250, 0.2);
+}
+
+.animal-card.people-card:hover {
+    border-color: var(--people-accent);
+    box-shadow: 0 0 20px var(--people-glow);
+}
+
+.badge.people-badge {
+    background: rgba(96, 165, 250, 0.2);
+    border: 1px solid rgba(96, 165, 250, 0.35);
+    color: #93c5fd;
+}
+
+/* ---- Custom Ped Section ---- */
+.custom-ped-section {
+    margin-bottom: 20px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    background: rgba(20, 15, 40, 0.4);
+}
+
+.custom-ped-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+}
+
+.custom-ped-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.custom-ped-row input {
+    flex: 1;
+    padding: 9px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    background: rgba(20, 15, 40, 0.5);
+    color: var(--text-primary);
+    font-family: 'Inter', monospace;
+    font-size: 12px;
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+.custom-ped-row input::placeholder {
+    color: var(--text-secondary);
+}
+
+.custom-ped-row input:focus {
+    border-color: var(--accent);
+    background: rgba(20, 15, 40, 0.7);
+    box-shadow: 0 0 16px rgba(167, 139, 250, 0.1);
+}
+
+.custom-ped-btn {
+    padding: 9px 20px;
+    border-radius: 10px;
+    border: 1px solid rgba(167, 139, 250, 0.35);
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.18), rgba(167, 139, 250, 0.06));
+    color: var(--accent-bright);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.custom-ped-btn:hover {
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.3), rgba(167, 139, 250, 0.12));
+    border-color: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.custom-ped-btn:active {
+    transform: translateY(0);
+}
+
+/* ---- Close hint ---- */
+.close-hint {
+    text-align: center;
+    margin-top: 24px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+.close-hint kbd {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    border-radius: 6px;
+    background: rgba(167, 139, 250, 0.08);
+    font-family: 'Inter', monospace;
+    font-size: 11px;
+    color: var(--accent-bright);
+    margin-right: 4px;
+}
+
+/* ---- Card entrance: single grid fade ---- */
+.grid {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* ---- No animals message ---- */
+.no-animals {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 960px) {
+    .container {
+        width: 92vw;
+    }
+}
+
+/* ============================================================================
+   Player Skin Cards
+   ============================================================================ */
+
+/* Badge */
+.badge.player-badge {
+    background: rgba(167, 139, 250, 0.18);
+    border: 1px solid rgba(167, 139, 250, 0.4);
+    color: var(--accent-bright);
+}
+
+/* Card hover accent — reuse people-card glow with accent purple */
+.animal-card.player-skin-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+/* Avatar circle showing character initials */
+.player-skin-avatar {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent-bright);
+    background: radial-gradient(ellipse at center, rgba(167, 139, 250, 0.12) 0%, transparent 75%);
+    text-shadow: 0 0 20px var(--accent-glow);
+    user-select: none;
+}
+
+/* ============================================================================
+   Animal Emote Picker  (#emote-menu)
+   A compact panel shown via /ae (no arguments) while transformed as an animal.
+   ============================================================================ */
+
+#emote-menu {
+    position: fixed;
+    top: 50%;
+    left: 40px;
+    transform: translateY(-50%);
+    z-index: 20;
+    animation: emoteMenuIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes emoteMenuIn {
+    from { opacity: 0; transform: translateY(-50%) translateX(-20px); }
+    to   { opacity: 1; transform: translateY(-50%) translateX(0);     }
+}
+
+@keyframes emoteMenuOut {
+    from { opacity: 1; transform: translateY(-50%) translateX(0);     }
+    to   { opacity: 0; transform: translateY(-50%) translateX(-20px); }
+}
+
+#emote-menu.emote-closing {
+    animation: emoteMenuOut 0.2s ease-in forwards;
+}
+
+.emote-container {
+    width: 290px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow:
+        0 0 60px rgba(167, 139, 250, 0.08),
+        0 20px 50px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    padding: 22px 18px 14px;
+    overflow: hidden;
+}
+
+/* --- Header (animal image + name) --- */
+.emote-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.emote-animal-img-wrap {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    border: 2px solid var(--glass-border);
+    overflow: hidden;
+    flex-shrink: 0;
+    background: rgba(167, 139, 250, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.emote-animal-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.emote-fallback-icon {
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.emote-animal-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.emote-animal-name {
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent-bright);
+    letter-spacing: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.emote-animal-sub {
+    font-size: 9px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 3px;
+}
+
+/* --- Divider --- */
+.emote-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--glass-border), var(--accent-glow), var(--glass-border), transparent);
+    margin-bottom: 12px;
+}
+
+/* --- Emote button list --- */
+.emote-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.emote-list::-webkit-scrollbar { width: 4px; }
+.emote-list::-webkit-scrollbar-track { background: transparent; }
+.emote-list::-webkit-scrollbar-thumb {
+    background: rgba(167, 139, 250, 0.25);
+    border-radius: 2px;
+}
+
+.emote-btn {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.emote-btn:hover {
+    background: rgba(167, 139, 250, 0.1);
+    border-color: var(--accent);
+    color: var(--accent-bright);
+    transform: translateX(4px);
+}
+
+.emote-btn:active {
+    opacity: 0.75;
+    transform: translateX(4px);
+}
+
+.emote-loop-tag {
+    font-size: 10px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    padding: 1px 6px;
+    border-radius: 6px;
+    background: rgba(167, 139, 250, 0.08);
+    border: 1px solid rgba(167, 139, 250, 0.12);
+}
+
+/* --- Stop button --- */
+.emote-stop-btn {
+    width: 100%;
+    padding: 9px;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(239, 68, 68, 0.05));
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: 10px;
+    color: var(--danger);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+    letter-spacing: 0.3px;
+}
+
+.emote-stop-btn:hover {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.22), rgba(239, 68, 68, 0.1));
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+/* --- Hint row --- */
+.emote-hint {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-secondary);
+    opacity: 0.65;
+    line-height: 1.6;
+}
+
+.emote-hint kbd {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 9px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+}
+

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Progress Bar</title>
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      background: transparent;
+      overflow: hidden;
+      pointer-events: none;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    /* ── Outer wrapper ── centered at bottom of screen */
+    #wrapper {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 360px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 9px;
+
+      opacity: 0;
+      transition: opacity 180ms ease;
+    }
+    #wrapper.visible {
+      opacity: 1;
+    }
+
+    /* ── Label ── */
+    #label {
+      color: rgba(230, 218, 196, 0.95);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-shadow:
+        0 1px 6px rgba(0, 0, 0, 0.9),
+        0 0 20px rgba(0, 0, 0, 0.6);
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    /* ── Track ── */
+    #track {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+        0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    /* ── Fill ── */
+    #fill {
+      position: absolute;
+      inset: 0;
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(
+        90deg,
+        #a07840 0%,
+        #d4a85a 35%,
+        #f0d48a 55%,
+        #d4a85a 75%,
+        #a07840 100%
+      );
+      background-size: 250% 100%;
+      animation: shimmer 2s linear infinite;
+    }
+
+    /* ── Glow dot at leading edge ── */
+    #fill::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #f5e0a0;
+      box-shadow:
+        0 0 6px 2px rgba(240, 210, 130, 0.9),
+        0 0 14px 4px rgba(200, 160, 80, 0.5);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+    #wrapper.visible #fill::after {
+      opacity: 1;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 250% 0; }
+      100% { background-position: -250% 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="wrapper">
+    <div id="label">Searching...</div>
+    <div id="track">
+      <div id="fill"></div>
+    </div>
+  </div>
+
+  <script>
+    const wrapper = document.getElementById('wrapper');
+    const fill    = document.getElementById('fill');
+    const label   = document.getElementById('label');
+
+    let hideTimer   = null;
+    let isVisible   = false;
+
+    function show(duration, text) {
+      // Reset any pending hide
+      if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+
+      label.textContent = text || 'Searching...';
+
+      // Snap fill back to 0 without transition, then animate
+      fill.style.transition = 'none';
+      fill.style.width = '0%';
+      void fill.offsetWidth; // force reflow
+
+      fill.style.transition = `width ${duration}ms linear`;
+      fill.style.width = '100%';
+
+      wrapper.classList.add('visible');
+      isVisible = true;
+
+      // Auto-hide 250 ms after bar completes so it fades out cleanly
+      hideTimer = setTimeout(() => hide(), duration + 250);
+    }
+
+    function hide() {
+      wrapper.classList.remove('visible');
+      isVisible = false;
+      // Reset fill after the fade-out transition (180 ms)
+      setTimeout(() => {
+        fill.style.transition = 'none';
+        fill.style.width = '0%';
+      }, 200);
+      if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+    }
+
+    window.addEventListener('message', function (e) {
+      const d = e.data;
+      if (!d || !d.type) return;
+
+      if (d.type === 'showProgress') {
+        show(d.duration || 5000, d.label);
+      } else if (d.type === 'hideProgress') {
+        hide();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+/* ============================================================
+   poggy_skillcheck  |  skillcheck.css
+   DBD-style circular skillcheck – pure CSS (no PNG assets).
+   ============================================================ */
+
+#skillcheck-wrapper {
+    display: none;
+    position: fixed;
+    z-index: 20000;
+    pointer-events: none;
+    width: 160px;
+    height: 160px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* heavy opaque shadow — tight spread, minimal blur for hard contrast */
+    filter: drop-shadow(0 0 4px rgba(0,0,0,0.95))
+            drop-shadow(0 0 10px rgba(0,0,0,0.92))
+            drop-shadow(0 0 20px rgba(0,0,0,0.85))
+            drop-shadow(0 2px 6px rgba(0,0,0,0.95));
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+
+#skillcheck-wrapper.active {
+    display: block;
+    opacity: 1;
+}
+
+#skillcheck-wrapper.fade-out {
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+#skillcheck-wrapper.shaking {
+    /* shake animation applied via JS transform */
+}
+
+/* ── The main ring (canvas draws arcs + needle) ─────────────── */
+#skillcheck-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* ── Key prompt label centered inside the ring ──────────────── */
+#skillcheck-key {
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.72);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 5px;
+    padding: 4px 14px;
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* ── Streak counter ─────────────────────────────────────────── */
+#skillcheck-streak {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.7);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+}
+
+/* ── Flash overlays for hit feedback ────────────────────────── */
+#skillcheck-flash {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+#skillcheck-flash.flash-good {
+    box-shadow: inset 0 0 40px rgba(255,255,255,0.3);
+    opacity: 1;
+}
+#skillcheck-flash.flash-great {
+    box-shadow: inset 0 0 40px rgba(255,215,0,0.4);
+    opacity: 1;
+}
+#skillcheck-flash.flash-fail {
+    box-shadow: inset 0 0 60px rgba(255,30,30,0.55);
+    opacity: 1;
+}
+
+/* Red tint overlay that covers the whole circle on auto-fail */
+#skillcheck-fail-tint {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(180,20,20,0.35) 0%, rgba(120,10,10,0.18) 70%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.12s ease;
+}
+#skillcheck-fail-tint.visible {
+    opacity: 1;
+}
