@@ -1,0 +1,607 @@
+---------------------------------------------------------------------------
+--  ScenePlayer  —  RedM scene playback runtime
+--  (animation clips back-to-back + props attached to the ped, with
+--   keyframed position/rotation and in/out visibility ranges)
+--
+--  This exact file powers Poggy AnimTool's preview AND is what the tool
+--  exports for use in other resources.  Drop it in your client scripts
+--  (before the script that uses it) and:
+--
+--      local player = ScenePlayer.new(PlayerPedId())
+--      player:load(scene)          -- scene table exported from AnimTool
+--      player:play()
+--      ...
+--      player:destroy()            -- stops the anim and deletes the props
+--
+--  Callbacks (optional):
+--      player.onFinish     = function() end
+--      player.onClipChange = function(sceneClipIndex) end
+--      player.onPropError  = function(id, model, reason) end
+--
+--  Scene format (all times in seconds, project-relative):
+--    {
+--      duration = 7.25, loop = false,
+--      clips = { { dict, clip, duration, trimIn, trimOut, hold }, ... },
+--      props = { { id, model, bone, parent, scale, inTime, outTime,
+--                  pos = {x,y,z}, rot = {x,y,z},
+--                  keyframes = { { t, pos = {x,y,z}, rot = {x,y,z}, ease }, ... } }, ... },
+--    }
+---------------------------------------------------------------------------
+
+ScenePlayer = {}
+ScenePlayer.__index = ScenePlayer
+
+local DEFAULT_BONE   = "PH_R_Hand"
+local DRIFT_EPS      = 0.05    -- anim ratio drift before we hard-resync
+local ATTACH_EPS     = 0.0005
+local ANIM_RETRY_MS  = 400
+
+-- ── small helpers ────────────────────────────────────────────────────
+local function clamp(v, lo, hi)
+    if v < lo then return lo elseif v > hi then return hi end
+    return v
+end
+
+--- Nudge a rotation value off whole numbers (engine resets axes on integers)
+local function safeRot(v)
+    if v == math.floor(v) then return v + 0.1 end
+    return v
+end
+
+local function lerp(a, b, t) return a + (b - a) * t end
+
+--- Shortest-arc angle interpolation (degrees)
+local function lerpAngle(a, b, t)
+    local d = (b - a) % 360.0
+    if d > 180.0 then d = d - 360.0 end
+    return a + d * t
+end
+
+local function ease(kind, u)
+    if kind == "smooth" then return u * u * (3.0 - 2.0 * u) end
+    if kind == "in"     then return u * u end
+    if kind == "out"    then return 1.0 - (1.0 - u) * (1.0 - u) end
+    if kind == "hold"   then return 0.0 end
+    return u
+end
+
+local function v3(t)
+    if type(t) ~= "table" then return { x = 0.0, y = 0.0, z = 0.0 } end
+    return { x = (t.x or 0.0) + 0.0, y = (t.y or 0.0) + 0.0, z = (t.z or 0.0) + 0.0 }
+end
+
+local function loadDict(dict, timeout)
+    if HasAnimDictLoaded(dict) then return true end
+    RequestAnimDict(dict)
+    local t = timeout or 5000
+    while not HasAnimDictLoaded(dict) and t > 0 do
+        Wait(50); t = t - 50
+    end
+    return HasAnimDictLoaded(dict)
+end
+
+local function loadModel(model, timeout)
+    local hash = type(model) == "number" and model or GetHashKey(model)
+    if IsModelValid and not IsModelValid(hash) then return false, hash end
+    if HasModelLoaded(hash) then return true, hash end
+    RequestModel(hash)
+    local t = timeout or 5000
+    while not HasModelLoaded(hash) and t > 0 do
+        Wait(50); t = t - 50
+    end
+    return HasModelLoaded(hash), hash
+end
+
+ScenePlayer.loadDict  = loadDict
+ScenePlayer.loadModel = loadModel
+
+--- Native anim duration (seconds). nil if the dict failed to load, 0 if unknown.
+function ScenePlayer.getAnimDuration(dict, clip)
+    if not loadDict(dict) then return nil end
+    local d = GetAnimDuration(dict, clip)
+    if type(d) ~= "number" or d ~= d then return 0.0 end
+    return d
+end
+
+-- ═════════════════════════════════════════════════════════════════════
+--  CONSTRUCTOR
+-- ═════════════════════════════════════════════════════════════════════
+function ScenePlayer.new(ped)
+    local self = setmetatable({}, ScenePlayer)
+    self.ped        = ped or PlayerPedId()
+    self.scene      = nil
+    self.clips      = {}       -- laid-out clips
+    self.total      = 0.0
+    self.props      = {}       -- [id] = runtime prop record
+    self.propOrder  = {}       -- ids sorted parents-first
+    self.time       = 0.0
+    self.playing    = false
+    self.speed      = 1.0
+    self.loop       = false
+    self.armed      = false    -- false = idle (no anim on ped) until play/seek
+    self.suspended  = false    -- true while something else owns the ped's anim (editor preview)
+    self.curClip    = nil      -- index into self.clips
+    self.curPhase   = nil
+    self.curDict    = nil
+    self.curAnim    = nil
+    self.appliedSpeed = nil
+    self.needSync   = true
+    self.lastAnimReq = 0
+    self.alive      = true
+    self.onFinish     = nil
+    self.onClipChange = nil
+    self.onPropError  = nil
+
+    local last = GetGameTimer()
+    Citizen.CreateThread(function()
+        while self.alive do
+            local now = GetGameTimer()
+            local dt  = (now - last) / 1000.0
+            last = now
+            if dt > 0.25 then dt = 0.25 end
+            self:tick(dt)
+            Wait(0)
+        end
+    end)
+    return self
+end
+
+-- ═════════════════════════════════════════════════════════════════════
+--  SCENE LAYOUT
+-- ═════════════════════════════════════════════════════════════════════
+function ScenePlayer:_layout()
+    self.clips = {}
+    local t = 0.0
+    for i, c in ipairs(self.scene.clips or {}) do
+        local dur     = tonumber(c.duration) or 0.0
+        local trimIn  = clamp(tonumber(c.trimIn) or 0.0, 0.0, dur)
+        local trimOut = clamp(tonumber(c.trimOut) or dur, trimIn, dur)
+        local hold    = math.max(0.0, tonumber(c.hold) or 0.0)
+        local animLen = trimOut - trimIn
+        local len     = animLen + hold
+        if c.dict and c.clip and c.enabled ~= false and dur > 0.0005 and len > 0.0005 then
+            self.clips[#self.clips + 1] = {
+                dict = c.dict, clip = c.clip, duration = dur,
+                trimIn = trimIn, trimOut = trimOut, hold = hold,
+                animLen = animLen, start = t, length = len, index = i,
+            }
+            t = t + len
+        end
+    end
+    self.total = t
+end
+
+function ScenePlayer:_clipAt(t)
+    local n = #self.clips
+    if n == 0 then return nil, nil end
+    for i = n, 1, -1 do
+        local c = self.clips[i]
+        if t >= c.start then return i, c end
+    end
+    return 1, self.clips[1]
+end
+
+--- Anim ratio (0-1) and phase ("anim" | "hold") for a clip at project time t
+function ScenePlayer:_ratioFor(c, t)
+    local localT = clamp(t - c.start, 0.0, c.length)
+    local phase  = "anim"
+    if localT >= c.animLen then localT = c.animLen; phase = "hold" end
+    if c.duration <= 0 then return 0.0, phase end
+    return clamp((c.trimIn + localT) / c.duration, 0.0, 1.0), phase
+end
+
+-- ═════════════════════════════════════════════════════════════════════
+--  ANIMATION
+-- ═════════════════════════════════════════════════════════════════════
+function ScenePlayer:_clearAnim()
+    if self.curDict then
+        StopAnimTask(self.ped, self.curDict, self.curAnim, 1.0)
+    end
+    self.curDict, self.curAnim = nil, nil
+    self.curClip, self.curPhase = nil, nil
+    self.appliedSpeed = nil
+end
+
+--- Make sure the clip's anim task is on the ped. Returns true when active.
+function ScenePlayer:_ensureAnim(c)
+    if IsEntityPlayingAnim(self.ped, c.dict, c.clip, 3) then return true end
+    local now = GetGameTimer()
+    if now - self.lastAnimReq < ANIM_RETRY_MS then return false end
+    self.lastAnimReq = now
+    if not loadDict(c.dict) then return false end
+    -- flag 1 = loop so the anim never drops out while scrubbing/holding;
+    -- the master clock decides when to move on to the next clip.
+    TaskPlayAnim(self.ped, c.dict, c.clip, 8.0, -8.0, -1, 1, 0, false, false, false, "", false)
+    self.appliedSpeed = nil
+    return false
+end
+
+function ScenePlayer:_applyAnim()
+    if self.suspended then return end
+    if not self.armed then
+        if self.curDict then self:_clearAnim() end
+        return
+    end
+    local idx, c = self:_clipAt(self.time)
+    if not c then
+        if self.curDict then self:_clearAnim() end
+        return
+    end
+
+    local ratio, phase = self:_ratioFor(c, self.time)
+
+    if idx ~= self.curClip then
+        -- Different clip block. If the dict/clip is the same as what is on the ped
+        -- (same anim twice in a row) we just re-seek instead of restarting the task.
+        self.curClip  = idx
+        self.curDict  = c.dict
+        self.curAnim  = c.clip
+        self.needSync = true
+        self.lastAnimReq = 0
+        if self.onClipChange then self.onClipChange(c.index) end
+    end
+    if phase ~= self.curPhase then
+        self.curPhase = phase
+        self.needSync = true
+    end
+
+    if not self:_ensureAnim(c) then
+        self.needSync = true
+        return
+    end
+
+    local wantSpeed = (self.playing and phase == "anim") and self.speed or 0.0
+    if wantSpeed ~= self.appliedSpeed then
+        SetEntityAnimSpeed(self.ped, c.dict, c.clip, wantSpeed)
+        self.appliedSpeed = wantSpeed
+    end
+
+    if self.needSync then
+        SetEntityAnimCurrentTime(self.ped, c.dict, c.clip, ratio)
+        self.needSync = false
+    elseif self.playing and phase == "anim" then
+        -- Drift correction: the master clock is authoritative.
+        local actual = GetEntityAnimCurrentTime(self.ped, c.dict, c.clip)
+        if type(actual) == "number" and ratio < 0.95 and actual < 0.95
+           and math.abs(actual - ratio) > DRIFT_EPS then
+            SetEntityAnimCurrentTime(self.ped, c.dict, c.clip, ratio)
+        end
+    end
+end
+
+-- ═════════════════════════════════════════════════════════════════════
+--  PROPS
+-- ═════════════════════════════════════════════════════════════════════
+function ScenePlayer:_spawnProp(id, model)
+    local ok, hash = loadModel(model)
+    if not ok then
+        if self.onPropError then self.onPropError(id, model, "Model failed to load: " .. tostring(model)) end
+        return nil
+    end
+    local coords = GetEntityCoords(self.ped)
+    local entity = CreateObject(hash, coords.x, coords.y, coords.z, false, false, false, false, false)
+    SetModelAsNoLongerNeeded(hash)
+    if not entity or not DoesEntityExist(entity) then
+        if self.onPropError then self.onPropError(id, model, "CreateObject failed: " .. tostring(model)) end
+        return nil
+    end
+    local p = {
+        id = id, model = model, entity = entity,
+        bone = DEFAULT_BONE, boneIdx = GetEntityBoneIndexByName(self.ped, DEFAULT_BONE),
+        parent = nil, scale = 1.0, visible = true,
+        curPos = nil, curRot = nil, attachedTo = nil, attachedBone = nil,
+        hard = true, def = nil,
+    }
+    self.props[id] = p
+    return p
+end
+
+function ScenePlayer:_deleteProp(id)
+    local p = self.props[id]
+    if not p then return end
+    if DoesEntityExist(p.entity) then
+        DetachEntity(p.entity, false, false)
+        DeleteEntity(p.entity)
+    end
+    self.props[id] = nil
+end
+
+--- Depth in the parent chain (0 = attached to ped). Cycles resolve to 0.
+function ScenePlayer:_propDepth(p)
+    local depth, cur, seen = 0, p, {}
+    while cur and cur.parent do
+        if seen[cur.id] then return 0 end
+        seen[cur.id] = true
+        local parent = self.props[cur.parent]
+        if not parent then break end
+        depth = depth + 1
+        if depth > 16 then return 0 end
+        cur = parent
+    end
+    return depth
+end
+
+function ScenePlayer:_reconcileProps()
+    local seen = {}
+    for _, def in ipairs(self.scene.props or {}) do
+        local id = def.id
+        if id ~= nil and def.model and def.enabled ~= false then
+            seen[id] = true
+            local p = self.props[id]
+            if p and p.model ~= def.model then self:_deleteProp(id); p = nil end
+            if not p then p = self:_spawnProp(id, def.model) end
+            if p then
+                local bone = def.bone or DEFAULT_BONE
+                if p.bone ~= bone then
+                    p.bone, p.boneIdx = bone, GetEntityBoneIndexByName(self.ped, bone)
+                    p.hard = true
+                end
+                local parent = def.parent
+                if parent == 0 or parent == id then parent = nil end
+                if p.parent ~= parent then p.parent = parent; p.hard = true end
+                local sc = tonumber(def.scale) or 1.0
+                if math.abs(p.scale - sc) > 0.0005 then
+                    p.scale = sc
+                    Citizen.InvokeNative(0xC3544AD0522E69B4, p.entity, sc + 0.0) -- _SET_ENTITY_SCALE
+                end
+                -- Normalise def once so per-tick evaluation is cheap
+                local kfs = {}
+                for _, kf in ipairs(def.keyframes or {}) do
+                    kfs[#kfs + 1] = { t = (tonumber(kf.t) or 0.0) + 0.0, pos = v3(kf.pos), rot = v3(kf.rot), ease = kf.ease or "linear" }
+                end
+                table.sort(kfs, function(a, b) return a.t < b.t end)
+                p.def = {
+                    pos = v3(def.pos), rot = v3(def.rot),
+                    inTime = (tonumber(def.inTime) or 0.0) + 0.0,
+                    outTime = tonumber(def.outTime),   -- nil => until end
+                    keyframes = kfs,
+                }
+            end
+        end
+    end
+    for id in pairs(self.props) do
+        if not seen[id] then self:_deleteProp(id) end
+    end
+    -- parents-first order
+    local ids = {}
+    for id in pairs(self.props) do ids[#ids + 1] = id end
+    table.sort(ids, function(a, b)
+        local da, db = self:_propDepth(self.props[a]), self:_propDepth(self.props[b])
+        if da ~= db then return da < db end
+        return tostring(a) < tostring(b)
+    end)
+    self.propOrder = ids
+end
+
+--- Evaluate keyframed transform at time t. Returns x,y,z, rx,ry,rz
+function ScenePlayer:_evalTransform(def, t)
+    local kfs = def.keyframes
+    local n = #kfs
+    if n == 0 then
+        return def.pos.x, def.pos.y, def.pos.z, def.rot.x, def.rot.y, def.rot.z
+    end
+    if t <= kfs[1].t or n == 1 then
+        local k = kfs[1]
+        return k.pos.x, k.pos.y, k.pos.z, k.rot.x, k.rot.y, k.rot.z
+    end
+    if t >= kfs[n].t then
+        local k = kfs[n]
+        return k.pos.x, k.pos.y, k.pos.z, k.rot.x, k.rot.y, k.rot.z
+    end
+    for i = 1, n - 1 do
+        local a, b = kfs[i], kfs[i + 1]
+        if t >= a.t and t <= b.t then
+            local span = b.t - a.t
+            local u = span > 0.0 and (t - a.t) / span or 1.0
+            u = ease(a.ease, u)
+            return lerp(a.pos.x, b.pos.x, u), lerp(a.pos.y, b.pos.y, u), lerp(a.pos.z, b.pos.z, u),
+                   lerpAngle(a.rot.x, b.rot.x, u), lerpAngle(a.rot.y, b.rot.y, u), lerpAngle(a.rot.z, b.rot.z, u)
+        end
+    end
+    local k = kfs[n]
+    return k.pos.x, k.pos.y, k.pos.z, k.rot.x, k.rot.y, k.rot.z
+end
+
+function ScenePlayer:_attachTarget(p)
+    if p.parent then
+        local parent = self.props[p.parent]
+        if parent and DoesEntityExist(parent.entity) and self:_propDepth(p) > 0 then
+            return parent.entity, 0
+        end
+    end
+    return self.ped, p.boneIdx
+end
+
+function ScenePlayer:_attach(p, target, boneIdx, x, y, z, rx, ry, rz, hard)
+    if hard then
+        FreezeEntityPosition(p.entity, true)
+        SetEntityAlpha(p.entity, 0)
+        SetEntityVisible(p.entity, false)
+    end
+    DetachEntity(p.entity, false, false)
+    AttachEntityToEntity(
+        p.entity, target, boneIdx,
+        x, y, z, safeRot(rx), safeRot(ry), safeRot(rz),
+        false, false, false, true, 2, true, false, false
+    )
+    if hard then
+        FreezeEntityPosition(p.entity, false)
+        SetEntityAlpha(p.entity, 255)
+        SetEntityVisible(p.entity, p.visible)
+    end
+    p.attachedTo, p.attachedBone = target, boneIdx
+end
+
+function ScenePlayer:_applyProps(force)
+    local t = self.time
+    for _, id in ipairs(self.propOrder) do
+        local p = self.props[id]
+        if p and p.def and DoesEntityExist(p.entity) then
+            local def = p.def
+            -- visibility range
+            local outT = def.outTime
+            if outT == nil or outT < 0 then outT = self.total end
+            local vis = true
+            if self.total > 0.0 then
+                vis = (t >= def.inTime - 0.0005) and (t <= outT + 0.0005)
+            end
+            if vis ~= p.visible then
+                p.visible = vis
+                SetEntityVisible(p.entity, vis)
+            end
+
+            local x, y, z, rx, ry, rz = self:_evalTransform(def, t)
+            local target, boneIdx = self:_attachTarget(p)
+            local targetChanged = (target ~= p.attachedTo) or (boneIdx ~= p.attachedBone)
+            local moved = (not p.curPos)
+                or math.abs(x - p.curPos.x) > ATTACH_EPS or math.abs(y - p.curPos.y) > ATTACH_EPS or math.abs(z - p.curPos.z) > ATTACH_EPS
+                or math.abs(rx - p.curRot.x) > ATTACH_EPS or math.abs(ry - p.curRot.y) > ATTACH_EPS or math.abs(rz - p.curRot.z) > ATTACH_EPS
+            if force or p.hard or targetChanged or moved then
+                p.curPos = { x = x, y = y, z = z }
+                p.curRot = { x = rx, y = ry, z = rz }
+                self:_attach(p, target, boneIdx, x, y, z, rx, ry, rz, p.hard or targetChanged)
+                p.hard = false
+            end
+        end
+    end
+end
+
+-- ═════════════════════════════════════════════════════════════════════
+--  TICK
+-- ═════════════════════════════════════════════════════════════════════
+function ScenePlayer:tick(dt)
+    if not self.scene then return end
+    if self.playing then
+        self.time = self.time + dt * self.speed
+        if self.time >= self.total then
+            if self.loop and self.total > 0.0 then
+                self.time = self.time - self.total
+                if self.time < 0 or self.time >= self.total then self.time = 0.0 end
+                self.curClip  = nil
+                self.needSync = true
+            else
+                self.time     = self.total
+                self.playing  = false
+                self.needSync = true
+                if self.onFinish then self.onFinish() end
+            end
+        end
+    end
+    self:_applyAnim()
+    self:_applyProps(false)
+end
+
+-- ═════════════════════════════════════════════════════════════════════
+--  PUBLIC API
+-- ═════════════════════════════════════════════════════════════════════
+
+--- Load (or hot-reload) a scene. Props are reconciled in place, the anim is re-synced.
+function ScenePlayer:load(scene)
+    self.scene = scene or { clips = {}, props = {} }
+    if self.scene.loop ~= nil then self.loop = self.scene.loop and true or false end
+    self:_layout()
+    if self.time > self.total then self.time = self.total end
+    if self.time < 0 then self.time = 0.0 end
+    self:_reconcileProps()
+    self.curClip  = nil
+    self.needSync = true
+    self:_applyAnim()
+    self:_applyProps(true)
+end
+
+function ScenePlayer:play()
+    if self.total <= 0.0 then return false end
+    if self.time >= self.total - 0.0005 then self.time = 0.0; self.curClip = nil end
+    self.armed    = true
+    self.playing  = true
+    self.needSync = true
+    return true
+end
+
+function ScenePlayer:pause()
+    self.playing  = false
+    self.needSync = true
+end
+
+function ScenePlayer:seek(t)
+    self.time     = clamp(tonumber(t) or 0.0, 0.0, self.total)
+    self.armed    = true
+    self.needSync = true
+    self:_applyAnim()
+    self:_applyProps(false)
+end
+
+--- Stop playback, rewind and take the anim off the ped (props stay).
+function ScenePlayer:stop()
+    self.playing = false
+    self.time    = 0.0
+    self.armed   = false
+    self:_clearAnim()
+    self:_applyProps(false)
+end
+
+function ScenePlayer:setSpeed(s)
+    self.speed = clamp(tonumber(s) or 1.0, 0.05, 4.0)
+    self.appliedSpeed = nil
+end
+
+function ScenePlayer:setLoop(b) self.loop = b and true or false end
+
+--- Suspend/resume anim control (props keep updating). Used by the editor
+--- while previewing a single clip outside the project clock.
+function ScenePlayer:suspend(on)
+    on = on and true or false
+    if self.suspended == on then return end
+    self.suspended = on
+    if on then
+        self.playing = false
+        self.curDict, self.curAnim, self.curClip, self.curPhase = nil, nil, nil, nil
+        self.appliedSpeed = nil
+    else
+        self.needSync = true
+        self.lastAnimReq = 0
+        if self.armed then self:_applyAnim() end
+    end
+end
+function ScenePlayer:getTime() return self.time end
+function ScenePlayer:getDuration() return self.total end
+function ScenePlayer:isPlaying() return self.playing end
+function ScenePlayer:isArmed() return self.armed end
+function ScenePlayer:getProps() return self.props end
+
+--- Scene clip index (1-based, into scene.clips) currently on the ped, or nil
+function ScenePlayer:getClipIndex()
+    local c = self.curClip and self.clips[self.curClip]
+    return c and c.index or nil
+end
+
+function ScenePlayer:findPropByEntity(entity)
+    for id, p in pairs(self.props) do
+        if p.entity == entity then return id, p end
+    end
+    return nil
+end
+
+--- Stop everything and delete all props. The player is unusable afterwards.
+function ScenePlayer:destroy()
+    self.alive   = false
+    self.playing = false
+    self:_clearAnim()
+    for id in pairs(self.props) do self:_deleteProp(id) end
+    self.props, self.propOrder = {}, {}
+end
+
+--- Convenience: play a scene once on a ped and clean up when it finishes.
+--- Returns the player (call :destroy() early to abort).
+function ScenePlayer.playOnce(ped, scene, onDone)
+    local player = ScenePlayer.new(ped)
+    player.onFinish = function()
+        Citizen.SetTimeout(0, function()
+            player:destroy()
+            if onDone then onDone() end
+        end)
+    end
+    player:load(scene)
+    player:play()
+    return player
+end
