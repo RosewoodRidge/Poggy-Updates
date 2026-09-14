@@ -1,0 +1,712 @@
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Crimson+Pro:wght@400;500;600;700&display=swap');
+
+/* ============================================================================
+   poggy_markets — "leather" skin
+   ----------------------------------------------------------------------------
+   Stitched leather and parchment, in the style of the game's own satchel.
+   Loaded on top of manager.css and exchange.css when Config.UI.skin is
+   "leather".  Every rule is scoped to html[data-skin="leather"].
+
+   The images sit beside this file in ui/css.  (A new folder would stop the
+   updater on customer servers until the owner created it by hand.)  Every
+   image is optional: each rule also sets a plain colour, so a missing file
+   costs only that one piece its texture.
+
+   Image                          Size        Slice (px in the image)
+   -----------------------------  ----------  -------------------------------
+   skin-leather-panel.png         444 x 444   32 on every side
+   skin-leather-texture.png       356 x 356   tiles (cut from the panel)
+   skin-leather-texture-dark.png  356 x 356   tiles
+   skin-leather-header.png        946 x 310   full width, pinned to its bottom
+   skin-leather-footer.png        927 x 181   full width, pinned to its bottom
+   skin-leather-stitch.png        512 x 26    one row, repeated
+   skin-leather-slot.png          216 x 216   stretched to the slot
+   skin-leather-button.png        469 x 120   26 on every side
+   skin-leather-input.png         496 x 85    26 top, 25 sides, 18 bottom
+   skin-leather-round.png         128 x 128   stretched to the button
+   skin-leather-parchment.png     704 x 465   40 on every side
+
+   The PNGs are made from the source art by tools/build-markets-skin.py.
+   If a new image's border is thicker or thinner, change the matching
+   --lx-* value below rather than the rules.
+   ============================================================================ */
+
+html[data-skin="leather"] {
+    /* Palette: the base stylesheets read these, so most of the interface
+       follows without a rule of its own. */
+    --bg-primary:    #2a1d15;
+    --bg-secondary:  #241912;
+    --bg-tertiary:   #150f0a;
+    --bg-elevated:   #231811;
+    --bg-hover:      rgba(217, 169, 78, 0.08);
+    --bg-active:     rgba(217, 169, 78, 0.14);
+
+    --border-primary:   rgba(217, 169, 78, 0.12);
+    --border-secondary: rgba(217, 169, 78, 0.22);
+    --border-accent:    rgba(217, 169, 78, 0.45);
+
+    --text-primary:   #efe1c6;
+    --text-secondary: #c9b28e;
+    --text-muted:     #9a8566;
+    --text-accent:    #e8c27a;
+
+    --accent:        #d9a94e;
+    --accent-hover:  #ecc277;
+    --accent-glow:   rgba(217, 169, 78, 0.18);
+    --accent-bg:     rgba(217, 169, 78, 0.10);
+
+    --green:         #8cc862;
+    --green-bg:      rgba(140, 200, 98, 0.10);
+    --green-border:  rgba(140, 200, 98, 0.28);
+    --orange:        #e0a340;
+    --orange-bg:     rgba(224, 163, 64, 0.10);
+    --orange-border: rgba(224, 163, 64, 0.28);
+    --red:           #e06a57;
+    --red-bg:        rgba(224, 106, 87, 0.12);
+    --red-border:    rgba(224, 106, 87, 0.30);
+    --yellow:        #e5c04f;
+
+    --radius-sm: 2px;
+    --radius-md: 3px;
+    --radius-lg: 4px;
+
+    --font-body:    'Crimson Pro', Georgia, 'Times New Roman', serif;
+    --font-heading: 'IM Fell English SC', Georgia, 'Times New Roman', serif;
+
+    /* Skin measurements.  On-screen sizes; slices are in image pixels. */
+    --lx-frame:        30px;   /* width of the stitched panel frame */
+    --lx-frame-slice:  32;
+    --lx-frame-repeat: stretch; /* round repeats the edge instead; seams show on this art */
+    --lx-texture:      356px;  /* size of one background tile */
+    --lx-stitch:       10px;   /* height of a stitched divider */
+    --lx-stitch-slice: 26;
+    --lx-header:       150px;  /* shop header height; the flap is pinned to its bottom */
+    --lx-slot:         100px;  /* grid slot size in the shop */
+    --lx-icon:         70px;   /* item icon inside a slot (the slot's opening) */
+    --lx-grid-cols:    7;
+    --lx-footer:       168px;  /* the pocket under the shop: 860 x 181 / 927 */
+
+    --lx-ink:        #2b1d12;  /* text on parchment and tan buttons */
+    --lx-field-text: #efe1c6;  /* text in input fields */
+}
+
+html[data-skin="leather"] body { font-size: 15px; }
+
+/* ============================================================================
+   PANELS — stitched frame around leather
+   The frame is drawn from the image's border only; the middle of the panel
+   is the tiling texture, so a big panel never shows a stretched image.
+   ============================================================================ */
+
+html[data-skin="leather"] #customer-container,
+html[data-skin="leather"] #manager-container,
+html[data-skin="leather"] .ex-modal {
+    border-style: solid;
+    border-width: var(--lx-frame);
+    border-color: #3b2a1c;
+    border-image-source: url('skin-leather-panel.png');
+    border-image-slice: var(--lx-frame-slice);
+    border-image-width: var(--lx-frame);
+    border-image-repeat: var(--lx-frame-repeat);
+    border-radius: 0;
+    background: var(--bg-primary) url('skin-leather-texture.png') 0 0 / var(--lx-texture) repeat;
+    background-clip: padding-box;
+    background-origin: padding-box;
+    /* A box-shadow, never filter: drop-shadow.  A filter on the panel makes
+       Chromium re-render the whole panel as one surface whenever anything
+       inside it changes (a hover, the caret in a field), and in game that
+       showed as the leather going soft for a moment.  The negative spread
+       keeps the shadow tucked under the frame's rounded corners. */
+    box-shadow: 0 22px 44px -14px rgba(0, 0, 0, 0.7);
+}
+
+/* The header and footer art needs the height; the list still scrolls. */
+html[data-skin="leather"] #customer-container {
+    width: 920px;
+    max-height: 92vh;
+}
+
+/* Full screen: a larger tile, so the grain doesn't visibly repeat. */
+html[data-skin="leather"] #exchange-container {
+    background: var(--bg-primary) url('skin-leather-texture.png') 0 0 / calc(var(--lx-texture) * 1.5) repeat;
+}
+
+/* ============================================================================
+   HEADERS — a leather flap across the top
+   ============================================================================ */
+
+/* Shop: the flap keeps its shape, pinned by its curved bottom edge.  Its top
+   runs under the frame. */
+html[data-skin="leather"] .customer-header {
+    position: relative;
+    justify-content: center;
+    min-height: var(--lx-header);
+    padding: 0 64px 34px;
+    border-bottom: 0;
+    background: url('skin-leather-header.png') center bottom / 100% auto no-repeat;
+}
+
+/* Manager: far wider than it is tall, so the flap is fitted instead. */
+html[data-skin="leather"] .manager-header {
+    position: relative;
+    justify-content: center;
+    min-height: 112px;
+    padding: 0 64px 26px;
+    border-bottom: 0;
+    background: url('skin-leather-header.png') center bottom / 100% 100% no-repeat;
+}
+
+html[data-skin="leather"] .customer-header .header-left { justify-content: center; }
+
+html[data-skin="leather"] .customer-header h1,
+html[data-skin="leather"] .manager-header h1 {
+    font-family: var(--font-heading);
+    font-size: 30px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-transform: none;
+    color: #eadbbd;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.6), 0 0 12px rgba(0, 0, 0, 0.45);
+}
+
+html[data-skin="leather"] .shop-id-badge {
+    font-family: var(--font-heading);
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 2px;
+}
+
+/* Close: a round bone button with the X drawn over it.  The X is the
+   existing icon, so the button still reads without the image. */
+html[data-skin="leather"] .btn-close,
+html[data-skin="leather"] .ex-btn-close,
+html[data-skin="leather"] .ex-modal-close {
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 50%;
+    background: #e3d2b1 url('skin-leather-round.png') center / 100% 100% no-repeat;
+    color: #2a1c10;
+    box-shadow: none;
+    transition: color 0.15s;
+}
+html[data-skin="leather"] .btn-close:hover,
+html[data-skin="leather"] .ex-btn-close:hover,
+html[data-skin="leather"] .ex-modal-close:hover {
+    background-color: #e3d2b1;
+    color: #7a1f14;
+}
+
+/* In the top corner, clear of the flap's sloping side. */
+html[data-skin="leather"] .customer-header .btn-close,
+html[data-skin="leather"] .manager-header .btn-close {
+    position: absolute;
+    right: 14px;
+    top: 14px;
+}
+
+/* ============================================================================
+   STITCHED DIVIDERS — tab bars, toolbars, section titles
+   Without the image the divider is a faint dashed line.
+   ============================================================================ */
+
+html[data-skin="leather"] .cust-tab-bar,
+html[data-skin="leather"] .tab-bar,
+html[data-skin="leather"] .cust-toolbar,
+html[data-skin="leather"] .inv-toolbar,
+html[data-skin="leather"] .ledger-top,
+html[data-skin="leather"] .ledger-history-header,
+html[data-skin="leather"] .buylist-search-wrapper,
+html[data-skin="leather"] .dash-panel .panel-title,
+html[data-skin="leather"] .buylist-current .panel-title,
+html[data-skin="leather"] .buylist-add-panel .panel-title,
+html[data-skin="leather"] .analytics-chart-header,
+html[data-skin="leather"] .ex-header,
+html[data-skin="leather"] .ex-sidebar-brand,
+html[data-skin="leather"] .ex-filter-bar {
+    background-color: transparent;
+    border-bottom: var(--lx-stitch) dashed rgba(217, 169, 78, 0.22);
+    border-image: url('skin-leather-stitch.png') 0 0 var(--lx-stitch-slice) 0 / 0 0 var(--lx-stitch) 0 round;
+}
+
+html[data-skin="leather"] .cust-tab-bar,
+html[data-skin="leather"] .tab-bar { justify-content: center; }
+
+/* ============================================================================
+   TABS
+   ============================================================================ */
+
+html[data-skin="leather"] .cust-tab-btn,
+html[data-skin="leather"] .tab-btn,
+html[data-skin="leather"] .ex-filter-btn,
+html[data-skin="leather"] .ex-ct-tab,
+html[data-skin="leather"] .ex-chart-range-btn {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    text-transform: none;
+    color: var(--text-muted);
+    border-bottom-color: transparent;
+    border-radius: 0;
+}
+
+html[data-skin="leather"] .cust-tab-btn.active,
+html[data-skin="leather"] .tab-btn.active,
+html[data-skin="leather"] .ex-filter-btn.active,
+html[data-skin="leather"] .ex-ct-tab.active,
+html[data-skin="leather"] .ex-chart-range-btn.active {
+    color: #f3e6c9;
+    background-color: transparent;
+    border-bottom-color: transparent;
+    text-shadow: 0 0 10px rgba(217, 169, 78, 0.45);
+}
+
+html[data-skin="leather"] .ex-sidebar-brand h1,
+html[data-skin="leather"] #ex-header-title {
+    font-family: var(--font-heading);
+    font-weight: 400;
+    font-size: 22px;
+    color: #eadbbd;
+}
+
+html[data-skin="leather"] .ex-sidebar {
+    background: #1c140f url('skin-leather-texture-dark.png') 0 0 / var(--lx-texture) repeat;
+    border-right: 1px dashed rgba(217, 169, 78, 0.22);
+}
+
+html[data-skin="leather"] .ex-nav-item {
+    font-family: var(--font-heading);
+    font-size: 16px;
+    border-radius: 0;
+}
+html[data-skin="leather"] .ex-nav-item.active {
+    color: #f3e6c9;
+    background: rgba(217, 169, 78, 0.10);
+    border-color: rgba(217, 169, 78, 0.3);
+}
+
+/* ============================================================================
+   HEADINGS AND LABELS
+   ============================================================================ */
+
+html[data-skin="leather"] .panel-title,
+html[data-skin="leather"] .settings-card-title,
+html[data-skin="leather"] .stat-label,
+html[data-skin="leather"] .form-group label,
+html[data-skin="leather"] .cust-sel-key,
+html[data-skin="leather"] .listings-table th,
+html[data-skin="leather"] .ex-stat-label,
+html[data-skin="leather"] .ex-balance-label,
+html[data-skin="leather"] .ex-account-card h3,
+html[data-skin="leather"] .ex-ct-header h3 {
+    font-family: var(--font-heading);
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    text-transform: none;
+}
+
+html[data-skin="leather"] .panel-title,
+html[data-skin="leather"] .settings-card-title { font-size: 18px; color: #eadbbd; }
+html[data-skin="leather"] .stat-label,
+html[data-skin="leather"] .cust-sel-key,
+html[data-skin="leather"] .form-group label { font-size: 14px; }
+
+/* Figures use the body face: the heading face's old-style numerals are hard
+   to read in a column of prices. */
+html[data-skin="leather"] .stat-value,
+html[data-skin="leather"] .ex-table td,
+html[data-skin="leather"] .ex-stat-value,
+html[data-skin="leather"] .ex-balance-amount {
+    font-family: var(--font-body);
+    font-weight: 700;
+}
+
+/* ============================================================================
+   INNER CARDS — the darker leather with a stitched outline
+   ============================================================================ */
+
+html[data-skin="leather"] .stat-card,
+html[data-skin="leather"] .dash-panel,
+html[data-skin="leather"] .settings-card,
+html[data-skin="leather"] .inv-panel,
+html[data-skin="leather"] .ledger-balance-card,
+html[data-skin="leather"] .analytics-chart-panel,
+html[data-skin="leather"] .emp-add-panel,
+html[data-skin="leather"] .ex-stat-card,
+html[data-skin="leather"] .ex-account-card,
+html[data-skin="leather"] .ex-balance-card {
+    background: #1c140f url('skin-leather-texture-dark.png') 0 0 / var(--lx-texture) repeat;
+    border: 1px dashed rgba(217, 169, 78, 0.24);
+    border-radius: 0;
+    box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.35);
+}
+
+html[data-skin="leather"] .buylist-add-panel,
+html[data-skin="leather"] .storage-add-panel { background: rgba(0, 0, 0, 0.2); }
+
+html[data-skin="leather"] .buylist-current,
+html[data-skin="leather"] .storage-current { border-right: 1px dashed rgba(217, 169, 78, 0.22); }
+
+html[data-skin="leather"] .chart-bar {
+    background: linear-gradient(180deg, var(--accent) 0%, rgba(217, 169, 78, 0.3) 100%);
+    border-radius: 1px 1px 0 0;
+}
+html[data-skin="leather"] .chart-bar:hover {
+    background: linear-gradient(180deg, var(--accent-hover) 0%, rgba(217, 169, 78, 0.5) 100%);
+}
+
+/* ============================================================================
+   TABLES
+   ============================================================================ */
+
+/* The header sticks while rows scroll under it, so it stays opaque.  The
+   stitch is a background because collapsed table borders ignore
+   border-image. */
+html[data-skin="leather"] .listings-table th {
+    font-size: 14px;
+    color: var(--text-secondary);
+    background: var(--bg-elevated) url('skin-leather-stitch.png') left bottom / auto var(--lx-stitch) repeat-x;
+    border-bottom: 0;
+    padding-bottom: calc(12px + var(--lx-stitch));
+}
+
+html[data-skin="leather"] .listings-table td {
+    font-size: 15px;
+    border-bottom: 1px solid rgba(217, 169, 78, 0.08);
+}
+
+/* The shop's columns are narrow; keep each heading on one line. */
+html[data-skin="leather"] .customer-container .listings-table th {
+    font-size: 13px;
+    letter-spacing: 0;
+    white-space: nowrap;
+}
+
+/* ============================================================================
+   ITEM SLOTS
+   The slot art has a leather rim around a dark opening; the icon sits in
+   the opening.
+   ============================================================================ */
+
+/* Slots, fields, buttons and parchment have no background colour outside
+   their art: the art has rounded corners, and a colour behind it shows as
+   square corners. */
+html[data-skin="leather"] .item-img-sm {
+    background: url('skin-leather-slot.png') center / 100% 100% no-repeat;
+    border: 0;
+    border-radius: 0;
+    padding: 3px;           /* the manager's 28px icons: a thin rim */
+}
+html[data-skin="leather"] .customer-container .item-img-sm { padding: 7px; }
+
+html[data-skin="leather"] .cust-buy-grid {
+    grid-template-columns: repeat(var(--lx-grid-cols), var(--lx-slot));
+    gap: 4px;
+    padding: 14px 18px;
+}
+
+html[data-skin="leather"] .cust-grid-tile {
+    width: var(--lx-slot);
+    height: var(--lx-slot);
+    padding: 0;
+    background: url('skin-leather-slot.png') center / 100% 100% no-repeat;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    /* No transitions anywhere a filter changes: an animated filter lifts the
+       element onto its own layer, and the panel blurs until it settles. */
+    transition: none;
+}
+html[data-skin="leather"] .cust-grid-tile:hover {
+    background-color: transparent;
+    filter: brightness(1.18);
+}
+/* The glow follows the slot's rounded edge; a box-shadow would be square. */
+html[data-skin="leather"] .cust-grid-tile.selected {
+    background-color: transparent;
+    box-shadow: none;
+    filter: drop-shadow(0 0 2px #d9a94e) drop-shadow(0 0 6px rgba(217, 169, 78, 0.55));
+}
+html[data-skin="leather"] .cust-grid-tile.selected:hover {
+    filter: brightness(1.18) drop-shadow(0 0 2px #d9a94e) drop-shadow(0 0 6px rgba(217, 169, 78, 0.55));
+}
+
+/* The slot art is the tile, so the icon inside it has none of its own. */
+html[data-skin="leather"] .customer-container .cust-grid-tile .item-img-sm {
+    width: var(--lx-icon);
+    height: var(--lx-icon);
+    background: none;
+    padding: 0;
+}
+
+/* Stock count: outlined numerals in the corner, as the satchel draws them. */
+html[data-skin="leather"] .cust-grid-qty {
+    right: 12px;
+    bottom: 8px;
+    min-width: 0;
+    height: auto;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    font-family: var(--font-body);   /* the heading face's old-style numerals read "10" as "IO" */
+    font-size: 16px;
+    font-weight: 700;
+    color: #f4ead6;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 2px 3px #000;
+}
+
+html[data-skin="leather"] .customer-container .cust-sel-item .item-img-sm {
+    padding: 10px;
+    border-radius: 0;
+}
+
+/* ============================================================================
+   BOTTOM BARS — the shop's detail bar, the sell total, pagination
+   A stitched seam over the darker leather.
+   ============================================================================ */
+
+html[data-skin="leather"] .cust-grid-selection,
+html[data-skin="leather"] .cust-sell-total-bar,
+html[data-skin="leather"] .pagination {
+    background:
+        url('skin-leather-stitch.png') left top / auto var(--lx-stitch) repeat-x,
+        url('skin-leather-texture-dark.png') 0 0 / var(--lx-texture) repeat #1c140f;
+    border: 0;
+    padding-top: calc(12px + var(--lx-stitch));
+    box-shadow: inset 0 10px 18px rgba(0, 0, 0, 0.35);
+}
+
+html[data-skin="leather"] .cust-sell-total-bar { font-family: var(--font-heading); font-size: 16px; }
+
+/* Coins, stamps and letters tucked in a pocket along the bottom of the shop.
+   A flex item after the tabs, so it never covers the item list. */
+html[data-skin="leather"] #customer-container::after {
+    content: '';
+    flex: 0 0 var(--lx-footer);
+    background: url('skin-leather-footer.png') center bottom / 100% auto no-repeat;
+    pointer-events: none;
+}
+
+/* ============================================================================
+   BUTTONS — a tan leather tag with dark lettering
+   ============================================================================ */
+
+html[data-skin="leather"] .btn-action,
+html[data-skin="leather"] .btn-submit,
+html[data-skin="leather"] .btn-danger,
+html[data-skin="leather"] .cust-btn-buy,
+html[data-skin="leather"] .cust-btn-sell,
+html[data-skin="leather"] .cust-btn-sell-all-row,
+html[data-skin="leather"] .btn-inline-save,
+html[data-skin="leather"] .ex-btn-deposit,
+html[data-skin="leather"] .ex-btn-withdraw,
+html[data-skin="leather"] .ex-ct-confirm,
+html[data-skin="leather"] .ex-modal-cancel,
+html[data-skin="leather"] #ex-modal-confirm,
+html[data-skin="leather"] .pm-prompt-btn {
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    text-transform: none;
+    color: var(--lx-ink);
+    text-shadow: 0 1px 0 rgba(255, 214, 160, 0.35);
+    background: #a8683c;
+    border-style: solid;
+    border-width: 7px;
+    border-color: #8e5530;
+    border-image: url('skin-leather-button.png') 26 fill / 7px stretch;
+    background-clip: padding-box;
+    border-radius: 0;
+    padding: 1px 12px;
+    box-shadow: none;
+    transition: none;
+}
+
+html[data-skin="leather"] .btn-action:hover,
+html[data-skin="leather"] .btn-submit:hover,
+html[data-skin="leather"] .cust-btn-buy:hover,
+html[data-skin="leather"] .cust-btn-sell:hover,
+html[data-skin="leather"] .btn-inline-save:hover,
+html[data-skin="leather"] .ex-btn-deposit:hover,
+html[data-skin="leather"] .ex-btn-withdraw:hover,
+html[data-skin="leather"] .ex-ct-confirm:hover,
+html[data-skin="leather"] .ex-modal-cancel:hover,
+html[data-skin="leather"] #ex-modal-confirm:hover,
+html[data-skin="leather"] .pm-prompt-btn:hover {
+    background-color: #a8683c;
+    color: #1a0e06;
+    filter: brightness(1.12);
+}
+
+/* Destructive actions: the same tag dyed oxblood, with light lettering. */
+html[data-skin="leather"] .btn-danger,
+html[data-skin="leather"] .cust-btn-sell-all-row {
+    color: #f6e7cf;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+    filter: saturate(1.5) hue-rotate(-18deg) brightness(0.62);
+}
+html[data-skin="leather"] .btn-danger:hover,
+html[data-skin="leather"] .cust-btn-sell-all-row:hover {
+    background-color: #a8683c;
+    color: #fff4e2;
+    filter: saturate(1.5) hue-rotate(-18deg) brightness(0.74);
+}
+
+html[data-skin="leather"] button:disabled {
+    opacity: 0.45;
+    filter: grayscale(0.6);
+    cursor: default;
+}
+
+/* Small "Max" buttons: a little recessed leather key, so they don't compete
+   with the tan action buttons. */
+html[data-skin="leather"] .btn-max,
+html[data-skin="leather"] .cust-qty-group .btn-max {
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 400;
+    text-transform: none;
+    color: var(--text-secondary);
+    background: #1a120d;
+    border-style: solid;
+    border-width: 5px 5px 4px;
+    border-color: #3a2a1d;
+    border-image: url('skin-leather-input.png') 26 25 18 25 / 5px 5px 4px stretch;
+    background-clip: padding-box;
+    border-radius: 0;
+    padding: 0 5px;
+    transition: none;
+}
+html[data-skin="leather"] .btn-max:hover,
+html[data-skin="leather"] .cust-qty-group .btn-max:hover {
+    background-color: #2b1e15;
+    color: #f3e6c9;
+}
+
+html[data-skin="leather"] .cust-view-toggle {
+    border: 1px dashed rgba(217, 169, 78, 0.3);
+    border-radius: 0;
+}
+html[data-skin="leather"] .cust-view-btn { background: rgba(0, 0, 0, 0.3); }
+html[data-skin="leather"] .cust-view-btn.active {
+    background: rgba(217, 169, 78, 0.14);
+    color: #f3e6c9;
+}
+
+/* ============================================================================
+   INPUT FIELDS — a stitched leather rim around a dark opening
+   No `fill`: the middle stays a flat colour, so the select's arrow (a
+   background image) is not painted over.
+   ============================================================================ */
+
+html[data-skin="leather"] .input-field,
+html[data-skin="leather"] .pm-prompt-input,
+html[data-skin="leather"] .ex-search-box,
+html[data-skin="leather"] .ex-chart-search,
+html[data-skin="leather"] .ex-ct-input-group input,
+html[data-skin="leather"] .ex-modal-input-group input,
+html[data-skin="leather"] .ex-account-input-row input {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--lx-field-text);
+    background-color: #140e0b;
+    border-style: solid;
+    border-width: 8px 8px 6px;
+    border-color: #3a2a1d;
+    border-image: url('skin-leather-input.png') 26 25 18 25 / 8px 8px 6px stretch;
+    background-clip: padding-box;
+    border-radius: 0;
+    padding: 2px 6px;
+}
+
+html[data-skin="leather"] .input-field:focus,
+html[data-skin="leather"] .pm-prompt-input:focus {
+    box-shadow: 0 0 0 1px var(--accent), 0 0 10px var(--accent-glow);
+}
+
+html[data-skin="leather"] select.input-field { padding-right: 28px; }
+html[data-skin="leather"] .cust-qty-group .input-field { width: 64px; }
+
+/* Inside table rows everything is packed tighter, so "Sell" and "Sell All"
+   share a line and a two-digit quantity fits its field. */
+html[data-skin="leather"] .listings-table .cust-btn-buy,
+html[data-skin="leather"] .listings-table .cust-btn-sell,
+html[data-skin="leather"] .listings-table .cust-btn-sell-all-row,
+html[data-skin="leather"] .listings-table .btn-inline-save,
+html[data-skin="leather"] .listings-table .btn-action,
+html[data-skin="leather"] .listings-table .btn-danger {
+    padding: 0 7px;
+    font-size: 15px;
+}
+html[data-skin="leather"] .listings-table .input-field {
+    border-width: 6px 6px 5px;
+    border-image-width: 6px 6px 5px;
+    padding: 1px 4px;
+}
+html[data-skin="leather"] .listings-table input[type="number"].input-field { min-width: 56px; }
+
+/* The exchange's balance card is narrow. */
+html[data-skin="leather"] .ex-balance-actions button {
+    padding: 0 6px;
+    font-size: 14px;
+}
+
+/* ============================================================================
+   PARCHMENT — the grid tooltip and the naming prompt
+   ============================================================================ */
+
+html[data-skin="leather"] .cust-grid-tip {
+    background: #d8c39a;
+    border-style: solid;
+    border-width: 12px;
+    border-color: #c9b081;
+    border-image: url('skin-leather-parchment.png') 40 fill / 12px stretch;
+    background-clip: padding-box;
+    border-radius: 0;
+    padding: 0 6px;
+    box-shadow: none;
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5));
+    /* Shown instantly: the base fade animates opacity, which lifts the tip
+       onto its own layer and blurs the grid under it while it fades. */
+    transition: none;
+}
+html[data-skin="leather"] .cust-grid-tip::after { display: none; }
+html[data-skin="leather"] .cust-grid-tip-name {
+    font-family: var(--font-heading);
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--lx-ink);
+}
+html[data-skin="leather"] .cust-grid-tip-price {
+    font-size: 15px;
+    font-weight: 700;
+    color: #6b3f16;
+}
+
+html[data-skin="leather"] .pm-prompt-box {
+    background: #d9c49b;
+    border-style: solid;
+    border-width: 26px;
+    border-color: #cdb487;
+    border-image: url('skin-leather-parchment.png') 40 fill / 26px stretch;
+    background-clip: padding-box;
+    border-radius: 0;
+    padding: 6px 12px 10px;
+    /* No filter here either: it holds a text field. */
+    box-shadow: 0 20px 36px -12px rgba(0, 0, 0, 0.7);
+}
+html[data-skin="leather"] .pm-prompt-title {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: 400;
+    text-align: center;
+    color: var(--lx-ink);
+}
+
+/* ============================================================================
+   SCROLLBARS
+   ============================================================================ */
+
+html[data-skin="leather"] ::-webkit-scrollbar-thumb { background: rgba(217, 169, 78, 0.25); border-radius: 0; }
+html[data-skin="leather"] ::-webkit-scrollbar-thumb:hover { background: rgba(217, 169, 78, 0.4); }
