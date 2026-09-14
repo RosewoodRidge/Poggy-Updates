@@ -1,0 +1,199 @@
+-- ============================================================================
+--  poggy_util · help menu content
+--  ---------------------------------------------------------------------------
+--  /help opens a searchable guide built from the categories below. Everything
+--  in this file is EXAMPLE content: replace it with your own server's guide.
+--
+--  The server name and the optional logo in the header are set in config.lua
+--  (Config.Help.ServerName, Config.Help.Logo).
+--
+--  Shape (keep it; the menu and the updater rely on it):
+--
+--      {
+--          id    = "unique_id",     -- letters, digits and underscores
+--          title = "SHOWN ON TILE", -- the tile label and the page heading
+--          icon  = "compass",       -- compass, book, terminal, envelope, crosshair,
+--                                   -- fish, tent, pickaxe, plant, horse, wheel,
+--                                   -- hammer, mask, badge, medcross, coins
+--          color = "#d4c5a0",       -- tile and heading colour
+--          sections = {
+--              { title = "...", type = "info",     items = { "line", "line" } },
+--              { title = "...", type = "steps",    items = { "step 1", "step 2" } },
+--              { title = "...", type = "tips",     items = { "tip", "tip" } },
+--              { title = "...", type = "commands", items = { "/cmd — what it does" } },
+--          }
+--      }
+--
+--  The category with id "getting_started" is shown as the large first tile;
+--  the others are listed alphabetically by title. Search looks through every
+--  title and every item line.
+--
+--  Two richer section types exist for item guides with inventory icons:
+--  "drug-crafting" (fields: note, drugs = { { id, name, image, color,
+--  description, stats, acquisition, use, steps = { { stage, name, location,
+--  inputs = { { item, count, name } }, output = { item, count, name } } } } })
+--  and "medicine-grid" (fields: medicines = { { item, name, desc, conditions =
+--  { { label, pct, color } }, health, healAmount, permanent, doctorOnly,
+--  note } }). Both take the icon from the inventory poggy_core drives.
+-- ============================================================================
+
+Config = Config or {}
+
+Config.HelpData = {
+
+    -- ========================================================================
+    -- GETTING STARTED  -- replace with your own
+    -- ========================================================================
+    {
+        id    = "getting_started",
+        title = "GETTING STARTED",
+        icon  = "compass",
+        color = "#d4c5a0",
+        sections = {
+            {
+                title = "First Steps",
+                type  = "steps",
+                items = {
+                    "Create your character and pick a starting town", -- replace with your own
+                    "Press ESC, open Settings > Audio and turn Voice Chat on",
+                    "Type /help at any time to open this guide"
+                }
+            },
+            {
+                title = "Useful Keys",
+                type  = "info",
+                items = {
+                    "I — Open your inventory", -- replace with your own
+                    "H — Call your horse",
+                    "ESC — Main menu"
+                }
+            },
+            {
+                title = "Tips",
+                type  = "tips",
+                items = {
+                    "New here? Read the Rules category first", -- replace with your own
+                    "Ask in the support channel if anything is unclear"
+                }
+            }
+        }
+    },
+
+    -- ========================================================================
+    -- RULES  -- replace with your own
+    -- ========================================================================
+    {
+        id    = "rules",
+        title = "RULES",
+        icon  = "book",
+        color = "#b0a080",
+        sections = {
+            {
+                title = "Core Rules",
+                type  = "info",
+                items = {
+                    "Stay in character while in the game", -- replace with your own
+                    "No random killing or wagon ramming",
+                    "Respect other players and staff"
+                }
+            },
+            {
+                title = "Reporting",
+                type  = "steps",
+                items = {
+                    "Clip the incident if you can", -- replace with your own
+                    "Open a ticket in the support channel",
+                    "A staff member will follow up with you"
+                }
+            }
+        }
+    },
+
+    -- ========================================================================
+    -- JOBS  -- replace with your own
+    -- ========================================================================
+    {
+        id    = "jobs",
+        title = "JOBS",
+        icon  = "coins",
+        color = "#d0c060",
+        sections = {
+            {
+                title = "Finding Work",
+                type  = "info",
+                items = {
+                    "Job boards are in every major town", -- replace with your own
+                    "Some jobs need a licence from the town hall",
+                    "Law and doctor jobs are whitelisted; apply in the support channel"
+                }
+            },
+            {
+                title = "Example Jobs",
+                type  = "info",
+                items = {
+                    "Hunter — Sell pelts and meat to the butcher", -- replace with your own
+                    "Miner — Buy a pickaxe and work the mines",
+                    "Rancher — Raise animals and sell their produce"
+                }
+            }
+        }
+    },
+
+    -- ========================================================================
+    -- COMMANDS  -- replace with your own
+    -- ========================================================================
+    {
+        id    = "commands",
+        title = "COMMANDS",
+        icon  = "terminal",
+        color = "#a0a0c0",
+        sections = {
+            {
+                title = "General",
+                type  = "commands",
+                items = {
+                    "/help — Open this guide", -- replace with your own
+                    "/unstuck — Teleport to the nearest road",
+                    "/aop — Hide or show the area of play box"
+                }
+            },
+            {
+                title = "Emergency",
+                type  = "commands",
+                items = {
+                    "/callpolice — Request law enforcement", -- replace with your own
+                    "/calldoctor — Request medical help"
+                }
+            }
+        }
+    },
+
+    -- ========================================================================
+    -- SUPPORT  -- replace with your own
+    -- ========================================================================
+    {
+        id    = "support",
+        title = "SUPPORT",
+        icon  = "envelope",
+        color = "#7090d0",
+        sections = {
+            {
+                title = "Where to Get Help",
+                type  = "info",
+                items = {
+                    "Discord: discord.gg/yourinvite", -- replace with your own
+                    "Website: https://example.com",
+                    "Staff are online most evenings"
+                }
+            },
+            {
+                title = "Tips",
+                type  = "tips",
+                items = {
+                    "Stuck in the world? Use the I'M STUCK button on the front page of this guide", -- replace with your own
+                    "Restarts are announced in the Discord"
+                }
+            }
+        }
+    }
+}
