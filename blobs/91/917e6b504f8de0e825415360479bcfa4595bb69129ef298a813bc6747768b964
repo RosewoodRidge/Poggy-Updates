@@ -1,0 +1,507 @@
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Crimson+Pro:wght@400;500;600;700&display=swap');
+
+/* ============================================================================
+   poggy_fishing — "brass" skin
+   ----------------------------------------------------------------------------
+   Riveted brass on dark oiled walnut, in the style of the reel plate that
+   sits in the corner of the HUD (ui/img/overlay.png).  Loaded on top of
+   style.css when Config.UI.skin is "brass".  Every rule is scoped to
+   html[data-skin="brass"].
+
+   Every image is drawn at exactly one size, 1:1, never stretched, sliced or
+   repeated.  For that the brass HUD has a FIXED layout: the same height in
+   every state, with the status line above a 150 px "stage" that holds
+   whichever of the window, the tug bars, the progress bar or the pull bars
+   the state needs.  The plate image carries the frame, the wood, the rivet
+   bars and the row seams, so only things that vary (fish slots, gauges,
+   keys, the window) are separate images.
+
+   Sizes below are CSS px.  The HUD is drawn at --hud-scale (1.2), so each
+   image file is that many times larger: a 396 x 24 element wants a
+   475 x 29 image.  The exact list is in docs/ui-skin-brass-prompts.md.
+   Every rule also sets a plain colour, so a missing image never breaks it.
+
+   Element (CSS px)            Image                      File size at 1.2
+   --------------------------  -------------------------  ----------------
+   plate 432 x 496             skin-brass-plate.png       518 x 595
+   plaque 236 x 44             skin-brass-plaque.png      283 x 53
+   fish slot 24..42, bait 34   skin-brass-slot.png        64 x 64  (only scaled down)
+   window 376 x 100            skin-brass-window.png      451 x 120
+   progress track 364 x 24     skin-brass-track-wide.png  437 x 29   (+ -back.png)
+   tug track 162 x 22          skin-brass-track.png       194 x 26   (+ -back.png)
+   pull track 372 x 26         skin-brass-track-pull.png  446 x 31   (+ -back.png)
+   pull tension 294 x 18       skin-brass-track-slim.png  353 x 22   (+ -back.png)
+   Each channel is two images: the steel back under the fill and a hollow
+   brass front over it, so the fill never has to be placed precisely.
+   E key 26 x 26               skin-brass-key.png         31 x 31
+   control key 44 x 29         skin-brass-key-wide.png    53 x 35
+   needle 10 x 16              skin-brass-needle.png      12 x 19
+   bait menu 300 x 320         skin-brass-menu.png        360 x 384
+   remove button 236 x 40      skin-brass-button.png      283 x 48
+   ============================================================================ */
+
+html[data-skin="brass"] {
+    /* 5 % smaller than the default skin, so notifications behind the HUD
+       stay readable; the images (made for 1.2) are drawn at 0.95 of their
+       size, a uniform downscale, nothing stretched */
+    --hud-scale:       1.14;
+
+    --font:            'Crimson Pro', 'Inter', serif;
+    --font-label:      'IM Fell English SC', 'Crimson Pro', serif;
+
+    --accent-rgb:      217, 169, 78;
+    --text-rgb:        239, 225, 198;
+    --text:            #efe1c6;
+    --text-soft:       #e8c27a;
+
+    --hud-bg:          #2a1d15;
+    --hud-border:      transparent;
+    --hud-shadow:      0 4px 18px rgba(0,0,0,0.55);
+    --hud-radius:      0;
+    --row-border:      transparent;
+    --row-bg:          transparent;
+
+    --track-bg:        #14100c;
+    --track-border:    transparent;
+    --track-radius:    4px;
+
+    --kbd-bg:          #6e5526;
+    --kbd-border:      transparent;
+    --kbd-text:        #f7e9c8;
+
+    --window-bg:       linear-gradient(180deg, #081a1f 0%, #0c252c 60%, #0f2e34 100%);
+    --window-border:   transparent;
+
+    --fish-body:       rgba(150, 168, 178, 0.9);
+    --fish-fin:        rgba(118, 134, 146, 0.9);
+
+    /* Fixed layout (CSS px) */
+    --bx-edge:         18px;    /* plate rail, content starts inside it */
+    --bx-top:          26px;    /* the frame's own rivet bar and gap, inside the rail */
+    --bx-bottom:       20px;    /* bottom rivet bar and gap */
+    --bx-stage:        150px;
+}
+
+html[data-skin="brass"] body { font-family: var(--font); }
+
+/* ---- PLATE: one image, frame + wood + rivet bars + row seams ---- */
+html[data-skin="brass"] #fishing-hud {
+    width: 432px;
+    height: 496px;
+    padding: calc(var(--bx-edge) + var(--bx-top)) var(--bx-edge) calc(var(--bx-edge) + var(--bx-bottom));
+    background: var(--hud-bg) url('skin-brass-plate.png') center / 100% 100% no-repeat;
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+    box-shadow: none;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+}
+html[data-skin="brass"] #fishing-hud > * { position: relative; flex: none; }
+html[data-skin="brass"] .wave-accent { display: none; }
+
+/* Row order: name, slots, window, status, catch, gauges, then the pinned rows */
+html[data-skin="brass"] #zone-label          { order: 1; }
+html[data-skin="brass"] #zone-fish           { order: 2; }
+html[data-skin="brass"] #approach-view       { order: 3; }
+html[data-skin="brass"] #status-area         { order: 4; }
+html[data-skin="brass"] #fish-info           { order: 5; }
+html[data-skin="brass"] #progress-container  { order: 6; }
+html[data-skin="brass"] #tug-area            { order: 7; }
+html[data-skin="brass"] #bait-indicator      { order: 8; }
+html[data-skin="brass"] #controls-bar        { order: 9; }
+html[data-skin="brass"] #now-playing         { order: 10; }
+html[data-skin="brass"] #hud-footer          { order: 11; }
+
+/* ---- NAME PLAQUE 236 x 44 ---- */
+html[data-skin="brass"] #zone-label {
+    width: 236px;
+    height: 44px;
+    margin: 0 auto 8px;
+    padding: 0 26px;
+    line-height: 44px;
+    font-family: var(--font-label);
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: #2a1f0c;
+    text-shadow: 0 1px 0 rgba(255,230,170,0.5);
+    background: url('skin-brass-plaque.png') center / 100% 100% no-repeat;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ---- FISH SLOTS: one row, sized to the count ----
+   app.js sets --n to the number of fish shown.  Each slot is as big as the
+   row allows: the width budget is 380 px (8 px clear of each rail) and the
+   height is capped at --slot-max, the tallest row the fixed layout has room
+   for in its fullest state.  The row is always --slot-max tall, so nothing
+   below moves from one water to the next; smaller slots sit centred in it.
+   A second row would cost space the fixed layout does not have. */
+html[data-skin="brass"] #zone-fish {
+    /* 42: the fullest states (waiting with the tug bars and their TUG
+       caption, the Pro Rod fight) must end above the rivet seam painted on
+       the plate at CSS y 338, not merely above the pinned controls at 344;
+       at 42 the TUG caption clears the seam by 1 px and the Pro Rod tension
+       channel by 3 px (measured in the harness) */
+    --slot-max: 42px;
+    --slot: min(var(--slot-max), calc((380px - (var(--n, 1) - 1) * 3px) / var(--n, 1)));
+    height: var(--slot-max);
+    margin: 0 0 8px;
+    padding: 0;
+    gap: 3px;
+    flex-wrap: nowrap;
+    align-items: center;
+    overflow: visible;
+}
+html[data-skin="brass"] #zone-fish.hidden { display: flex !important; visibility: hidden; }
+html[data-skin="brass"] .zone-fish-icon {
+    flex: none;
+    width: var(--slot);
+    height: var(--slot);
+    border: 0;
+    border-radius: 3px;
+    background: url('skin-brass-slot.png') center / 100% 100% no-repeat;
+    padding: calc(var(--slot) * 0.15);
+}
+html[data-skin="brass"] .zone-fish-icon img { border-radius: 2px; }
+html[data-skin="brass"] .zone-fish-icon.undiscovered::after {
+    inset: calc(var(--slot) * 0.15);
+    border-radius: 2px;
+    background: rgba(10, 10, 12, 0.9);
+    color: rgba(217, 169, 78, 0.5);
+    font-family: var(--font-label);
+    font-size: calc(var(--slot) * 0.44);
+}
+html[data-skin="brass"] .zone-fish-icon .zf-tooltip {
+    font-family: var(--font);
+    background: #2a2417;
+    border-color: rgba(217, 169, 78, 0.5);
+    color: var(--text);
+}
+
+/* ---- STATUS 35 + CATCH 22 (always laid out, so the stage never moves) ---- */
+html[data-skin="brass"] #status-area { height: 35px; padding: 0 16px; }
+html[data-skin="brass"] #status-text {
+    font-family: var(--font-label);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+}
+html[data-skin="brass"] #status-text.fighting { color: #ffd66b; }
+html[data-skin="brass"] #fish-info { height: 22px; padding: 0 16px; }
+html[data-skin="brass"] #fish-name   { font-size: 14px; }
+html[data-skin="brass"] #fish-weight { color: rgba(232, 194, 122, 0.6); }
+
+/* ---- STAGE: 150 px shared by the window, tug bars, progress and pull bars ---- */
+html[data-skin="brass"] #approach-view {
+    width: 376px;
+    height: 100px;
+    margin: 0 auto 6px;
+    border: 12px solid transparent;
+    border-radius: 20px;     /* 8 px inside the frame, so the water has no square corners */
+    background: var(--window-bg);
+    background-clip: padding-box;
+    box-shadow: none;
+}
+html[data-skin="brass"] #approach-view::before {
+    /* the frame sits over the water as its own layer */
+    content: "";
+    position: absolute;
+    inset: -12px;
+    background: url('skin-brass-window.png') center / 100% 100% no-repeat;
+    pointer-events: none;
+    z-index: 5;
+}
+html[data-skin="brass"][data-state="idle"] #approach-view.hidden,
+html[data-skin="brass"][data-state="casting"] #approach-view.hidden { display: block !important; }
+html[data-skin="brass"] .surface-wave-path { fill: rgba(217, 169, 78, 0.12); }
+html[data-skin="brass"] #approach-label {
+    font-family: var(--font-label);
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: rgba(217, 169, 78, 0.7);
+    bottom: 8px;             /* clear of the frame's inner lip */
+}
+html[data-skin="brass"] .approach-scene { top: 6px; bottom: 22px; }
+html[data-skin="brass"] #alert-badge { color: #ffd66b; }
+
+html[data-skin="brass"] #progress-container { height: 52px; padding: 2px 16px 0; }
+html[data-skin="brass"] #tug-area { padding: 4px 12px 0; }
+
+/* ---- GAUGES: each track is its own exact-size image ---- */
+html[data-skin="brass"] #progress-track,
+html[data-skin="brass"] .ibar-track,
+html[data-skin="brass"] .pull-track {
+    border: 0;
+    border-radius: 0;
+    background: var(--track-back) center / 100% 100% no-repeat;
+    box-shadow: none;
+    overflow: visible;
+}
+/* the hollow brass front, over the fill */
+html[data-skin="brass"] #progress-track::after,
+html[data-skin="brass"] .ibar-track::after,
+html[data-skin="brass"] .pull-track::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--track-front) center / 100% 100% no-repeat;
+    pointer-events: none;
+    z-index: 5;
+}
+html[data-skin="brass"] #progress-track     { width: 364px; height: 24px; --track-back: url('skin-brass-track-wide-back.png'); --track-front: url('skin-brass-track-wide.png'); }
+html[data-skin="brass"] .ibar-track         { width: 162px; height: 22px; --track-back: url('skin-brass-track-back.png');      --track-front: url('skin-brass-track.png'); }
+html[data-skin="brass"] .pull-track         { width: 372px; height: 26px; --track-back: url('skin-brass-track-pull-back.png'); --track-front: url('skin-brass-track-pull.png'); }
+html[data-skin="brass"] .pull-tension-track { width: 294px; height: 18px; --track-back: url('skin-brass-track-slim-back.png'); --track-front: url('skin-brass-track-slim.png'); }
+/* Each channel's hollow, as a share of its width (the brass ends are the
+   same size in every channel, so the share depends on the length):
+   tug 8 %, progress 4 %, pull 4.2 %, slim 3.6 %. Fills, zones and the
+   needle stay inside it; the front hides their edges. */
+html[data-skin="brass"] #progress-track     { --hollow-x: 4%; }
+html[data-skin="brass"] .ibar-track         { --hollow-x: 8%; }
+html[data-skin="brass"] .pull-track         { --hollow-x: 4.2%; }
+html[data-skin="brass"] .pull-tension-track { --hollow-x: 3.6%; }
+html[data-skin="brass"] .water-fill,
+html[data-skin="brass"] .pull-zone,
+html[data-skin="brass"] .pull-center-mark {
+    top: 18%; bottom: 18%; height: auto;
+}
+html[data-skin="brass"] .water-fill { left: var(--hollow-x); right: var(--hollow-x); --track-radius: 2px; }
+html[data-skin="brass"] .water-fill.ibar-fill-rtl { left: var(--hollow-x); right: var(--hollow-x); }
+html[data-skin="brass"] .pull-zone-left   { left: var(--hollow-x);  width: calc((100% - 2 * var(--hollow-x)) / 3); border-radius: 0; }
+html[data-skin="brass"] .pull-zone-center { left: calc(var(--hollow-x) + (100% - 2 * var(--hollow-x)) / 3); width: calc((100% - 2 * var(--hollow-x)) / 3); }
+html[data-skin="brass"] .pull-zone-right  { right: var(--hollow-x); width: calc((100% - 2 * var(--hollow-x)) / 3); border-radius: 0; }
+html[data-skin="brass"] .pull-needle {
+    width: 10px;
+    height: 16px;
+    top: 5px; bottom: auto;
+    z-index: 6;
+    /* app.js sets --needle-x across the full track; squeeze it into the hollow */
+    left: var(--hollow-x);
+    transform: translateX(calc(var(--needle-x, 0px) * 0.916));
+    margin-left: -5px;
+    border-radius: 0;
+    background: url('skin-brass-needle.png') center / 100% 100% no-repeat;
+    box-shadow: 0 0 8px rgba(var(--pull-rgb), 0.75);
+}
+html[data-skin="brass"] .pull-dir-label,
+html[data-skin="brass"] .ibar-label,
+html[data-skin="brass"] .interest-prompt span,
+html[data-skin="brass"] #progress-label,
+html[data-skin="brass"] #np-track-name,
+html[data-skin="brass"] #footer-time-label,
+html[data-skin="brass"] #footer-time-clock,
+html[data-skin="brass"] .bait-menu-header {
+    font-family: var(--font-label);
+    font-weight: 400;
+}
+html[data-skin="brass"] .pull-dir-label { font-size: 10px; }
+html[data-skin="brass"] .ibar-label     { font-size: 9px; }
+html[data-skin="brass"] #progress-label { font-size: 12px; color: rgba(217, 169, 78, 0.8); margin-top: 2px; }
+
+/* ---- KEYS: E 26 x 26, controls 50 x 29 ---- */
+html[data-skin="brass"] kbd,
+html[data-skin="brass"] #status-text kbd {
+    font-family: var(--font-label);
+    color: var(--kbd-text);
+    text-shadow: 0 1px 1px rgba(0,0,0,0.6);
+    border: 0;
+    border-radius: 0;
+    background: url('skin-brass-key-wide.png') center / 100% 100% no-repeat;
+}
+html[data-skin="brass"] .interest-prompt kbd {
+    width: 26px; height: 26px;
+    background-image: url('skin-brass-key.png');
+}
+html[data-skin="brass"] .ctrl kbd,
+html[data-skin="brass"] #status-text kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px; height: 29px;
+    padding: 0;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+html[data-skin="brass"] .ctrl { color: rgba(239, 225, 198, 0.7); font-size: 13px; white-space: nowrap; }
+html[data-skin="brass"] #controls-bar { gap: 10px; }
+
+/* ---- LOWER ROWS: seams are painted on the plate ---- */
+/* Equipped bait: the left end of the music and time rows (CSS 397..452),
+   clear of the reel on the right.  Hidden by app.js when no bait is on. */
+html[data-skin="brass"] #bait-indicator {
+    position: absolute;
+    left: calc(var(--bx-edge) + 8px);
+    top: 397px;
+    width: 112px;
+    height: 55px;
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    grid-template-rows: auto auto;
+    align-content: center;
+    column-gap: 6px;
+    row-gap: 1px;
+    padding: 0;
+    border: 0;
+    background: none;
+}
+html[data-skin="brass"] #bait-indicator-img {
+    grid-row: 1 / span 2;
+    align-self: center;
+    width: 34px;
+    height: 34px;
+    padding: 5px;
+    border: 0;
+    border-radius: 3px;
+    background: url('skin-brass-slot.png') center / 100% 100% no-repeat;
+}
+html[data-skin="brass"] #bait-indicator-name {
+    align-self: end;
+    font-family: var(--font);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: rgba(239, 225, 198, 0.85);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+html[data-skin="brass"] #bait-indicator-qty {
+    align-self: start;
+    font-family: var(--font-label);
+    font-size: 9px;
+    color: rgba(217, 169, 78, 0.75);
+}
+/* Pinned, so the seams painted on the plate line up in every state */
+html[data-skin="brass"] #controls-bar,
+html[data-skin="brass"] #now-playing,
+html[data-skin="brass"] #hud-footer {
+    position: absolute;
+    left: var(--bx-edge); right: var(--bx-edge);
+    padding: 0 16px;
+    border: 0;
+    background: none;
+}
+html[data-skin="brass"] #controls-bar { top: 344px; height: 53px; align-items: center; flex-wrap: nowrap; }
+html[data-skin="brass"] #now-playing  { top: 397px; height: 31px; }
+html[data-skin="brass"] #hud-footer   { top: 428px; height: 24px; }
+/* Music and time are centred between the bait strip (ends at x 138) and
+   the reel (starts about x 325) */
+html[data-skin="brass"] #now-playing,
+html[data-skin="brass"] #hud-footer   { padding: 0 89px 0 124px; }
+
+/* ---- BAIT MENU 300 x 320 on its own plate ---- */
+html[data-skin="brass"] #bait-menu {
+    /* Above the HUD, its left edge on the HUD's left edge, 12 px clear of its
+       top.  The HUD is zoomed by --hud-scale (its 18 px offsets included) and
+       this menu is not, so the HUD's edges are its CSS sizes times the scale. */
+    right:  calc((18px + 432px) * var(--hud-scale) - 300px);
+    bottom: calc((18px + 496px) * var(--hud-scale) + 12px);
+    width: 300px;
+    height: 320px;
+    display: flex;
+    flex-direction: column;
+    /* bottom 40: the Remove Bait button ends at 280, clear of the menu
+       plate's bottom rivet bar, which starts at 287 (file row 344) */
+    padding: 30px 18px 40px;
+    background: var(--hud-bg) url('skin-brass-menu.png') center / 100% 100% no-repeat;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+    overflow: visible;
+}
+html[data-skin="brass"] .bait-menu-header {
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    color: #e8c27a;
+    border-bottom-color: rgba(217, 169, 78, 0.25);
+    padding: 6px 4px 8px;
+}
+html[data-skin="brass"] #bait-list { flex: 1; max-height: none; }
+/* A list longer than its area dissolves at the edge it continues past,
+   instead of cutting rows off at the header rule or above the button */
+html[data-skin="brass"] #bait-list.fade-bottom {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
+            mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
+}
+html[data-skin="brass"] #bait-list.fade-top {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 28px);
+            mask-image: linear-gradient(to bottom, transparent, #000 28px);
+}
+html[data-skin="brass"] #bait-list.fade-top.fade-bottom {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 28px, #000 calc(100% - 28px), transparent);
+            mask-image: linear-gradient(to bottom, transparent, #000 28px, #000 calc(100% - 28px), transparent);
+}
+html[data-skin="brass"] .bait-item { padding: 6px 4px; }
+html[data-skin="brass"] .bait-item.active {
+    background: rgba(217, 169, 78, 0.12);
+    border-left-color: #d9a94e;
+}
+html[data-skin="brass"] .bait-item-img {
+    width: 34px; height: 34px;
+    border: 0;
+    padding: 5px;
+    background: url('skin-brass-slot.png') center / 100% 100% no-repeat;
+}
+html[data-skin="brass"] .bait-item-name { color: var(--text); font-size: 12px; }
+html[data-skin="brass"] .bait-item-desc { color: rgba(217, 169, 78, 0.6); font-size: 9px; }
+html[data-skin="brass"] #bait-remove { border: 0; padding: 8px 0 0; }
+html[data-skin="brass"] #bait-remove.hidden { display: block !important; visibility: hidden; }
+html[data-skin="brass"] #btn-remove-bait {
+    width: 236px; height: 40px;
+    margin: 0 auto;
+    display: block;
+    font-family: var(--font-label);
+    font-size: 11px;
+    color: #f7e9c8;
+    background: url('skin-brass-button.png') center / 100% 100% no-repeat;
+    border: 0;
+    border-radius: 0;
+}
+
+/* ---- RESULT FLASH ---- */
+html[data-skin="brass"] #result-flash {
+    font-family: var(--font-label);
+    font-weight: 400;
+    letter-spacing: 3px;
+}
+
+/* ---- REEL: the plate is part of the frame; only the gear and handle turn ---- */
+html[data-skin="brass"] #reel-body { display: none; }
+html[data-skin="brass"] #reel-gear   { background-image: url('skin-brass-gear.png'); }
+html[data-skin="brass"] #reel-handle { background-image: url('skin-brass-handle.png'); }
+html[data-skin="brass"] #reel-gear,
+html[data-skin="brass"] #reel-handle { top: 0; left: 0; }
+html[data-skin="brass"] #reel-overlay {
+    /* the hub built into the frame, CSS px from the HUD's top-left; the gear
+       fills the reel's inner circle (about 58 px across), the handle is a
+       little shorter so its knob stays on the plate */
+    --hub-x: 385.5px;
+    --hub-y: 428.5px;
+    --gear-box: 124px;      /* gear is 35 % of its image */
+    --handle-box: 123px;
+    width: var(--gear-box);
+    height: var(--gear-box);
+    right: calc(18px + 432px - (var(--hub-x) + var(--gear-box) / 2));
+    bottom: calc(18px + 496px - (var(--hub-y) + var(--gear-box) / 2));
+}
+html[data-skin="brass"] #reel-handle {
+    width: var(--handle-box);
+    height: var(--handle-box);
+    top: calc((var(--gear-box) - var(--handle-box)) / 2);
+    left: calc((var(--gear-box) - var(--handle-box)) / 2);
+}
+
+/* ---- BOTTOM ROWS: same colour and weight as the control labels ---- */
+html[data-skin="brass"] #np-track-name,
+html[data-skin="brass"] #footer-time-label,
+html[data-skin="brass"] #footer-time-clock,
+html[data-skin="brass"] #now-playing.playing #np-track-name {
+    color: rgba(239, 225, 198, 0.7);
+    font-weight: 700;
+    font-size: 11px;
+}
+html[data-skin="brass"] .np-icon { color: rgba(239, 225, 198, 0.55); }

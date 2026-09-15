@@ -1,0 +1,1170 @@
+/* =========================================================================
+   poggy_fishing - style.css
+   Bottom-right HUD. Water-themed fishing UI.
+
+   Palette and shapes are CSS variables on :root so a skin
+   (skin-<name>.css, chosen by Config.UI.skin) can restyle the HUD by
+   overriding them and adding its own images.  Every rule still sets a plain
+   colour, so a missing image never breaks the HUD.
+
+   The HUD is enlarged with `zoom`, not `transform: scale()`: a transformed
+   ancestor makes Chromium rasterise animated text at the wrong scale, which
+   is what blurred the LEFT / FORWARD / RIGHT labels while the pull needle
+   moved.  `zoom` lays the HUD out at full size, so text stays crisp.
+   ========================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --font:            'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --hud-scale:       1.2;
+    --hud-width:       432px;
+    --hud-radius:      12px;
+
+    --accent-rgb:      72, 160, 224;          /* water blue */
+    --text-rgb:        208, 232, 248;
+    --text:            #d0e8f8;
+    --text-soft:       #88c8e8;
+
+    --hud-bg:          rgba(8, 24, 48, 0.88);
+    --hud-border:      rgba(72, 160, 224, 0.2);
+    --hud-shadow:      0 2px 14px rgba(0,0,0,0.3), inset 0 1px 0 rgba(72,160,224,0.1);
+    --row-border:      rgba(72, 160, 224, 0.08);
+    --row-bg:          rgba(72, 160, 224, 0.03);
+
+    --track-bg:        rgba(8, 20, 40, 0.9);
+    --track-border:    rgba(100, 140, 180, 0.12);
+    --track-radius:    10px;
+
+    --kbd-bg:          rgba(72, 160, 224, 0.12);
+    --kbd-border:      rgba(72, 160, 224, 0.28);
+    --kbd-text:        rgba(200, 225, 245, 0.85);
+
+    --window-bg:       linear-gradient(180deg, #040e20 0%, #081830 60%, #0a2040 100%);
+    --window-border:   rgba(72, 160, 224, 0.12);
+
+    --fill-water:      linear-gradient(180deg, rgba(200,236,255,0.9) 0%, rgba(110,190,240,0.9) 30%, rgba(40,120,200,0.95) 70%, rgba(20,80,160,1) 100%);
+    --fill-danger:     linear-gradient(180deg, rgba(255,210,200,0.85) 0%, rgba(210,90,80,0.9) 30%, rgba(160,40,40,0.95) 70%, rgba(120,20,20,1) 100%);
+    --fill-complete:   linear-gradient(180deg, rgba(220,255,230,0.85) 0%, rgba(140,220,160,0.9) 30%, rgba(60,180,100,0.95) 70%, rgba(30,140,70,1) 100%);
+    --fill-interest:   linear-gradient(270deg, rgba(20,60,160,1) 0%, rgba(40,100,200,0.95) 30%, rgba(60,140,230,0.9) 60%, rgba(100,180,250,0.85) 85%, rgba(160,220,255,0.8) 100%);
+    --fill-tension:    linear-gradient(90deg, rgba(180,60,40,1) 0%, rgba(220,80,50,0.95) 30%, rgba(240,120,60,0.9) 60%, rgba(255,180,100,0.85) 85%, rgba(255,220,180,0.8) 100%);
+
+    --fish-body:       rgba(118, 138, 160, 0.9);
+    --fish-fin:        rgba(96, 114, 136, 0.9);
+    --fish-eye:        rgba(12, 20, 32, 0.9);
+
+    /* Water wave texture used across every fill bar (two tiled layers). */
+    --wave-img:        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20' preserveAspectRatio='none'%3E%3Cpath d='M0 4 C6.7 1 13.3 1 20 4 C26.7 7 33.3 7 40 4 V20 H0 Z' fill='%23ffffff'/%3E%3C/svg%3E");
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    background: transparent !important;
+    overflow: hidden;
+    font-family: var(--font);
+    color: var(--text);
+    user-select: none;
+}
+
+.hidden { display: none !important; }
+
+/* ---- MAIN HUD ---- */
+#fishing-hud {
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    width: var(--hud-width);
+    padding: 0;
+    background: var(--hud-bg);
+    border: 1px solid var(--hud-border);
+    border-radius: var(--hud-radius);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: var(--hud-shadow);
+    zoom: var(--hud-scale);
+}
+
+/* ---- WAVE ACCENT (top decoration) ----
+   The SVG is twice the HUD width and its path repeats every quarter of that,
+   so sliding it by exactly half its width lands on an identical wave: no jump. */
+.wave-accent {
+    width: 100%;
+    height: 12px;
+    overflow: hidden;
+    opacity: 0.7;
+}
+.wave-accent svg {
+    display: block;
+    width: 200%;
+    height: 100%;
+    animation: waveShift 6s linear infinite;
+}
+.wave-accent-path { stroke: rgba(var(--accent-rgb), 0.4); }
+@keyframes waveShift {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}
+
+/* ---- ZONE LABEL ---- */
+#zone-label {
+    padding: 8px 16px 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(var(--accent-rgb), 0.6);
+    text-align: center;
+}
+
+/* ---- ZONE FISH GRID ---- */
+#zone-fish {
+    padding: 4px 12px 6px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px;
+}
+.zone-fish-icon {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    border-radius: 5px;
+    border: 1px solid rgba(var(--accent-rgb), 0.15);
+    background: rgba(8,20,40,0.6);
+    overflow: visible;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    cursor: default;
+}
+.zone-fish-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 5px;
+    filter: grayscale(0.3) brightness(0.85);
+    transition: filter 0.3s;
+}
+.zone-fish-icon .zf-unknown { display: none; }
+/* Undiscovered fish: dark cover over the image */
+.zone-fish-icon.undiscovered::after {
+    content: '?';
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 14, 22, 0.92);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: rgba(140,170,200,0.45);
+    z-index: 2;
+    pointer-events: none;
+}
+.zone-fish-icon.undiscovered .zf-tooltip { visibility: hidden; }
+.zone-fish-icon.just-discovered::after {
+    animation: discoverReveal 0.6s ease forwards;
+}
+@keyframes discoverReveal {
+    0%   { opacity: 1; }
+    100% { opacity: 0; pointer-events: none; }
+}
+/* Gold shimmer when the hovered bait targets this fish */
+.zone-fish-icon.bait-highlight {
+    border-color: rgba(255,210,80,0.7);
+    box-shadow:
+        0 0 8px rgba(255,200,60,0.45),
+        0 0 16px rgba(255,180,40,0.2),
+        inset 0 0 6px rgba(255,210,80,0.15);
+    animation: fishShimmer 1.6s ease-in-out infinite;
+}
+.zone-fish-icon.bait-highlight img {
+    filter: grayscale(0) brightness(1.1) drop-shadow(0 0 3px rgba(255,210,80,0.5));
+}
+.zone-fish-icon.bait-highlight::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 6px;
+    background: conic-gradient(
+        from var(--shimmer-angle, 0deg),
+        transparent 0%,
+        rgba(255,220,100,0.6) 10%,
+        rgba(255,200,60,0.8) 15%,
+        rgba(255,240,150,0.9) 20%,
+        rgba(255,200,60,0.8) 25%,
+        rgba(255,220,100,0.6) 30%,
+        transparent 40%
+    );
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+    padding: 1.5px;
+    animation: shimmerRotate 2s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+@keyframes shimmerRotate {
+    from { --shimmer-angle: 0deg; }
+    to   { --shimmer-angle: 360deg; }
+}
+@property --shimmer-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
+@keyframes fishShimmer {
+    0%, 100% { box-shadow: 0 0 8px rgba(255,200,60,0.45), 0 0 16px rgba(255,180,40,0.2), inset 0 0 6px rgba(255,210,80,0.15); }
+    50%      { box-shadow: 0 0 14px rgba(255,210,80,0.65), 0 0 24px rgba(255,190,50,0.35), inset 0 0 10px rgba(255,220,100,0.25); }
+}
+.zone-fish-icon .zf-tooltip {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text);
+    background: rgba(8,24,48,0.95);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
+    border-radius: 4px;
+    padding: 3px 7px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+}
+#zone-fish.selecting .zone-fish-icon:hover .zf-tooltip { opacity: 1; }
+
+/* =========================================================================
+   FISH WINDOW (approach view)
+   A hook hangs from the surface on a line.  The fish enters from the right,
+   swims toward the hook as interest rises, backs off as it falls, and on the
+   bite lunges onto the hook while the line jerks.
+   ========================================================================= */
+#approach-view {
+    margin: 5px 12px;
+    height: 84px;
+    border-radius: 6px;
+    background: var(--window-bg);
+    border: 1px solid var(--window-border);
+    position: relative;
+    overflow: hidden;
+}
+
+.approach-surface {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 10px;
+    overflow: hidden;
+    z-index: 3;
+}
+.surface-wave {
+    display: block;
+    width: 200%;
+    height: 100%;
+    animation: surfaceSlide 4s linear infinite;
+}
+.surface-wave-path { fill: rgba(var(--accent-rgb), 0.15); }
+@keyframes surfaceSlide {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}
+
+.approach-scene {
+    position: absolute;
+    top: 8px; left: 0; right: 0; bottom: 15px;
+}
+/* Soft light shafts in the water */
+.water-shafts {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(100deg, transparent 20%, rgba(var(--accent-rgb), 0.05) 28%, transparent 36%),
+        linear-gradient(100deg, transparent 55%, rgba(var(--accent-rgb), 0.04) 62%, transparent 70%);
+    pointer-events: none;
+}
+
+/* Line and hook, pivoting from the surface */
+.hook-rig {
+    position: absolute;
+    left: var(--hook-x, 34%);
+    top: 0;
+    width: 0;
+    height: 100%;
+    transform-origin: 0 0;
+    animation: hookSway 3.2s ease-in-out infinite;
+    z-index: 2;
+}
+@keyframes hookSway {
+    0%, 100% { transform: rotate(-2.2deg); }
+    50%      { transform: rotate(2.2deg); }
+}
+.hook-rig.tension-low  { animation-duration: 2.4s; }
+.hook-rig.tension-mid  { animation-duration: 1.4s; }
+.hook-rig.tension-high { animation: hookJitter 0.18s linear infinite; }
+@keyframes hookJitter {
+    0%   { transform: rotate(-0.8deg) translateX(-0.5px); }
+    50%  { transform: rotate(0.8deg)  translateX(0.5px); }
+    100% { transform: rotate(-0.8deg) translateX(-0.5px); }
+}
+.hook-line {
+    position: absolute;
+    left: -0.5px;
+    top: -6px;
+    width: 1px;
+    height: calc(var(--hook-depth, 30px) + 6px);
+    background: linear-gradient(180deg, rgba(200,220,240,0.15), rgba(200,220,240,0.45));
+    transition: background 0.3s, box-shadow 0.3s;
+}
+.hook-rig.tension-mid  .hook-line { background: linear-gradient(180deg, rgba(255,190,150,0.3), rgba(255,150,110,0.7)); }
+.hook-rig.tension-high .hook-line { background: linear-gradient(180deg, rgba(255,140,100,0.5), rgba(255,90,60,0.95)); box-shadow: 0 0 4px rgba(255,80,40,0.5); }
+
+.hook-marker {
+    position: absolute;
+    left: -6px;
+    top: var(--hook-depth, 30px);
+    width: 12px;
+    height: 22px;
+}
+.hook-tip {
+    position: absolute;
+    inset: 0;
+    width: 12px;
+    height: 22px;
+    overflow: visible;
+    stroke: rgba(200,215,230,0.55);
+    transition: stroke 0.3s, filter 0.3s;
+    z-index: 1;
+}
+.hook-tip .hook-bait {
+    fill: rgba(230,180,120,0.85);
+    stroke: none;
+}
+.hook-tip.tension-glow {
+    stroke: rgba(255,170,130,0.95);
+    filter: drop-shadow(0 0 3px rgba(255,70,40,0.6));
+}
+.hook-glow {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 24px; height: 24px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    transition: background 0.3s, box-shadow 0.3s;
+}
+.hook-glow.tension-low  { background: radial-gradient(circle, rgba(255,120,60,0.15) 30%, transparent 70%); }
+.hook-glow.tension-mid  { background: radial-gradient(circle, rgba(255,80,40,0.3) 30%, transparent 70%); box-shadow: 0 0 10px rgba(255,60,30,0.3); }
+.hook-glow.tension-high {
+    background: radial-gradient(circle, rgba(255,40,20,0.5) 30%, transparent 70%);
+    box-shadow: 0 0 16px rgba(255,30,10,0.5);
+    animation: hookPulse 0.3s ease-in-out infinite alternate;
+}
+@keyframes hookPulse {
+    from { transform: translate(-50%, -50%) scale(1);   opacity: 0.8; }
+    to   { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+}
+
+/* Fish */
+#fish-marker {
+    position: absolute;
+    left: var(--fish-x, 96%);
+    top: var(--fish-y, 54%);
+    width: 0;
+    height: 0;
+    transition: left 0.55s ease-out, top 0.6s ease-in-out, opacity 0.5s ease;
+    z-index: 2;
+}
+/* No fish until the line is in the water */
+#fish-marker.away { opacity: 0; }
+/* While swimming in, app.js moves it every frame, so no position transition */
+#fish-marker.swimming { transition: opacity 0.5s ease; }
+.fish-body {
+    position: absolute;
+    left: -1px;              /* the marker anchor is the fish's mouth */
+    top: -8px;
+    width: 34px;
+    height: 17px;
+    transform-origin: 50% 50%;
+    animation: fishIdle 3s ease-in-out infinite;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.45));
+    transition: filter 0.3s;
+}
+.fish-body svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+.fish-torso    { fill: var(--fish-body); transition: fill 0.3s; }
+.fish-fin-top,
+.fish-fin-side,
+.fish-tail path { fill: var(--fish-fin); transition: fill 0.3s; }
+.fish-eye      { fill: var(--fish-eye); }
+.fish-tail {
+    transform-box: view-box;
+    transform-origin: 31px 11px;
+    animation: tailWag 0.9s ease-in-out infinite alternate;
+}
+@keyframes tailWag {
+    from { transform: rotate(-14deg); }
+    to   { transform: rotate(14deg); }
+}
+@keyframes fishIdle {
+    0%, 100% { transform: translateY(0)      rotate(0deg); }
+    25%      { transform: translateY(-2px)   rotate(-2deg); }
+    75%      { transform: translateY(2px)    rotate(2deg); }
+}
+/* Excited: the same easy glide, a little quicker, the tail beating faster.
+   Frenzied only shortens the glide and thrashes the tail; no darting, the
+   fish should swim, not jitter. */
+.fish-body.excited { animation: fishGlide 1.8s ease-in-out infinite; }
+.fish-body.excited .fish-tail { animation-duration: 0.45s; }
+.fish-body.frenzied { animation: fishGlide 1.1s ease-in-out infinite; }
+.fish-body.frenzied .fish-tail { animation-duration: 0.24s; }
+@keyframes fishGlide {
+    0%, 100% { transform: translateY(0)      rotate(0deg); }
+    25%      { transform: translateY(-3px)   rotate(-4deg); }
+    75%      { transform: translateY(3px)    rotate(4deg); }
+}
+/* Blue flash once interest is high (speed set by JS via --flash-speed) */
+.fish-body.flash-blue .fish-torso { animation: fishFlash var(--flash-speed, 0.4s) ease-in-out infinite alternate; }
+@keyframes fishFlash {
+    from { fill: rgba(var(--accent-rgb), 0.95); }
+    to   { fill: var(--fish-body); }
+}
+.fish-body.flash-blue { filter: drop-shadow(0 0 6px rgba(var(--accent-rgb), 0.6)); }
+
+/* Bite: fish snaps onto the hook, line jerks, water bursts */
+.approach-scene.bite #fish-marker { transition: left 0.16s ease-in, top 0.16s ease-in; }
+.approach-scene.bite .fish-body   { animation: fishGlide 0.5s ease-in-out infinite; }
+.approach-scene.bite .hook-rig    { animation: hookBite 0.55s ease-out; }
+@keyframes hookBite {
+    0%   { transform: rotate(0deg)    translateY(0); }
+    20%  { transform: rotate(-6deg)   translateY(5px); }
+    45%  { transform: rotate(5deg)    translateY(3px); }
+    70%  { transform: rotate(-3deg)   translateY(1px); }
+    100% { transform: rotate(0deg)    translateY(0); }
+}
+.bite-splash {
+    position: absolute;
+    left: var(--hook-x, 34%);
+    top: calc(var(--hook-depth, 30px) + 10px);
+    width: 6px; height: 6px;
+    margin: -3px 0 0 -3px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(var(--accent-rgb), 0.7);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+}
+.approach-scene.bite .bite-splash { animation: biteRing 0.6s ease-out 1; }
+@keyframes biteRing {
+    0%   { transform: scale(1);   opacity: 0.9; }
+    100% { transform: scale(7);   opacity: 0; }
+}
+
+.fish-glow {
+    position: absolute;
+    top: 0; left: 15px;      /* centred on the body, not the mouth */
+    transform: translate(-50%, -50%);
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    pointer-events: none;
+    transition: background 0.3s, box-shadow 0.3s;
+}
+.fish-glow.interest-low  { background: radial-gradient(circle, rgba(var(--accent-rgb), 0.1) 30%, transparent 70%); }
+.fish-glow.interest-mid  { background: radial-gradient(circle, rgba(var(--accent-rgb), 0.25) 30%, transparent 70%); box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.2); }
+.fish-glow.interest-high {
+    background: radial-gradient(circle, rgba(72,180,255,0.45) 30%, transparent 70%);
+    box-shadow: 0 0 18px rgba(72,180,255,0.4);
+    animation: fishGlowPulse 0.5s ease-in-out infinite alternate;
+}
+@keyframes fishGlowPulse {
+    from { transform: translate(-50%,-50%) scale(1);   opacity: 0.8; }
+    to   { transform: translate(-50%,-50%) scale(1.4); opacity: 1; }
+}
+.fish-ripple {
+    position: absolute;
+    top: 0; left: 15px;
+    transform: translate(-50%,-50%);
+    border: 1px solid rgba(var(--accent-rgb), 0.25);
+    border-radius: 50%;
+    width: 4px; height: 4px;
+    animation: rippleExpand 2.5s ease-out infinite;
+    pointer-events: none;
+}
+.fish-ripple.r2 { animation-delay: 1.2s; }
+@keyframes rippleExpand {
+    0%   { width: 4px;  height: 4px;  opacity: 0.5; }
+    100% { width: 36px; height: 36px; opacity: 0; }
+}
+
+#alert-badge {
+    position: absolute;
+    left: 12px; top: 1px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #f0c040;
+    text-shadow: 0 0 8px rgba(240,192,64,0.6);
+    animation: alertPulse 0.5s ease-in-out infinite alternate;
+    z-index: 4;
+}
+@keyframes alertPulse {
+    from { opacity: 0.6; transform: scale(0.9); }
+    to   { opacity: 1;   transform: scale(1.1); }
+}
+
+#approach-label {
+    position: absolute;
+    bottom: 2px; left: 0; right: 0;
+    text-align: center;
+    font-size: 8px;
+    color: rgba(var(--accent-rgb), 0.5);
+    letter-spacing: 0.5px;
+}
+
+/* ---- STATUS AREA ---- */
+#status-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 16px;
+}
+#status-icon {
+    font-size: 19px;
+    line-height: 1;
+    min-width: 23px;
+    text-align: center;
+}
+#status-text {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: color 0.3s;
+}
+#status-text.bite     { color: #f0c040; }
+#status-text.fighting { color: rgb(var(--accent-rgb)); }
+#status-text.caught   { color: #50d070; }
+#status-text.scared,
+#status-text.escaped,
+#status-text.lineBreak { color: #e05050; }
+
+#status-text kbd {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(220,240,255,0.9);
+    background: var(--kbd-bg);
+    border: 1px solid var(--kbd-border);
+    border-radius: 4px;
+    font-family: inherit;
+    margin: 0 3px;
+    vertical-align: baseline;
+    text-shadow: 0 0 6px rgba(var(--accent-rgb), 0.3);
+}
+
+.status-pulse { animation: statusPulse 0.6s ease-in-out infinite; }
+@keyframes statusPulse {
+    0%,100% { opacity: 1; }
+    50%     { opacity: 0.4; }
+}
+
+/* ---- FISH INFO ---- */
+#fish-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 16px 6px;
+}
+#fish-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-soft);
+}
+#fish-weight {
+    font-size: 11px;
+    color: rgba(136,200,232,0.5);
+}
+
+/* =========================================================================
+   WATER FILL (shared by the progress, interest and tension bars)
+   The fill is always the full track width and is clipped with clip-path, so
+   the wave texture spans the whole bar and never stretches with the value.
+   Both wave layers slide by exactly one tile per cycle, so they loop clean.
+   ========================================================================= */
+.water-fill {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--track-radius);
+    overflow: hidden;
+    clip-path: inset(0 var(--cut, 100%) 0 0 round var(--track-radius));
+    transition: clip-path 0.35s ease;
+}
+.water-fill::before,
+.water-fill::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0;
+    top: 0; bottom: 0;
+    background-image: var(--wave-img);
+    background-repeat: repeat-x;
+    pointer-events: none;
+}
+.water-fill::before {
+    background-size: 40px 100%;
+    opacity: 0.28;
+    animation: waveTile40 1.8s linear infinite;
+}
+.water-fill::after {
+    background-size: 64px 100%;
+    opacity: 0.16;
+    animation: waveTile64 2.9s linear infinite reverse;
+}
+@keyframes waveTile40 { from { background-position: 0 0; } to { background-position: 40px 0; } }
+@keyframes waveTile64 { from { background-position: 0 0; } to { background-position: 64px 0; } }
+/* Bars that grow from the right clip from the left instead */
+.water-fill.ibar-fill-rtl {
+    clip-path: inset(0 0 0 var(--cut, 100%) round var(--track-radius));
+}
+
+/* ---- PROGRESS BAR ---- */
+#progress-container { padding: 2px 16px 8px; }
+#progress-track {
+    width: 100%;
+    height: 19px;
+    background: var(--track-bg);
+    border: 1px solid rgba(var(--accent-rgb), 0.18);
+    border-radius: var(--track-radius);
+    position: relative;
+    overflow: hidden;
+}
+#progress-fill {
+    background: var(--fill-water);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+}
+#progress-fill.danger   { background: var(--fill-danger); }
+#progress-fill.complete {
+    background: var(--fill-complete);
+    box-shadow: inset 0 0 8px rgba(60,200,100,0.45), inset 0 1px 0 rgba(255,255,255,0.35);
+}
+#progress-label {
+    text-align: center;
+    margin-top: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(var(--accent-rgb), 0.6);
+}
+
+/* ---- INTEREST / TENSION BARS ---- */
+#tug-area { padding: 4px 12px 8px; }
+.interest-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    width: 100%;
+}
+.ibar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+}
+.ibar-icon-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    height: 20px;
+}
+.ibar-icon {
+    font-size: 13px;
+    line-height: 1;
+    opacity: 0.7;
+    filter: drop-shadow(0 0 4px rgba(200,200,200,0.2));
+}
+.ibar-label {
+    font-size: 7px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(var(--text-rgb), 0.4);
+}
+.ibar-track {
+    width: 100%;
+    height: 18px;
+    background: var(--track-bg);
+    border: 1px solid var(--track-border);
+    border-radius: var(--track-radius);
+    position: relative;
+    overflow: hidden;
+}
+.ibar-fill { transition-duration: 0.12s; }
+.ibar-fill-blue {
+    background: var(--fill-interest);
+    box-shadow: inset 0 0 8px rgba(40,120,255,0.3);
+}
+.ibar-fill-blue.high {
+    box-shadow: inset 0 0 12px rgba(60,160,255,0.5);
+    animation: interestGlow 0.6s ease-in-out infinite alternate;
+}
+.ibar-fill-red {
+    background: var(--fill-tension);
+    box-shadow: inset 0 0 8px rgba(255,80,40,0.3);
+}
+.ibar-fill-red.danger {
+    box-shadow: inset 0 0 12px rgba(255,40,20,0.5);
+    animation: tensionPulse 0.4s ease-in-out infinite alternate;
+}
+@keyframes interestGlow { from { opacity: 0.9; } to { opacity: 1; } }
+@keyframes tensionPulse { from { opacity: 0.85; } to { opacity: 1; } }
+
+/* Center prompt */
+.interest-prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 36px;
+    align-self: flex-end;
+    opacity: 0.5;
+    transition: opacity 0.15s, transform 0.15s;
+}
+.interest-prompt.pulse {
+    opacity: 1;
+    animation: promptPulse 0.8s ease-in-out infinite;
+}
+@keyframes promptPulse {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50%      { opacity: 1;   transform: scale(1.05); }
+}
+.interest-prompt kbd {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px; height: 26px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--kbd-text);
+    background: var(--kbd-bg);
+    border: 1px solid var(--kbd-border);
+    border-radius: 6px;
+    font-family: inherit;
+}
+.interest-prompt span {
+    font-size: 7px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(160,190,220,0.4);
+}
+
+/* =========================================================================
+   DIRECTION PULL BAR (Pro Rod)
+   JS sets --pull-rgb (green → red with wrongness) and --pull-w on
+   #pull-direction, and moves the needle with a transform.  The labels change
+   only by class and never animate opacity, so they stay sharp while the
+   needle moves.
+   ========================================================================= */
+#pull-direction {
+    --pull-rgb: 80, 220, 160;
+    --pull-w: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 2px 0;
+}
+.pull-labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 4px;
+}
+.pull-dir-label {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    line-height: 1.4;
+    color: rgba(var(--text-rgb), 0.3);
+}
+.pull-dir-label.active {
+    color: rgb(var(--pull-rgb));
+    text-shadow: 0 0 6px rgba(var(--pull-rgb), 0.45);
+}
+.pull-track {
+    position: relative;
+    width: 100%;
+    height: 22px;
+    background: var(--track-bg);
+    border: 1px solid var(--track-border);
+    border-radius: 11px;
+    overflow: hidden;
+}
+.pull-zone {
+    position: absolute;
+    top: 0;
+    height: 100%;
+}
+.pull-zone-left   { left: 0;      width: 33.33%; border-radius: 11px 0 0 11px; }
+.pull-zone-center { left: 33.33%; width: 33.34%; }
+.pull-zone-right  { right: 0;     width: 33.33%; border-radius: 0 11px 11px 0; }
+.pull-zone.target {
+    background: rgba(var(--pull-rgb), calc(0.08 + 0.15 * (1 - var(--pull-w))));
+    box-shadow: inset 0 0 14px rgba(var(--pull-rgb), calc(0.1 + 0.15 * (1 - var(--pull-w))));
+}
+.pull-center-mark {
+    position: absolute;
+    left: 50%;
+    top: 2px;
+    bottom: 2px;
+    width: 1px;
+    background: rgba(160,200,240,0.15);
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+.pull-needle {
+    position: absolute;
+    top: 1px;
+    bottom: 1px;
+    left: 0;
+    width: 6px;
+    margin-left: -3px;
+    border-radius: 3px;
+    background: rgb(var(--pull-rgb));
+    box-shadow: 0 0 10px rgba(var(--pull-rgb), 0.6), 0 0 3px rgba(var(--pull-rgb), 0.9);
+    transform: translateX(var(--needle-x, 0px));
+    transition: transform 0.06s linear;
+    will-change: transform;
+    z-index: 2;
+}
+.pull-tension-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.pull-tension-row .ibar-icon-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 70px;
+}
+.pull-tension-track {
+    flex: 1;
+    height: 14px;
+}
+
+/* ---- CONTROLS BAR ---- */
+#controls-bar {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    padding: 8px 16px 10px;
+    border-top: 1px solid var(--row-border);
+}
+.ctrl {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(180,210,235,0.55);
+    letter-spacing: 0.3px;
+}
+.ctrl kbd {
+    display: inline-block;
+    padding: 2px 7px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--kbd-text);
+    background: var(--kbd-bg);
+    border: 1px solid var(--kbd-border);
+    border-radius: 4px;
+    font-family: inherit;
+    margin-right: 4px;
+    text-shadow: 0 0 4px rgba(var(--accent-rgb), 0.2);
+}
+
+/* ---- NOW-PLAYING STRIP ---- */
+#now-playing {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 5px 16px;
+    border-top: 1px solid var(--row-border);
+    background: var(--row-bg);
+}
+.np-icon {
+    color: rgba(var(--accent-rgb), 0.45);
+    display: flex;
+    align-items: center;
+}
+#np-track-name {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.8px;
+    color: rgba(160,190,220,0.45);
+    text-transform: uppercase;
+}
+#now-playing.playing .np-icon {
+    color: rgba(72,200,160,0.7);
+    animation: npPulse 1.5s ease-in-out infinite;
+}
+#now-playing.playing #np-track-name { color: rgba(160,220,200,0.6); }
+@keyframes npPulse {
+    0%,100% { opacity: 0.6; }
+    50%     { opacity: 1; }
+}
+
+/* ---- RESULT FLASH ---- */
+#result-flash {
+    position: fixed;
+    bottom: 380px;
+    right: 18px;
+    width: 360px;
+    text-align: center;
+    font-size: 29px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.6) translateY(10px);
+    transition: opacity 0.15s, transform 0.15s;
+    text-shadow: 0 0 20px rgba(0,0,0,0.8), 0 2px 8px rgba(0,0,0,0.6);
+    z-index: 100;
+}
+#result-flash.show {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+#result-flash.good   { color: #50d070; text-shadow: 0 0 16px rgba(80,208,112,0.4); }
+#result-flash.great  { color: #f0d060; text-shadow: 0 0 16px rgba(240,208,96,0.4); }
+#result-flash.fail   { color: #e05050; text-shadow: 0 0 16px rgba(224,80,80,0.4); }
+#result-flash.caught { color: #50d070; text-shadow: 0 0 20px rgba(80,208,112,0.5); }
+#result-flash.scared { color: #e09040; text-shadow: 0 0 16px rgba(224,144,64,0.4); }
+
+/* ---- SHAKE EFFECT ---- */
+@keyframes hudShake {
+    0%,100% { transform: translateX(0); }
+    20%  { transform: translateX(-3px); }
+    40%  { transform: translateX(3px); }
+    60%  { transform: translateX(-2px); }
+    80%  { transform: translateX(2px); }
+}
+.shake { animation: hudShake 0.3s ease; }
+
+/* ---- BAIT INDICATOR ---- */
+#bait-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-top: 1px solid var(--row-border);
+    background: var(--row-bg);
+}
+#bait-indicator-img {
+    width: 29px;
+    height: 29px;
+    border-radius: 4px;
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
+    background: rgba(8,20,40,0.6);
+    object-fit: contain;
+}
+#bait-indicator-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-soft);
+    flex: 1;
+}
+#bait-indicator-qty {
+    font-size: 10px;
+    color: rgba(var(--accent-rgb), 0.5);
+}
+
+/* ---- BAIT SELECTION MENU ---- */
+#bait-menu {
+    position: fixed;
+    bottom: 390px;
+    right: 18px;
+    width: 300px;
+    background: rgba(8,24,48,0.94);
+    border: 1px solid rgba(var(--accent-rgb), 0.25);
+    border-radius: var(--hud-radius);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    overflow: hidden;
+    z-index: 100;
+}
+.bait-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(var(--accent-rgb), 0.7);
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.1);
+}
+.bait-menu-close {
+    cursor: pointer;
+    font-size: 17px;
+    color: rgba(160,190,220,0.4);
+    transition: color 0.2s;
+    line-height: 1;
+}
+.bait-menu-close:hover { color: #e05050; }
+
+#bait-list {
+    max-height: 240px;
+    overflow-y: auto;
+    padding: 6px 0;
+}
+#bait-list::-webkit-scrollbar { width: 6px; }
+#bait-list::-webkit-scrollbar-track { background: transparent; }
+#bait-list::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb), 0.2); border-radius: 2px; }
+
+.bait-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.bait-item:hover  { background: rgba(var(--accent-rgb), 0.08); }
+.bait-item.active {
+    background: rgba(var(--accent-rgb), 0.12);
+    border-left: 2px solid rgb(var(--accent-rgb));
+}
+.bait-item-img {
+    width: 31px;
+    height: 31px;
+    border-radius: 4px;
+    border: 1px solid rgba(var(--accent-rgb), 0.15);
+    background: rgba(8,20,40,0.6);
+    object-fit: contain;
+}
+.bait-item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+.bait-item-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #b0d8f0;
+}
+.bait-item-desc {
+    font-size: 8px;
+    color: rgba(var(--accent-rgb), 0.45);
+}
+.bait-item-qty {
+    font-size: 10px;
+    color: rgba(var(--accent-rgb), 0.5);
+    min-width: 36px;
+    text-align: right;
+}
+.bait-item-active-tag {
+    font-size: 7px;
+    font-weight: 700;
+    color: #50d070;
+    letter-spacing: 1px;
+}
+.bait-empty {
+    padding: 22px 14px;
+    text-align: center;
+    font-size: 11px;
+    color: rgba(var(--accent-rgb), 0.35);
+}
+#bait-remove {
+    padding: 6px 14px 10px;
+    border-top: 1px solid var(--row-border);
+}
+#btn-remove-bait {
+    width: 100%;
+    padding: 6px 0;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #e05050;
+    background: rgba(224,80,80,0.08);
+    border: 1px solid rgba(224,80,80,0.2);
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+#btn-remove-bait:hover { background: rgba(224,80,80,0.15); }
+
+/* ---- REEL OVERLAY ---- */
+#reel-overlay {
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    width: 110px;
+    height: 110px;
+    pointer-events: none;
+    zoom: var(--hud-scale);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    z-index: 4;
+}
+#reel-overlay.visible { opacity: 1; }
+#reel-body {
+    position: absolute;
+    inset: 0;
+    background: url('img/overlay.png') no-repeat center / 100% 100%;
+}
+#reel-gear {
+    position: absolute;
+    top: 4px;
+    left: 11px;
+    width: 100%;
+    height: 100%;
+    background: url('img/gear.png') no-repeat center / 100% 100%;
+}
+#reel-handle {
+    position: absolute;
+    top: 4px;
+    left: 11px;
+    width: 100%;
+    height: 100%;
+    background: url('img/reelhandle.png') no-repeat center / 100% 100%;
+}
+
+/* ---- HUD FOOTER (time-of-day strip) ---- */
+#hud-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 5px 16px 6px;
+    border-top: 1px solid var(--row-border);
+    background: var(--row-bg);
+}
+#footer-time-icon {
+    font-size: 10px;
+    line-height: 1;
+}
+#footer-time-label {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(160,190,220,0.4);
+}
+#footer-time-clock {
+    font-size: 8px;
+    font-weight: 500;
+    color: rgba(160,190,220,0.35);
+    letter-spacing: 0.5px;
+}
