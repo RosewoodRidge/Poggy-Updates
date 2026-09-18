@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>poggy_core UI</title>
+    <!--
+        poggy_core — the menu and the text input every Poggy script uses
+        (menu.open, menu.close, input.text). One page, hidden until asked for,
+        no external fonts, scripts or images: nothing here needs the internet.
+        Driven by client/cl_menu.lua; see the message shapes at the top of script.js.
+    -->
+    <link rel="stylesheet" href="style.css">
+    <!-- The settings hub (/poggy, 0.18.0): client/cl_hub.lua drives it. -->
+    <link rel="stylesheet" href="hub/hub.css">
+</head>
+<body>
+
+    <!-- ── list menu ─────────────────────────────────────────────────────── -->
+    <div id="pg-menu" class="pg-panel pg-menu hidden" role="menu">
+        <div class="pg-head">
+            <div class="pg-title" id="pg-menu-title"></div>
+            <div class="pg-subtitle" id="pg-menu-subtitle"></div>
+            <div class="pg-rule"></div>
+        </div>
+        <div class="pg-items" id="pg-menu-items"></div>
+        <div class="pg-desc"><div class="pg-desc-text" id="pg-menu-desc"></div></div>
+        <div class="pg-foot">
+            <div class="pg-count" id="pg-menu-count"></div>
+            <button type="button" class="pg-btn pg-btn-close" id="pg-menu-close">Close</button>
+            <div class="pg-hint"><span>&uarr;&darr;</span> move <span>Enter</span> select <span>Esc</span> close</div>
+        </div>
+    </div>
+
+    <!-- ── text input ────────────────────────────────────────────────────── -->
+    <div id="pg-input" class="pg-panel pg-input hidden" role="dialog">
+        <div class="pg-head">
+            <div class="pg-title" id="pg-input-title"></div>
+            <div class="pg-rule"></div>
+        </div>
+        <div class="pg-input-body">
+            <input type="text" id="pg-input-field" autocomplete="off" spellcheck="false">
+            <div class="pg-input-note" id="pg-input-note"></div>
+        </div>
+        <div class="pg-foot pg-foot-buttons">
+            <button type="button" class="pg-btn pg-btn-primary" id="pg-input-submit">Confirm</button>
+            <button type="button" class="pg-btn pg-btn-close" id="pg-input-cancel">Cancel</button>
+        </div>
+    </div>
+
+    <!-- ── settings hub (/poggy) ───────────────────────────────────────── -->
+    <div id="poggy-hub" class="ph" hidden></div>
+
+    <script src="script.js"></script>
+    <script src="hub/md.js"></script>
+    <script src="hub/hub-core.js"></script>
+    <script src="hub/hub-state.js"></script>
+    <script src="hub/hub-fields.js"></script>
+    <script src="hub/hub-lists.js"></script>
+    <script src="hub/hub-pages.js"></script>
+    <script src="hub/hub-roles.js"></script>
+    <script src="hub/hub.js"></script>
+</body>
+</html>
