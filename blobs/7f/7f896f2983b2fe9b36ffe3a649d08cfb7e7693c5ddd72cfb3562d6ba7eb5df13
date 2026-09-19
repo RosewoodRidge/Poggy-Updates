@@ -1,0 +1,868 @@
+{
+  "label": "Poggy Util",
+  "tagline": "Ten small server utilities, each with its own switch",
+  "category": "Utility",
+  "description": "A bundle of optional utilities: area of play, clock and weather, duty count, armor protection, weapon jams, music zones, object and body cleanup, unstuck, a /help guide and a government stipend. Turn on only the ones you want.",
+  "readme": "README.md",
+  "help": [
+    {"title": "Writing your /help guide", "file": "docs/help/help-menu.md"},
+    {"title": "Setting up armor protection", "file": "docs/help/armor.md"}
+  ],
+
+  "commands": [
+    {
+      "command": "/aop",
+      "who": "Everyone",
+      "description": "Hides or shows the area-of-play box (with the clock and duty count). l or r moves it to the left or right side; the side is remembered.",
+      "usage": "/aop [l|r]",
+      "examples": ["/aop", "/aop r"]
+    },
+    {
+      "command": "/help",
+      "who": "Everyone",
+      "description": "Opens or closes the searchable help guide. Only when the help menu is enabled.",
+      "usage": "/help",
+      "examples": ["/help"]
+    },
+    {
+      "command": "/unstuck",
+      "configPath": "Config.Unstuck.Command",
+      "who": "Everyone",
+      "description": "Teleports the player to the nearest road after a countdown. Moving or dying cancels it.",
+      "usage": "/unstuck",
+      "examples": ["/unstuck"]
+    },
+    {
+      "command": "/togglemusic",
+      "who": "Everyone",
+      "description": "Turns music zones off or on for this player only; the choice is remembered.",
+      "usage": "/togglemusic",
+      "examples": ["/togglemusic"]
+    },
+    {
+      "command": "/movearmor",
+      "who": "Everyone",
+      "description": "Lets the player drag the armor durability icon; click anywhere to save. Saved per character. Only with armor protection on.",
+      "usage": "/movearmor",
+      "examples": ["/movearmor"]
+    },
+    {
+      "command": "/removeobjects",
+      "who": "Admins",
+      "description": "Deletes the given object models on every player's game, or every model in the removal list when none is given. Needs a staff group listed under Admin groups, or the server console.",
+      "usage": "/removeobjects [model ...]",
+      "examples": ["/removeobjects", "/removeobjects s_coachlock02x"]
+    },
+    {
+      "command": "/cleandead",
+      "who": "Admins",
+      "description": "Runs dead entity cleanup now. Needs a staff group listed under Admin groups, or the server console. Does nothing while dead entity cleanup is off.",
+      "usage": "/cleandead",
+      "examples": ["/cleandead"]
+    }
+  ],
+
+  "tabs": [
+    {"id": "general", "label": "General", "icon": "sliders"},
+    {"id": "access", "label": "Access & permissions", "icon": "shield"},
+    {"id": "world", "label": "World", "icon": "compass"},
+    {"id": "combat", "label": "Combat", "icon": "swords"},
+    {"id": "help", "label": "Help pages", "icon": "book"},
+    {"id": "economy", "label": "Economy & prices", "icon": "coins"},
+    {"id": "advanced", "label": "Advanced", "icon": "cog"}
+  ],
+
+  "settings": {
+    "Config.Help.Enabled": {
+      "label": "/help guide",
+      "tab": "general",
+      "group": "Utilities",
+      "tooltip": "On: /help opens the guide. Off: the /help command is not registered. The pages are on the Help pages tab."
+    },
+    "Config.WeaponJam.Enabled": {
+      "label": "Weapon jams",
+      "tab": "general",
+      "group": "Utilities",
+      "tooltip": "Master switch for weapon jams. The settings are on the Combat tab."
+    },
+    "Config.ArmorProtection.Enabled": {
+      "label": "Armor protection",
+      "tab": "general",
+      "group": "Utilities",
+      "tooltip": "Master switch for armor protection. /movearmor does nothing while this is off. The settings are on the Combat tab."
+    },
+    "Config.Stipend.Enabled": {
+      "label": "Government stipend",
+      "tab": "general",
+      "group": "Utilities",
+      "tooltip": "Master switch for the stipend. VORP only: on other frameworks it turns itself off. The settings are on the Economy & prices tab."
+    },
+    "Config.ObjectRemoval.Enabled": {
+      "label": "Object removal",
+      "tab": "general",
+      "group": "Utilities",
+      "tooltip": "Master switch. Off also turns off dead entity cleanup and both admin commands."
+    },
+    "Config.MusicZones.Enabled": {
+      "label": "Music zones",
+      "tab": "general",
+      "group": "Utilities",
+      "tooltip": "Master switch. Off also removes /togglemusic."
+    },
+    "Config.Unstuck": {
+      "label": "Unstuck",
+      "tab": "general",
+      "tooltip": "Lets a stuck player teleport to the nearest road after a short wait. The help menu's I'M STUCK button uses it too."
+    },
+    "Config.Unstuck.Enabled": {
+      "label": "Unstuck",
+      "tab": "general",
+      "group": "Utilities",
+      "tooltip": "Master switch. Off removes the command."
+    },
+    "Config.Unstuck.Command": {
+      "label": "Unstuck command",
+      "tab": "general",
+      "group": "Commands",
+      "tooltip": "Chat command without the slash (default unstuck). The help menu's button calls whatever this is."
+    },
+    "Config.Unstuck.DelaySeconds": {
+      "label": "Wait before teleport",
+      "tab": "general",
+      "group": "Unstuck",
+      "min": 0,
+      "max": 120,
+      "step": 1,
+      "unit": "seconds",
+      "tooltip": "Countdown before the teleport. The player is frozen meanwhile; dying cancels it."
+    },
+    "Config.Unstuck.MoveTolerance": {
+      "label": "Allowed drift",
+      "tab": "general",
+      "group": "Unstuck",
+      "advanced": true,
+      "min": 0,
+      "max": 50,
+      "step": 0.5,
+      "unit": "metres",
+      "tooltip": "If the player ends up further than this from the start point during the countdown, it is cancelled."
+    },
+    "Config.AOP.Enabled": {
+      "label": "Area of play",
+      "tab": "general",
+      "group": "Utilities",
+      "tooltip": "Master switch. Off also hides the clock and duty count, which sit inside the same box."
+    },
+    "Config.DutyCount.Enabled": {
+      "label": "Duty count",
+      "tab": "general",
+      "group": "Utilities",
+      "tooltip": "Master switch. Needs the area of play on to be seen."
+    },
+    "Config.ClockWeather.Enabled": {
+      "label": "Clock and weather",
+      "tab": "general",
+      "group": "Utilities",
+      "tooltip": "Master switch. Needs weathersync and the area of play."
+    },
+    "Config.ObjectRemoval.AdminGroups": {
+      "label": "Staff groups",
+      "tab": "access",
+      "group": "Cleanup commands",
+      "picker": "group",
+      "tooltip": "Staff groups allowed to use /removeobjects and /cleandead. The server console can always use them."
+    },
+    "Config.DutyCount.LawJobs": {
+      "label": "Law jobs in the duty count",
+      "tab": "access",
+      "tooltip": "Jobs counted as law when on duty. Job names are case-sensitive. To add a job, add a line in config.lua (name = true)."
+    },
+    "Config.DutyCount.LawJobs.*": {
+      "tab": "access",
+      "group": "Law jobs in the duty count",
+      "tooltip": "On: an on-duty character with this job counts as law. Off: not counted."
+    },
+    "Config.ObjectRemoval": {
+      "label": "Object removal",
+      "tab": "world",
+      "tooltip": "Deletes the listed object models on every player's game on a timer. /removeobjects runs it now."
+    },
+    "Config.ObjectRemoval.IntervalMinutes": {
+      "label": "Run every",
+      "tab": "world",
+      "group": "Object removal",
+      "min": 1,
+      "max": 1440,
+      "step": 1,
+      "unit": "minutes",
+      "tooltip": "Time between automatic removals. The first runs 30 seconds after start."
+    },
+    "Config.ObjectRemoval.Objects": {
+      "label": "Models to remove",
+      "tab": "world",
+      "group": "Object removal",
+      "tooltip": "Object model names deleted everywhere, e.g. s_coachlock02x."
+    },
+    "Config.ObjectRemoval.DeadEntityCleanup": {
+      "label": "Dead entity cleanup",
+      "tab": "world",
+      "tooltip": "Clears dead bodies and wrecks on a timer. /cleandead runs it now. Needs object removal on too."
+    },
+    "Config.ObjectRemoval.DeadEntityCleanup.Enabled": {
+      "label": "Enable dead entity cleanup",
+      "tab": "world",
+      "group": "Dead body cleanup",
+      "tooltip": "Master switch for the cleanup. While off, /cleandead does nothing. Needs Object removal on (General tab) too."
+    },
+    "Config.ObjectRemoval.DeadEntityCleanup.IntervalMinutes": {
+      "label": "Run every",
+      "tab": "world",
+      "group": "Dead body cleanup",
+      "min": 1,
+      "max": 1440,
+      "step": 1,
+      "unit": "minutes",
+      "tooltip": "Time between automatic cleanups. The first runs a minute after start."
+    },
+    "Config.ObjectRemoval.DeadEntityCleanup.CleanPeds": {
+      "label": "Dead NPCs",
+      "tab": "world",
+      "group": "Dead body cleanup",
+      "tooltip": "Remove dead human NPCs. Players are never touched."
+    },
+    "Config.ObjectRemoval.DeadEntityCleanup.CleanHorses": {"label": "Dead horses", "tab": "world", "group": "Dead body cleanup", "tooltip": "Remove dead horses."},
+    "Config.ObjectRemoval.DeadEntityCleanup.CleanAnimals": {
+      "label": "Dead animals",
+      "tab": "world",
+      "group": "Dead body cleanup",
+      "tooltip": "Remove dead animals (deer, wolves and so on). Carcasses a player wants to skin go too."
+    },
+    "Config.ObjectRemoval.DeadEntityCleanup.CleanWagons": {
+      "label": "Wrecked wagons",
+      "tab": "world",
+      "group": "Dead body cleanup",
+      "tooltip": "Remove wagons and vehicles that are destroyed. Parked, working wagons are not touched."
+    },
+    "Config.MusicZones": {
+      "label": "Music zones",
+      "tab": "world",
+      "tooltip": "Plays a YouTube track to players near a zone's locations, quieter with distance. Players can turn it off for themselves with /togglemusic."
+    },
+    "Config.MusicZones.UnloadDistance": {
+      "label": "Unload distance",
+      "tab": "world",
+      "group": "Music zones",
+      "min": 10,
+      "max": 1000,
+      "step": 5,
+      "unit": "metres",
+      "tooltip": "The track stays loaded (silent outside the radius) until the player is this far away, so walking back in resumes it. Keep it larger than every zone's radius."
+    },
+    "Config.MusicZones.Quality": {
+      "label": "Video quality",
+      "tab": "world",
+      "group": "Music zones",
+      "advanced": true,
+      "options": [
+        {"value": "small", "label": "240p (lightest)"},
+        {"value": "medium", "label": "360p"},
+        {"value": "large", "label": "480p"},
+        {"value": "hd720", "label": "720p"},
+        {"value": "hd1080", "label": "1080p"},
+        {"value": "highres", "label": "Highest"}
+      ],
+      "tooltip": "Quality YouTube is asked for. Only audio is used, so the lowest saves bandwidth."
+    },
+    "Config.MusicZones.VolumeMultiplier": {
+      "label": "Master volume",
+      "tab": "world",
+      "group": "Music zones",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "tooltip": "Multiplies every zone's volume. 0 silences all zones."
+    },
+    "Config.MusicZones.Falloff": {
+      "label": "Distance falloff",
+      "tab": "world",
+      "group": "Music zones",
+      "advanced": true,
+      "min": 0.1,
+      "max": 5,
+      "step": 0.1,
+      "tooltip": "How volume drops toward the edge of a zone. 1 = straight line, 2 = realistic (drops fast near the source)."
+    },
+    "Config.MusicZones.DirectionalAudio": {
+      "label": "Quieter when looking away",
+      "tab": "world",
+      "group": "Music zones",
+      "tooltip": "On: the music drops to 60% when the camera faces away from the source, for a sense of direction."
+    },
+    "Config.AOP": {
+      "label": "Area of play",
+      "tab": "world",
+      "tooltip": "A box on screen showing the zone where most players are and the player count. The clock and duty count sit inside it. Players hide it with /aop."
+    },
+    "Config.AOP.UpdateInterval": {
+      "label": "Client refresh",
+      "tab": "world",
+      "group": "Area of play",
+      "min": 1,
+      "max": 600,
+      "step": 1,
+      "unit": "seconds",
+      "tooltip": "How often each player asks for the current zone. The server itself recounts every 5 seconds."
+    },
+    "Config.AOP.SearchRadius": {
+      "label": "Zone search radius",
+      "tab": "world",
+      "group": "Area of play",
+      "min": 10,
+      "max": 10000,
+      "step": 10,
+      "unit": "metres",
+      "tooltip": "A player counts for the nearest zone within this distance. Players further from every zone count for none."
+    },
+    "Config.DutyCount": {
+      "label": "Duty count",
+      "tab": "world",
+      "tooltip": "Shows on-duty law and doctors inside the area-of-play box. Doctors are the jobs poggy_core counts as medical (PoggyCoreConfig.MedicalJobs)."
+    },
+    "Config.DutyCount.UpdateInterval": {
+      "label": "Refresh every",
+      "tab": "world",
+      "group": "Duty count",
+      "min": 1,
+      "max": 600,
+      "step": 1,
+      "unit": "seconds",
+      "tooltip": "Time between recounts."
+    },
+    "Config.ClockWeather": {
+      "label": "Clock and weather",
+      "tab": "world",
+      "tooltip": "An animated clock with sun, moon and weather under the area-of-play box. Needs the weathersync resource."
+    },
+    "Config.ClockWeather.UpdateInterval": {
+      "label": "Refresh every",
+      "tab": "world",
+      "group": "Clock and weather",
+      "min": 1,
+      "max": 300,
+      "step": 1,
+      "unit": "seconds",
+      "tooltip": "Time between time and weather updates sent to players."
+    },
+    "Config.WeaponJam": {
+      "label": "Weapon jam",
+      "tab": "combat",
+      "tooltip": "Dirty guns can jam when fired, likelier the dirtier they are. A jammed gun clicks instead of firing until it is cleaned."
+    },
+    "Config.WeaponJam.JamStartThreshold": {
+      "label": "Dirt before jams start",
+      "tab": "combat",
+      "group": "Weapon jam",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "Gun degradation (0 clean, 1 filthy) at which jams become possible. Below it a gun never jams."
+    },
+    "Config.WeaponJam.MaxJamProbability": {
+      "label": "Highest jam chance",
+      "tab": "combat",
+      "group": "Weapon jam",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "Jam chance per shot for a filthy gun (0.25 = 25%). Cleaner guns scale down from this."
+    },
+    "Config.WeaponJam.JamChanceExponent": {
+      "label": "Jam chance curve",
+      "tab": "combat",
+      "group": "Weapon jam",
+      "advanced": true,
+      "min": 0.1,
+      "max": 5,
+      "step": 0.1,
+      "tooltip": "How steeply the chance rises with dirt past the threshold. 1 = straight line; higher = only very dirty guns jam often."
+    },
+    "Config.WeaponJam.UnjamThreshold": {
+      "label": "Clean enough to unjam",
+      "tab": "combat",
+      "group": "Weapon jam",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "A jammed gun works again once its degradation is at or below this (after cleaning)."
+    },
+    "Config.WeaponJam.JamCheckInterval": {
+      "label": "Jam check interval",
+      "tab": "combat",
+      "group": "Weapon jam",
+      "advanced": true,
+      "min": 0,
+      "max": 5000,
+      "step": 50,
+      "unit": "ms",
+      "tooltip": "Shortest time between two jam rolls while shooting. Lower = more rolls in fast fire."
+    },
+    "Config.WeaponJam.CleanlinessCheckInterval": {
+      "label": "Unjam check interval",
+      "tab": "combat",
+      "group": "Weapon jam",
+      "advanced": true,
+      "min": 500,
+      "max": 60000,
+      "step": 500,
+      "unit": "ms",
+      "tooltip": "How often a jammed gun is checked to see if it has been cleaned."
+    },
+    "Config.WeaponJam.JamSound": {"label": "Jam sound", "tab": "combat"},
+    "Config.WeaponJam.JamSound.Enabled": {
+      "label": "Play a click",
+      "tab": "combat",
+      "group": "Jam sound",
+      "tooltip": "Plays a dry click when a gun jams and when a jammed gun's trigger is pulled. Only the shooter hears it."
+    },
+    "Config.WeaponJam.JamSound.Gain": {
+      "label": "Click volume",
+      "tab": "combat",
+      "group": "Jam sound",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "tooltip": "0 silent to 1 full volume."
+    },
+    "Config.WeaponJam.JamSound.Sounds": {
+      "label": "Click sounds",
+      "tab": "combat",
+      "group": "Jam sound",
+      "advanced": true,
+      "tooltip": "Sound files picked at random, from ui/sfx/weaponjam/. A new file must also be listed under files { } in fxmanifest.lua."
+    },
+    "Config.WeaponJam.GunsToJam": {
+      "label": "Guns that can jam",
+      "tab": "combat",
+      "group": "Weapon jam",
+      "tooltip": "Weapon names (e.g. WEAPON_REVOLVER_CATTLEMAN). Any gun not listed never jams."
+    },
+    "Config.ArmorProtection": {
+      "label": "Armor protection",
+      "tab": "combat",
+      "tooltip": "While a player wears something in the armor clothing slot, torso shots are blocked until the armor runs out of hits. A repair kit restores it."
+    },
+    "Config.ArmorProtection.MinDamageThreshold": {
+      "label": "Smallest hit that counts",
+      "tab": "combat",
+      "group": "Armor protection",
+      "advanced": true,
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "unit": "HP",
+      "tooltip": "A health drop smaller than this is ignored (not blocked, no hit used). Keep it at 1 or 2."
+    },
+    "Config.ArmorProtection.MaxShots": {
+      "label": "Hits the armor absorbs",
+      "tab": "combat",
+      "group": "Armor protection",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "hits",
+      "tooltip": "Torso hits blocked before the armor breaks. Each character starts full every session."
+    },
+    "Config.ArmorProtection.ShotsPerStage": {
+      "label": "Hits per HUD stage",
+      "tab": "combat",
+      "group": "Armor protection",
+      "advanced": true,
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "tooltip": "The HUD icon has 10 stages; this many hits empty one stage. Keep hits absorbed ÷ this at exactly 10: less shows full armor as a part-empty icon, more shows no icon."
+    },
+    "Config.ArmorProtection.RepairKitItem": {
+      "label": "Repair kit item",
+      "tab": "combat",
+      "group": "Armor protection",
+      "picker": "item",
+      "tooltip": "Item that repairs the armor to full. It is only used up when the repair finishes. sql/install.sql adds 'armor_kit' on VORP."
+    },
+    "Config.ArmorProtection.RepairTime": {
+      "label": "Repair time",
+      "tab": "combat",
+      "group": "Armor protection",
+      "min": 0,
+      "max": 60000,
+      "step": 500,
+      "unit": "ms",
+      "tooltip": "Length of the repair animation and progress bar."
+    },
+    "Config.ArmorProtection.NotifyPlayer": {
+      "label": "Tell the player when armor blocks a hit",
+      "tab": "combat",
+      "group": "Armor messages",
+      "tooltip": "Shows a tip each time the armor absorbs a hit."
+    },
+    "Config.ArmorProtection.NotifyMessage": {
+      "label": "Blocked-hit message",
+      "tab": "combat",
+      "group": "Armor messages",
+      "tooltip": "Text of that tip."
+    },
+    "Config.ArmorProtection.NotifyDuration": {
+      "label": "Message time",
+      "tab": "combat",
+      "group": "Armor messages",
+      "min": 500,
+      "max": 15000,
+      "step": 250,
+      "unit": "ms",
+      "tooltip": "How long the tip stays on screen."
+    },
+    "Config.ArmorProtection.NotifyCooldown": {
+      "label": "Message cooldown",
+      "tab": "combat",
+      "group": "Armor messages",
+      "min": 0,
+      "max": 60000,
+      "step": 250,
+      "unit": "ms",
+      "tooltip": "Shortest time between two tips, so rapid fire does not spam."
+    },
+    "Config.ArmorProtection.HUD": {
+      "label": "Armor HUD icon",
+      "tab": "combat",
+      "tooltip": "The durability icon shown while armor is worn. Positions are CSS values such as 80px. Players can move it for themselves with /movearmor."
+    },
+    "Config.ArmorProtection.HUD.Enabled": {
+      "label": "Show the icon",
+      "tab": "combat",
+      "group": "Armor HUD icon",
+      "tooltip": "Shows the durability icon while armor is worn."
+    },
+    "Config.ArmorProtection.HUD.Bottom": {
+      "label": "Distance from bottom",
+      "tab": "combat",
+      "group": "Armor HUD icon",
+      "advanced": true,
+      "tooltip": "Distance from the bottom of the screen in px, e.g. 80px."
+    },
+    "Config.ArmorProtection.HUD.Left": {
+      "label": "Distance from left",
+      "tab": "combat",
+      "group": "Armor HUD icon",
+      "advanced": true,
+      "tooltip": "Distance from the left edge in px, e.g. 30px. Ignored when 'Distance from right' is set."
+    },
+    "Config.ArmorProtection.HUD.Right": {
+      "label": "Distance from right",
+      "tab": "combat",
+      "group": "Armor HUD icon",
+      "advanced": true,
+      "tooltip": "Distance from the right edge in px, e.g. 30px. When set, the icon is anchored on the right and 'Distance from left' is ignored. Not set by default."
+    },
+    "Config.ArmorProtection.HUD.ImageWidth": {
+      "label": "Icon width",
+      "tab": "combat",
+      "group": "Armor HUD icon",
+      "advanced": true,
+      "tooltip": "CSS width of the icon, e.g. 44px."
+    },
+    "Config.ArmorProtection.HUD.ImageHeight": {
+      "label": "Icon height",
+      "tab": "combat",
+      "group": "Armor HUD icon",
+      "advanced": true,
+      "tooltip": "CSS height of the icon, e.g. 44px."
+    },
+    "Config.ArmorProtection.HUD.ShieldSize": {
+      "label": "Shield size",
+      "tab": "combat",
+      "group": "Armor HUD icon",
+      "advanced": true,
+      "tooltip": "CSS size of the shield in the middle of the icon, e.g. 25px."
+    },
+    "Config.ArmorProtection.RepairBar": {"label": "Repair bar", "tab": "combat"},
+    "Config.ArmorProtection.RepairBar.Bottom": {
+      "label": "Distance from bottom",
+      "tab": "combat",
+      "group": "Repair bar",
+      "advanced": true,
+      "tooltip": "CSS distance of the repair progress bar from the bottom (it is centred), e.g. 90px."
+    },
+    "Config.ArmorProtection.RepairBar.Width": {
+      "label": "Width",
+      "tab": "combat",
+      "group": "Repair bar",
+      "advanced": true,
+      "tooltip": "CSS width of the repair progress bar, e.g. 300px."
+    },
+    "Config.Help": {
+      "label": "Help menu",
+      "tab": "help",
+      "tooltip": "/help opens a searchable guide. Its pages are the Guide pages on this tab."
+    },
+    "Config.Help.ServerName": {
+      "label": "Server name",
+      "tab": "help",
+      "group": "Guide header",
+      "tooltip": "Shown in the guide's header."
+    },
+    "Config.Help.Logo": {
+      "label": "Logo",
+      "tab": "help",
+      "group": "Guide header",
+      "tooltip": "Optional image left of the name: a full https:// URL, or a file in ui/ that is also listed under files { } in fxmanifest.lua. Empty = no logo."
+    },
+    "Config.Stipend": {
+      "label": "Government stipend",
+      "tab": "economy",
+      "tooltip": "Pays unemployed characters cash on a timer, rising with how long they have been on the server. VORP only: on other frameworks it turns itself off."
+    },
+    "Config.Stipend.IntervalMinutes": {
+      "label": "Pay every",
+      "tab": "economy",
+      "group": "Government stipend",
+      "min": 1,
+      "max": 1440,
+      "step": 1,
+      "unit": "minutes",
+      "tooltip": "Time between pay rounds. Only players online at that moment are paid."
+    },
+    "Config.Stipend.BasePay": {
+      "label": "Base pay",
+      "tab": "economy",
+      "group": "Government stipend",
+      "min": 0,
+      "max": 1000,
+      "step": 0.25,
+      "unit": "$",
+      "tooltip": "Cash paid each round to an eligible character."
+    },
+    "Config.Stipend.IncreaseAmount": {
+      "label": "Raise per step",
+      "tab": "economy",
+      "group": "Government stipend",
+      "min": 0,
+      "max": 100,
+      "step": 0.05,
+      "unit": "$",
+      "tooltip": "Added to the pay for each full step of tenure past the minimum."
+    },
+    "Config.Stipend.IncreaseIntervalDays": {
+      "label": "Days per raise",
+      "tab": "economy",
+      "group": "Government stipend",
+      "min": 1,
+      "max": 365,
+      "step": 1,
+      "unit": "days",
+      "tooltip": "Length of one tenure step. Pay = base + raise × (days past the minimum ÷ this, rounded down)."
+    },
+    "Config.Stipend.MinimumTenureDays": {
+      "label": "Days before eligible",
+      "tab": "economy",
+      "group": "Government stipend",
+      "min": 0,
+      "max": 365,
+      "step": 1,
+      "unit": "days",
+      "tooltip": "A character must be this old (from characters.created_at) before being paid."
+    },
+    "Config.Stipend.UnemployedJobName": {
+      "label": "Unemployed job",
+      "tab": "economy",
+      "group": "Government stipend",
+      "picker": "job",
+      "tooltip": "Only characters with this job are paid (not case-sensitive)."
+    },
+    "Config.Stipend.LegacyDate": {
+      "label": "Legacy creation date",
+      "tab": "economy",
+      "group": "Government stipend",
+      "advanced": true,
+      "readonly": true,
+      "tooltip": "Informational only. The date given to characters older than poggy_util is written once by sql/install.sql; changing it here does nothing. Change it in that file before poggy_util first starts."
+    },
+    "Config.Debug": {
+      "label": "Debug output",
+      "tab": "advanced",
+      "group": "Diagnostics",
+      "advanced": true,
+      "tooltip": "Prints debug lines from every utility to the server console and F8. Leave off on a live server."
+    },
+    "Config.WeaponJam.JamSound.MaxDistance": {
+      "label": "Jam sound distance",
+      "tooltip": "Not used: the click is only played for the shooter.",
+      "tab": "advanced",
+      "group": "Not used",
+      "advanced": true
+    },
+    "Config.WeaponJam.JamSound.Falloff": {
+      "label": "Jam sound falloff",
+      "tooltip": "Not used: the click is only played for the shooter.",
+      "tab": "advanced",
+      "group": "Not used",
+      "advanced": true
+    }
+  },
+
+  "lists": {
+    "Config.MusicZones.Zones": {
+      "label": "Music zones",
+      "itemLabel": "zone",
+      "tab": "world",
+      "kind": "list",
+      "tooltip": "Each zone plays one YouTube video near its locations.",
+      "titleField": "name",
+      "subtitleField": "youtubeId",
+      "columns": [
+        {"field": "name", "label": "Name"},
+        {"field": "youtubeId", "label": "YouTube id"},
+        {"field": "radius", "label": "Radius"},
+        {"field": "volume", "label": "Volume"}
+      ],
+      "search": ["name", "youtubeId"],
+      "fields": {
+        "name": {"label": "Name", "tooltip": "Only for you and debug output."},
+        "youtubeId": {
+          "label": "YouTube video id",
+          "tooltip": "The id after watch?v= in the video's address, e.g. h8RnD9Qz1tI."
+        },
+        "radius": {
+          "label": "Radius",
+          "min": 1,
+          "max": 500,
+          "step": 1,
+          "unit": "metres",
+          "tooltip": "Music is heard inside this distance of a location, louder toward the middle."
+        },
+        "volume": {
+          "label": "Volume",
+          "min": 0,
+          "max": 1,
+          "step": 0.05,
+          "tooltip": "Zone volume, 0 to 1, before the master volume."
+        },
+        "loop": {"label": "Loop", "tooltip": "Not used: every zone loops whatever this says.", "advanced": true},
+        "timestamps": {
+          "label": "Start points",
+          "tooltip": "Seconds into the video where playback may start, picked at random. Empty = always from the start."
+        },
+        "locations": {"label": "Locations", "tooltip": "Where the music comes from. A zone can have several."},
+        "locations[]": {"picker": "coords"}
+      },
+      "template": {
+        "name": "New zone",
+        "youtubeId": "",
+        "radius": 25.0,
+        "volume": 0.25,
+        "loop": true,
+        "timestamps": [0],
+        "locations": [{"__type": "vec3", "x": 0, "y": 0, "z": 0}]
+      }
+    },
+    "Config.AOP.Zones": {
+      "label": "Area-of-play zones",
+      "itemLabel": "zone",
+      "tab": "world",
+      "kind": "list",
+      "tooltip": "Named points. Each player counts for the nearest one within the search radius; the busiest zone is shown to everyone.",
+      "titleField": "name",
+      "columns": [{"field": "name", "label": "Name"}, {"field": "coords", "label": "Centre"}],
+      "search": ["name"],
+      "fields": {
+        "name": {"label": "Name", "tooltip": "Shown in the box, e.g. Valentine Zone."},
+        "coords": {"label": "Centre", "picker": "coords", "tooltip": "Middle of the zone."}
+      },
+      "template": {
+        "name": "New Zone",
+        "coords": {"__type": "vec3", "x": 0, "y": 0, "z": 0}
+      }
+    },
+    "Config.HelpData": {
+      "kind": "collection",
+      "label": "Guide pages",
+      "itemLabel": "page",
+      "tab": "help",
+      "titleField": "title",
+      "subtitleField": "id",
+      "tooltip": "The pages (tiles) of the /help guide, each made of sections. The page with id getting_started is the large first tile; the rest are sorted by title. Ships with example content: replace it with your own.",
+      "search": ["title", "id", "sections[].title", "sections[].items[]"],
+      "columns": [
+        {"field": "title", "label": "Title"},
+        {"field": "id", "label": "Id"},
+        {"field": "icon", "label": "Icon"}
+      ],
+      "fields": {
+        "id": {
+          "label": "Id",
+          "tooltip": "Unique id: letters, digits and underscores. getting_started makes it the large first tile."
+        },
+        "title": {"label": "Title", "tooltip": "Tile label and page heading."},
+        "icon": {
+          "label": "Icon",
+          "options": [
+            {"value": "compass", "label": "Compass"},
+            {"value": "book", "label": "Book"},
+            {"value": "terminal", "label": "Terminal"},
+            {"value": "envelope", "label": "Envelope"},
+            {"value": "crosshair", "label": "Crosshair"},
+            {"value": "fish", "label": "Fish"},
+            {"value": "tent", "label": "Tent"},
+            {"value": "pickaxe", "label": "Pickaxe"},
+            {"value": "plant", "label": "Plant"},
+            {"value": "horse", "label": "Horse"},
+            {"value": "wheel", "label": "Wheel"},
+            {"value": "hammer", "label": "Hammer"},
+            {"value": "mask", "label": "Mask"},
+            {"value": "badge", "label": "Badge"},
+            {"value": "medcross", "label": "Medcross"},
+            {"value": "coins", "label": "Coins"}
+          ],
+          "tooltip": "Tile icon."
+        },
+        "color": {"label": "Colour", "picker": "color", "tooltip": "Tile and heading colour, e.g. #d4c5a0."},
+        "sections": {"label": "Sections", "tooltip": "Blocks on the page, in order."}
+      },
+      "sublists": {
+        "sections": {
+          "label": "Sections",
+          "itemLabel": "section",
+          "columns": [{"field": "title", "label": "Title"}, {"field": "type", "label": "Type"}],
+          "fields": {
+            "title": {"label": "Section title", "tooltip": "Heading of this block on the page."},
+            "type": {
+              "label": "Section type",
+              "options": [
+                {"value": "info", "label": "Info (bullets)"},
+                {"value": "steps", "label": "Steps (numbered)"},
+                {"value": "tips", "label": "Tips"},
+                {"value": "commands", "label": "Commands"},
+                {"value": "drug-crafting", "label": "Crafting guide (advanced)"},
+                {"value": "medicine-grid", "label": "Medicine grid (advanced)"}
+              ],
+              "tooltip": "How the lines are drawn. The two advanced types use their own fields; edit those in config/help.lua."
+            },
+            "items": {"label": "Lines", "tooltip": "One line of text each."},
+            "items[]": {"picker": "multiline"}
+          },
+          "template": {
+            "title": "Section",
+            "type": "info",
+            "items": ["Replace with your own text"]
+          }
+        }
+      },
+      "template": {
+        "id": "new_category",
+        "title": "NEW CATEGORY",
+        "icon": "book",
+        "color": "#d4c5a0",
+        "sections": [{"title": "Section", "type": "info", "items": ["Replace with your own text"]}]
+      }
+    }
+  }
+}

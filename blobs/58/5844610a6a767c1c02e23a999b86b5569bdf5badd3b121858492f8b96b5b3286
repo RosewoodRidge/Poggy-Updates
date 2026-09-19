@@ -1,0 +1,521 @@
+{
+  "label": "Poggy Scene",
+  "tagline": "Coloured scene text, status tags and a /me box that make every roleplay moment readable",
+  "category": "Roleplay",
+  "description": "Players place coloured floating text in the world that stays through restarts, wear a status tag above their head, and send /me and /do actions. Nearby /me messages also collect in a tidy on-screen box so nobody misses them.",
+  "readme": "README.md",
+  "help": [
+    {
+      "title": "Managing scenes in /poggy",
+      "file": "docs/help/managing-scenes.md"
+    },
+    {
+      "title": "Who can place and remove scenes",
+      "file": "docs/help/scene-permissions.md"
+    },
+    {
+      "title": "Colours, themes and the /me box",
+      "file": "docs/help/colours-and-mebox.md"
+    }
+  ],
+  "commands": [
+    {
+      "command": "/scene",
+      "configPath": "Config.scenecommand",
+      "who": "Everyone",
+      "description": "Opens the Scene Editor to write coloured text and place it in the world. With Job lock on, only the allowed jobs, the remove jobs and the admin group can use it.",
+      "usage": "/scene",
+      "examples": [
+        "/scene"
+      ]
+    },
+    {
+      "command": "/me",
+      "configPath": "Config.mecommand",
+      "who": "Everyone",
+      "description": "An in-character action. Floats above your character and appears in nearby players' /me box.",
+      "usage": "/me <action>",
+      "examples": [
+        "/me tips his hat",
+        "/me counts the coins slowly"
+      ]
+    },
+    {
+      "command": "/do",
+      "configPath": "Config.ooccommand",
+      "who": "Everyone",
+      "description": "A description of the scene, shown in red above your character. Not added to the /me box.",
+      "usage": "/do <description>",
+      "examples": [
+        "/do The wanted poster is torn at the corner"
+      ]
+    },
+    {
+      "command": "/status",
+      "configPath": "Config.statuscommand",
+      "who": "Everyone",
+      "description": "Sets a status tag that stays above your character. Alone, it opens the Status Editor with colours and saved presets.",
+      "usage": "/status [text]",
+      "examples": [
+        "/status",
+        "/status Injured, left arm"
+      ]
+    },
+    {
+      "command": "/cstatus",
+      "configPath": "Config.stopdisplay",
+      "who": "Everyone",
+      "description": "Clears your status tag.",
+      "usage": "/cstatus",
+      "examples": [
+        "/cstatus"
+      ]
+    },
+    {
+      "command": "/id",
+      "configPath": "Config.id",
+      "who": "Everyone",
+      "description": "Shows your server ID above your character for a few seconds.",
+      "usage": "/id",
+      "examples": [
+        "/id"
+      ]
+    },
+    {
+      "command": "/cash",
+      "configPath": "Config.cash",
+      "who": "Everyone",
+      "description": "Shows your current cash above your character for a few seconds. The amount is read on the server.",
+      "usage": "/cash",
+      "examples": [
+        "/cash"
+      ]
+    },
+    {
+      "command": "/mebox",
+      "configPath": "Config.meboxcommand",
+      "who": "Everyone",
+      "description": "Controls your own /me box: auto (fades), persist, off, move (drag it; Esc saves), or small / normal / large. Saved for that player.",
+      "usage": "/mebox auto | persist | off | move | small | normal | large",
+      "examples": [
+        "/mebox persist",
+        "/mebox move",
+        "/mebox large"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "id": "scenes",
+      "label": "Scenes",
+      "icon": "map"
+    },
+    {
+      "id": "general",
+      "label": "General",
+      "icon": "sliders"
+    },
+    {
+      "id": "access",
+      "label": "Access & permissions",
+      "icon": "shield"
+    },
+    {
+      "id": "mebox",
+      "label": "/me & overhead text",
+      "icon": "chat"
+    },
+    {
+      "id": "appearance",
+      "label": "Appearance",
+      "icon": "palette"
+    },
+    {
+      "id": "text",
+      "label": "Text & language",
+      "icon": "globe"
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced",
+      "icon": "cog"
+    }
+  ],
+  "panels": [
+    {
+      "id": "scenes",
+      "label": "Placed scenes",
+      "tab": "scenes",
+      "export": "HubPanel",
+      "itemLabel": "scene",
+      "tooltip": "Every scene placed on the server: its text, who placed it, where and when. Edit the text in the table; delete one scene or everything one player placed from its row; clean up everything older than a number of days from the toolbar. Changes show for every player at once, no restart."
+    }
+  ],
+  "settings": {
+    "Config.scenevisabilitydistance": {
+      "label": "Scene and status view distance",
+      "tooltip": "How close, in metres, a player must be to read scene text and other players' status tags. Larger values show more text on screen at once.",
+      "tab": "general",
+      "group": "Scenes",
+      "min": 1,
+      "max": 50,
+      "step": 0.5,
+      "unit": "metres"
+    },
+    "Config.denysceneinhideout": {
+      "label": "Block scenes near the hideout",
+      "tooltip": "When on, /scene is refused within 100 metres of one fixed spot (1785, -821, 191). The spot cannot be changed in the config.",
+      "tab": "general",
+      "group": "Scenes",
+      "advanced": true
+    },
+    "Config.scenecommand": {
+      "label": "Scene command",
+      "tooltip": "Opens the Scene Editor. Without the slash.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.mecommand": {
+      "label": "/me command",
+      "tooltip": "In-character action command. Without the slash.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.ooccommand": {
+      "label": "/do command",
+      "tooltip": "Scene description command. Without the slash.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.statuscommand": {
+      "label": "Status command",
+      "tooltip": "Sets a status tag or opens the Status Editor. Without the slash.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.stopdisplay": {
+      "label": "Clear status command",
+      "tooltip": "Clears your status tag. Without the slash.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.id": {
+      "label": "ID command",
+      "tooltip": "Shows your server ID above your head. Without the slash.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.cash": {
+      "label": "Cash command",
+      "tooltip": "Shows your cash above your head. Without the slash.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.meboxcommand": {
+      "label": "/me box command",
+      "tooltip": "Controls a player's own /me box. Without the slash.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.joblock": {
+      "label": "Job lock",
+      "tooltip": "When on, only jobs in Allowed jobs can place scenes (plus Remove jobs and the admin group). If Allowed jobs is empty, everyone can still place. Players blocked by this see the 'Cant place scene in hideout' text.",
+      "tab": "access",
+      "group": "Placing scenes"
+    },
+    "Config.allowjobs": {
+      "label": "Allowed jobs",
+      "tooltip": "Jobs that may place scenes while Job lock is on. Exact, case-sensitive job names.",
+      "tab": "access",
+      "group": "Placing scenes",
+      "picker": "job"
+    },
+    "Config.removejobs": {
+      "label": "Remove jobs",
+      "tooltip": "Jobs that can remove anyone's scene, not only their own, and can always place scenes. Exact, case-sensitive job names. Players in the admin group can too.",
+      "tab": "access",
+      "group": "Removing scenes",
+      "picker": "job"
+    },
+    "Config.meoverheadduration": {
+      "label": "Overhead text time",
+      "tooltip": "How many seconds /me, /do, /id and /cash text floats above a character.",
+      "tab": "mebox",
+      "group": "Overhead text",
+      "min": 1,
+      "max": 60,
+      "step": 1,
+      "unit": "seconds"
+    },
+    "Config.meoverheadradius": {
+      "label": "Overhead text distance",
+      "tooltip": "How far away, in metres, players can see /me, /do, /id and /cash text above someone.",
+      "tab": "mebox",
+      "group": "Overhead text",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "metres"
+    },
+    "Config.meboxdistance": {
+      "label": "/me box distance",
+      "tooltip": "How close, in metres, another player must be for their /me to land in your /me box. Your own /me always appears.",
+      "tab": "mebox",
+      "group": "/me box",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "metres"
+    },
+    "Config.meboxtimeout": {
+      "label": "Fade after",
+      "tooltip": "In auto mode, the box fades this many seconds after the last message. Pressing T to chat shows it again.",
+      "tab": "mebox",
+      "group": "/me box",
+      "min": 5,
+      "max": 600,
+      "step": 5,
+      "unit": "seconds"
+    },
+    "Config.meboxmaxlines": {
+      "label": "Visible lines",
+      "tooltip": "How many lines the box shows before it scrolls.",
+      "tab": "mebox",
+      "group": "/me box",
+      "min": 1,
+      "max": 30,
+      "step": 1,
+      "unit": "lines"
+    },
+    "Config.meboxhistory": {
+      "label": "Scroll-back size",
+      "tooltip": "How many messages the box keeps for scrolling back. The oldest are dropped past this.",
+      "tab": "mebox",
+      "group": "/me box",
+      "min": 5,
+      "max": 500,
+      "step": 5,
+      "unit": "messages"
+    },
+    "Config.meboxdissipateafter": {
+      "label": "Delete messages after",
+      "tooltip": "Each message is removed from the box for good after this many seconds (300 = 5 minutes).",
+      "tab": "mebox",
+      "group": "/me box",
+      "min": 30,
+      "max": 7200,
+      "step": 30,
+      "unit": "seconds"
+    },
+    "Config.meboxDefaultNameColor": {
+      "label": "Default name colour",
+      "tooltip": "Colour of the sender's name in the /me box when their job has no colour of its own.",
+      "tab": "appearance",
+      "group": "/me box names",
+      "picker": "color"
+    },
+    "Config.meboxJobColors.*": {
+      "picker": "color",
+      "tab": "appearance",
+      "tooltip": "Name colour in the /me box for players with this job."
+    },
+    "Config.uitheme": {
+      "label": "Editor theme",
+      "tooltip": "Colour scheme of the Scene and Status editors. The /me box is not themed.",
+      "tab": "appearance",
+      "group": "Editor",
+      "options": [
+        {
+          "value": "amber-frontier",
+          "label": "Amber Frontier (Old West sepia and gold)"
+        },
+        {
+          "value": "steel-blue",
+          "label": "Steel Blue (dark navy)"
+        },
+        {
+          "value": "ivory-noir",
+          "label": "Ivory Noir (black and white)"
+        },
+        {
+          "value": "lavender-dusk",
+          "label": "Lavender Dusk (soft purple)"
+        },
+        {
+          "value": "crimson-dusk",
+          "label": "Crimson Dusk (deep red)"
+        },
+        {
+          "value": "emerald-ridge",
+          "label": "Emerald Ridge (forest green)"
+        }
+      ]
+    },
+    "Config.Language": {
+      "label": "Player text",
+      "tab": "text"
+    },
+    "Config.Language.*": {
+      "tab": "text",
+      "group": "Player text"
+    },
+    "Config.Language.pressg2": {
+      "label": "Remove hint",
+      "tooltip": "Shown on screen when standing next to a scene. The remove key is 4."
+    },
+    "Config.Language.scenereg": {
+      "label": "Scene placed",
+      "tooltip": "Shown after a scene is placed."
+    },
+    "Config.Language.sceneremoved": {
+      "label": "Scene removed",
+      "tooltip": "Shown after a scene is removed."
+    },
+    "Config.Language.notinhideout": {
+      "label": "Scene blocked",
+      "tooltip": "Shown when /scene is refused: near the hideout, or blocked by Job lock."
+    },
+    "Config.Language.notjob": {
+      "label": "Cannot remove",
+      "tooltip": "Shown when someone tries to remove a scene they may not remove."
+    },
+    "Config.Language.ooc": {
+      "label": "/do prefix",
+      "tooltip": "Put in front of /do text. ~n~ is a new line, ~e~ makes it red, and the font tag sets the size.",
+      "advanced": true
+    },
+    "Config.Language.stat": {
+      "label": "Status prefix",
+      "tooltip": "Put in front of a status tag. ~n~ is a new line.",
+      "advanced": true
+    },
+    "Config.Language.cash": {
+      "label": "/cash prefix",
+      "tooltip": "Put in front of the cash amount. ~n~ is a new line, ~t6~ is green.",
+      "advanced": true
+    },
+    "Config.Language.id": {
+      "label": "/id prefix",
+      "tooltip": "Put in front of the server ID. ~n~ is a new line, ~t3~ is cyan.",
+      "advanced": true
+    },
+    "Config.Language.helloworld": {
+      "advanced": true,
+      "tooltip": "Not used by the current editor."
+    },
+    "Config.Language.confirm": {
+      "advanced": true,
+      "tooltip": "Not used by the current editor."
+    },
+    "Config.Language.displaytext": {
+      "advanced": true,
+      "tooltip": "Not used by the current editor."
+    },
+    "Config.Language.pressup": {
+      "advanced": true,
+      "tooltip": "Not used by the current editor."
+    },
+    "Config.Language.pressleft": {
+      "advanced": true,
+      "tooltip": "Not used by the current editor."
+    },
+    "Config.Language.pressright": {
+      "advanced": true,
+      "tooltip": "Not used by the current editor."
+    },
+    "Config.Language.pressdown": {
+      "advanced": true,
+      "tooltip": "Not used by the current editor."
+    },
+    "Config.Language.press1": {
+      "advanced": true,
+      "tooltip": "Not used by the current editor."
+    },
+    "Config.Language.press2": {
+      "advanced": true,
+      "tooltip": "Not used by the current editor."
+    },
+    "Config.Language.pressg": {
+      "advanced": true,
+      "tooltip": "Not used by the current editor."
+    },
+    "Config.Language.pressb": {
+      "advanced": true,
+      "tooltip": "Not used by the current editor."
+    },
+    "Config.webhook": {
+      "label": "Discord webhook",
+      "tooltip": "Not used by the current version: nothing is sent to Discord.",
+      "tab": "advanced",
+      "group": "Discord",
+      "picker": "webhook",
+      "advanced": true
+    }
+  },
+  "lists": {
+    "Config.sceneColors": {
+      "label": "Colour swatches",
+      "itemLabel": "colour",
+      "tab": "appearance",
+      "kind": "list",
+      "tooltip": "The colour buttons in the Scene and Status editors, in the order shown. Each maps an on-screen colour to the game's text colour code.",
+      "titleField": "title",
+      "subtitleField": "code",
+      "columns": [
+        {
+          "field": "title",
+          "label": "Name"
+        },
+        {
+          "field": "hex",
+          "label": "Colour"
+        },
+        {
+          "field": "code",
+          "label": "Game code"
+        }
+      ],
+      "search": [
+        "title",
+        "code",
+        "hex"
+      ],
+      "fields": {
+        "title": {
+          "label": "Name",
+          "tooltip": "Shown when hovering the swatch."
+        },
+        "hex": {
+          "label": "Swatch colour",
+          "picker": "color",
+          "tooltip": "The colour of the button and the editor preview. Pick one close to what the game shows for the code."
+        },
+        "code": {
+          "label": "Game colour code",
+          "tooltip": "The game's text colour code, for example ~e~ (red) or ~t6~ (green). This is what actually colours the text in the world."
+        }
+      },
+      "template": {
+        "code": "~q~",
+        "hex": "#ffffff",
+        "title": "New colour"
+      }
+    },
+    "Config.meboxJobColors": {
+      "label": "/me box name colours by job",
+      "itemLabel": "job colour",
+      "tab": "appearance",
+      "kind": "map",
+      "tooltip": "Give a job its own name colour in the /me box. The key is the exact, case-sensitive job name; the value is a hex colour.",
+      "template": "#ffffff"
+    },
+    "Config.keys": {
+      "label": "Control keys",
+      "itemLabel": "key",
+      "tab": "advanced",
+      "kind": "map",
+      "tooltip": "Key name and its RedM control hash. The current code uses only \"4\": the key pressed next to a scene to remove it (default 0x8F9F9E58). The other keys are not used. Change a hash only to one you have confirmed.",
+      "template": 0
+    }
+  }
+}

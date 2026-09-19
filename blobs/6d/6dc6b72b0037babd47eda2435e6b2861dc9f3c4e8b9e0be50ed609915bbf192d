@@ -1,0 +1,21 @@
+{
+  "label": "AnimTool",
+  "tagline": "Build animation scenes with props on a timeline, then export them as Lua",
+  "category": "Utility",
+  "description": "An in-game timeline editor for animation scenes. Chain animations, attach props with keyframed position and rotation, preview it all on your own character, then export a Lua scene any script can play with the bundled runtime. It has no settings: access is controlled by one ACE permission.",
+  "readme": "README.md",
+  "help": [
+    { "title": "Giving staff access", "file": "docs/help/access.md" },
+    { "title": "Playing an exported scene", "file": "docs/help/export.md" }
+  ],
+
+  "commands": [
+    {
+      "command": "/animtool",
+      "who": "ACE: command.animtool",
+      "description": "Opens the AnimTool editor, or closes it if it is open. Players without the ACE get no reply. While the editor is open your game time is held at 10:00 (only for you).",
+      "usage": "/animtool",
+      "examples": ["/animtool"]
+    }
+  ]
+}

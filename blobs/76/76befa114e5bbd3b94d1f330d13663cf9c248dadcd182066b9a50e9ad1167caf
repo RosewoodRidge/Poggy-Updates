@@ -1,0 +1,185 @@
+{
+  "label": "Poggy Badge",
+  "tagline": "Pin a real 3D badge to your lawmen and flash it at anyone who asks",
+  "category": "Roleplay",
+  "description": "Players with a listed job and grade get a 3D badge prop on their chest, placed with a live editor and saved as presets. The Show Badge action plays a hand-held animation and flashes the badge image on nearby players' screens.",
+  "readme": "README.md",
+  "help": [
+    {"title": "Adding a badge for a job", "file": "docs/help/adding-a-badge.md"},
+    {"title": "Fixing badge placement and rotation", "file": "docs/help/badge-placement.md"}
+  ],
+
+  "commands": [
+    {
+      "command": "/badge",
+      "configPath": "Config.command",
+      "who": "Job: any job listed in Badge sets",
+      "description": "Opens the badge editor, or closes it if it is already open. The server checks the character's job and grade against the badge sets; anyone else is told they have no badge.",
+      "usage": "/badge",
+      "examples": ["/badge"]
+    },
+    {
+      "command": "/bprop",
+      "who": "ACE: command",
+      "description": "Swaps the attached badge for any prop model, keeping its position, and opens the editor. Handy for testing a streamed badge pack. The command name is fixed.",
+      "usage": "/bprop <prop_model_name>",
+      "examples": ["/bprop s_badgepinkerton01x", "/bprop s_badgeusmarshal01x"]
+    }
+  ],
+
+  "tabs": [
+    {"id": "general", "label": "General", "icon": "sliders"},
+    {"id": "badges", "label": "Badges", "icon": "shield"},
+    {"id": "advanced", "label": "Advanced", "icon": "cog"}
+  ],
+
+  "settings": {
+    "Config.debug": {
+      "label": "Debug output",
+      "tooltip": "Prints a line to the server console every time a badge is looked up, showing the job and grade it matched. Leave off on a live server.",
+      "tab": "advanced",
+      "group": "Diagnostics",
+      "advanced": true
+    },
+    "Config.command": {
+      "label": "Badge command",
+      "tooltip": "The chat command, without the slash, that opens and closes the badge editor. Changing it needs a restart.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.showDistance": {
+      "label": "Show distance",
+      "tooltip": "How close other players must be, in metres, to see the badge flash when someone presses Show Badge. The player showing it always sees it.",
+      "tab": "general",
+      "group": "Badge flash",
+      "min": 1,
+      "max": 30,
+      "step": 0.5,
+      "unit": "metres"
+    },
+    "Config.serverName": {
+      "label": "Server name",
+      "tooltip": "Text shown under the character's name on the badge flash. Leave it empty to show nothing there.",
+      "tab": "general",
+      "group": "Badge flash"
+    },
+    "Config.badgeDisplayDuration": {
+      "label": "Badge flash duration",
+      "tooltip": "Meant to set how many seconds the badge flash stays on screen. The current display ignores it and always shows the flash for 5 seconds.",
+      "tab": "general",
+      "group": "Badge flash",
+      "min": 1,
+      "max": 30,
+      "step": 1,
+      "unit": "seconds",
+      "advanced": true
+    },
+    "Config.showAnimDuration": {
+      "label": "Show animation hold time",
+      "tooltip": "How long the character holds the badge up before putting it away, in milliseconds (5000 = 5 seconds). About 1.2 seconds of put-away animation follows.",
+      "tab": "general",
+      "group": "Badge flash",
+      "min": 1000,
+      "max": 30000,
+      "step": 500,
+      "unit": "ms"
+    },
+    "Config.defaultBone": {
+      "label": "Starting bone",
+      "tooltip": "The body bone a badge is pinned to until the player picks another in the editor or loads a preset. The collar sits highest; the pelvis lowest.",
+      "tab": "badges",
+      "group": "Starting position on the chest",
+      "options": [
+        {"value": "SKEL_Spine5", "label": "Collar / upper chest"},
+        {"value": "SKEL_Spine4", "label": "Upper chest"},
+        {"value": "SKEL_Spine3", "label": "Mid chest (heart)"},
+        {"value": "SKEL_Spine2", "label": "Lower chest"},
+        {"value": "SKEL_Spine1", "label": "Stomach"},
+        {"value": "SKEL_Spine0", "label": "Waist / belt"},
+        {"value": "SKEL_SpineRoot", "label": "Pelvis / hip"}
+      ]
+    },
+    "Config.defaultOffset": {
+      "label": "Starting offset",
+      "tooltip": "Where a new badge sits relative to the bone, in metres on each axis. Players fine-tune it in the editor; this only sets where they start.",
+      "tab": "badges",
+      "group": "Starting position on the chest",
+      "advanced": true
+    },
+    "Config.defaultRotation": {
+      "label": "Starting rotation",
+      "tooltip": "The pitch, roll and yaw of a new badge, in degrees. The stock badge props face the right way with the shipped values. Whole numbers are nudged by 0.1 because the game resets an axis set to a whole number.",
+      "tab": "badges",
+      "group": "Starting position on the chest",
+      "advanced": true
+    }
+  },
+
+  "lists": {
+    "Config.badges": {
+      "kind": "collection",
+      "label": "Badge sets",
+      "itemLabel": "badge set",
+      "tab": "badges",
+      "tooltip": "Each set gives one or more jobs a badge per grade. The first set whose job list contains the character's job is used.",
+      "titleField": "jobs",
+      "columns": [{"field": "jobs", "label": "Jobs"}, {"field": "grades", "label": "Grades"}],
+      "search": ["jobs"],
+      "fields": {
+        "jobs": {
+          "label": "Jobs",
+          "picker": "job",
+          "tooltip": "Every job name that uses this badge set. Names are matched exactly and are case-sensitive, so list each spelling your server uses (for example police and Police)."
+        },
+        "grades": {
+          "label": "Grades",
+          "tooltip": "One entry per job grade (rank number). A player whose grade has no entry gets no badge, so cover every grade the job has."
+        }
+      },
+      "sublists": {
+        "grades": {
+          "label": "Badge per grade",
+          "itemLabel": "grade",
+          "tooltip": "One row per job grade (rank number, the row key). A player whose grade has no row gets no badge.",
+          "columns": [{"field": "badge", "label": "Badge image"}, {"field": "prop", "label": "Prop model"}],
+          "fields": {
+            "badge": {
+              "label": "Badge image",
+              "tooltip": "The picture shown in the badge flash: a file name from ui/images without .png, for example sheriff or goldmarshal."
+            },
+            "prop": {
+              "label": "Prop model",
+              "tooltip": "The 3D model pinned to the chest. Stock props: s_badgesherif01x, s_badgedeputy01x, s_badgepolice01x, s_badgeusmarshal01x, s_badgepinkerton01x. Streamed badge packs work too."
+            },
+            "useName": {
+              "label": "Show character name",
+              "tooltip": "Meant to switch the character's name on the badge flash on or off. The current display always shows the name.",
+              "advanced": true
+            },
+            "useServerName": {
+              "label": "Show server name",
+              "tooltip": "Meant to switch the server name on the badge flash on or off. The current display always shows it (leave Server name empty to hide it).",
+              "advanced": true
+            }
+          },
+          "template": {"badge": "silverbadge", "prop": "s_badgedeputy01x", "useName": true, "useServerName": false}
+        }
+      },
+      "template": {
+        "jobs": ["newjob"],
+        "grades": {
+          "__int_keys": true,
+          "0": {"badge": "silverbadge", "prop": "s_badgedeputy01x", "useName": true, "useServerName": false}
+        }
+      }
+    },
+    "Config.prefixRotations": {
+      "label": "Rotation overrides by prop name",
+      "itemLabel": "prefix",
+      "tab": "badges",
+      "kind": "map",
+      "tooltip": "When a badge prop's model name starts with one of these prefixes (for example kh_), its starting rotation is replaced by the rotation given here, in degrees. Use it for streamed badge packs that face the wrong way. The stock s_ badges need no entry.",
+      "template": {"__type": "vec3", "x": 0.0, "y": 0.0, "z": 0.0}
+    }
+  }
+}

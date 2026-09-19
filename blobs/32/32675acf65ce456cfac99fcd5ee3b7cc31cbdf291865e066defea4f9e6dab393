@@ -1,0 +1,971 @@
+{
+  "label": "Auction House",
+  "tagline": "A living player market: list, bid, buy out, order supplies and post want requests",
+  "category": "Economy",
+  "description": "Players list goods at auction houses around the map, bid or buy them out, and collect everything from a mailbox. A supply catalogue lets them order raw goods that arrive after a delivery time. A want-request board lets them post buy orders that other players fill.",
+  "readme": "README.md",
+  "help": [
+    {
+      "title": "Adding an auction house",
+      "file": "docs/help/auction-houses.md"
+    },
+    {
+      "title": "The supply catalogue",
+      "file": "docs/help/catalogue.md"
+    },
+    {
+      "title": "Browse categories",
+      "file": "docs/help/categories.md"
+    },
+    {
+      "title": "Managing live auctions, orders and requests",
+      "file": "docs/help/live-data.md"
+    }
+  ],
+  "commands": [
+    {
+      "command": "/auctionrefresh",
+      "who": "Admins",
+      "description": "Settles every listing whose time has run out now, instead of waiting for the next check. Works for characters in the admin, superadmin or god group, and from the server console.",
+      "usage": "/auctionrefresh",
+      "examples": [
+        "/auctionrefresh"
+      ]
+    },
+    {
+      "command": "/auctionpurge",
+      "who": "Admins",
+      "description": "Cancels every active listing on the server. The items in those listings are NOT returned to anyone. To cancel one listing and give its item back, use Live auctions on the Auctions tab instead. Works for characters in the admin, superadmin or god group, and from the server console.",
+      "usage": "/auctionpurge",
+      "examples": [
+        "/auctionpurge"
+      ]
+    },
+    {
+      "command": "/auctiondiscord",
+      "who": "Admins",
+      "description": "Sends a test message to the Discord webhook, so you can check it works. Discord logging and the 'New listings' event must be on, and the webhook set. Works for characters in the admin, superadmin or god group, and from the server console.",
+      "usage": "/auctiondiscord",
+      "examples": [
+        "/auctiondiscord"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "id": "locations",
+      "label": "Locations",
+      "icon": "map"
+    },
+    {
+      "id": "auction",
+      "label": "Auctions",
+      "icon": "gavel"
+    },
+    {
+      "id": "catalogue",
+      "label": "Supply catalogue",
+      "icon": "truck"
+    },
+    {
+      "id": "requests",
+      "label": "Want requests",
+      "icon": "clipboard"
+    },
+    {
+      "id": "notifications",
+      "label": "Notifications & Discord",
+      "icon": "bell"
+    },
+    {
+      "id": "text",
+      "label": "Text & language",
+      "icon": "language"
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced",
+      "icon": "wrench"
+    }
+  ],
+  "panels": [
+    {
+      "id": "listings",
+      "label": "Live auctions",
+      "tab": "auction",
+      "export": "HubPanel",
+      "itemLabel": "listing",
+      "tooltip": "Every live auction, from all auction houses. Open a listing to see its bids and remove one. Cancel returns the item to the seller's mailbox and the leading bid to the bidder's mailbox, as when a seller cancels (the deposit is not returned). Extend adds hours to a listing that has not run out."
+    },
+    {
+      "id": "orders",
+      "label": "Shipment orders",
+      "tab": "catalogue",
+      "export": "HubPanel",
+      "itemLabel": "order",
+      "tooltip": "Supply catalogue orders on their way, and those closed in the last three days. Cancel (only while processing, as in game) refunds what the player paid to their mailbox. Deliver now runs the order through its remaining stages and delivers it as the delivery timer does."
+    },
+    {
+      "id": "requests",
+      "label": "Want requests",
+      "tab": "requests",
+      "export": "HubPanel",
+      "itemLabel": "request",
+      "tooltip": "Want requests still open, and those closed in the last three days. Open a request to see who filled it. Cancel closes it and refunds the unspent escrow to the requester's mailbox, as when a request expires."
+    }
+  ],
+  "settings": {
+    "Config.Language": {
+      "label": "Language",
+      "tooltip": "Which language table in translations.lua to use. Only 'en' ships; to add one, copy Translations.en in translations.lua and give it a new name. Missing lines fall back to English.",
+      "tab": "text",
+      "group": "Language",
+      "ref": "Translations"
+    },
+    "Config.Interaction": {
+      "label": "Walking up to an auction house",
+      "tab": "locations"
+    },
+    "Config.Interaction.Distance": {
+      "label": "Prompt distance",
+      "tooltip": "How close a player must stand to the auctioneer to see the open prompt, in metres. Too small and players struggle to hit it; too large and it shows from across the room.",
+      "tab": "locations",
+      "group": "Walking up to an auction house",
+      "min": 0.5,
+      "max": 10,
+      "step": 0.5,
+      "unit": "m"
+    },
+    "Config.Interaction.RenderDistance": {
+      "label": "NPC spawn distance",
+      "tooltip": "The auctioneer NPC appears when a player comes this close to an auction house and is removed when they leave, in metres. Lower values save a little performance.",
+      "tab": "locations",
+      "group": "Walking up to an auction house",
+      "min": 10,
+      "max": 300,
+      "step": 5,
+      "unit": "m"
+    },
+    "Config.Interaction.Key": {
+      "label": "Open key",
+      "tooltip": "The control hash of the key that opens the auction house. The default 0x760A9C6F is G. Use a RedM control hash; a wrong value means the prompt never fires.",
+      "tab": "locations",
+      "group": "Walking up to an auction house",
+      "advanced": true
+    },
+    "Config.Interaction.PromptText": {
+      "label": "Prompt text (not used)",
+      "tooltip": "Not used: the prompt text comes from PROMPT_OPEN in the Text & language tab. Kept only as a fallback.",
+      "tab": "locations",
+      "group": "Walking up to an auction house",
+      "advanced": true
+    },
+    "Config.Notifications.Duration": {
+      "label": "Notification time",
+      "tooltip": "How long auction notifications stay on screen, in milliseconds. 5000 is five seconds.",
+      "tab": "notifications",
+      "group": "In-game notifications",
+      "min": 1000,
+      "max": 20000,
+      "step": 500,
+      "unit": "ms"
+    },
+    "Config.Auction": {
+      "label": "Auction rules",
+      "tab": "auction"
+    },
+    "Config.Auction.DepositEnabled": {
+      "label": "Charge a listing deposit",
+      "tooltip": "When on, a seller pays a non-refundable deposit when they list: the duration's deposit percent of the starting price. When off, listing is free.",
+      "tab": "auction",
+      "group": "Fees"
+    },
+    "Config.Auction.SalesTaxPercent": {
+      "label": "Sales tax",
+      "tooltip": "The share of a finished sale taken from the seller's money, in percent. 0 means sellers keep everything. With Poggy Banking's treasury installed the tax goes to the treasury, which may add a few points.",
+      "tab": "auction",
+      "group": "Fees",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Auction.MinStartPrice": {
+      "label": "Lowest starting bid",
+      "tooltip": "The smallest starting price a seller may set, in dollars. Listings below it are refused.",
+      "tab": "auction",
+      "group": "Prices",
+      "min": 0,
+      "max": 100000,
+      "step": 0.5,
+      "unit": "$"
+    },
+    "Config.Auction.MaxStartPrice": {
+      "label": "Highest starting bid",
+      "tooltip": "The largest starting price a seller may set, in dollars. Listings above it are refused.",
+      "tab": "auction",
+      "group": "Prices",
+      "min": 1,
+      "max": 10000000,
+      "step": 100,
+      "unit": "$"
+    },
+    "Config.Auction.MaxBuyoutPrice": {
+      "label": "Highest buyout price",
+      "tooltip": "The largest buy-now price a seller may set, in dollars. A buyout must also be higher than the starting price.",
+      "tab": "auction",
+      "group": "Prices",
+      "min": 1,
+      "max": 10000000,
+      "step": 100,
+      "unit": "$"
+    },
+    "Config.Auction.MinBidIncrement": {
+      "label": "Minimum bid step",
+      "tooltip": "A new bid must beat the current one by at least this many dollars, or by the bid step percent, whichever is bigger.",
+      "tab": "auction",
+      "group": "Bidding",
+      "min": 0.01,
+      "max": 1000,
+      "step": 0.01,
+      "unit": "$"
+    },
+    "Config.Auction.BidIncrementPercent": {
+      "label": "Bid step percent",
+      "tooltip": "A new bid must beat the current one by at least this percent of it, or by the minimum bid step, whichever is bigger. 0 uses only the dollar step.",
+      "tab": "auction",
+      "group": "Bidding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Auction.MaxActiveListings": {
+      "label": "Listings per player",
+      "tooltip": "How many listings one character may have running at once. New listings are refused at the limit.",
+      "tab": "auction",
+      "group": "Limits",
+      "min": 1,
+      "max": 500,
+      "step": 1
+    },
+    "Config.Auction.MaxMailboxItems": {
+      "label": "Mailbox limit",
+      "tooltip": "When a character has this many uncollected mailbox entries they cannot list anything new until they collect. It does not stop sales, refunds or deliveries reaching the mailbox.",
+      "tab": "auction",
+      "group": "Limits",
+      "min": 1,
+      "max": 1000,
+      "step": 1
+    },
+    "Config.Auction.ExpirationCheckInterval": {
+      "label": "Expiry check interval",
+      "tooltip": "How often the server settles listings whose time has run out, in seconds. A listing can end up to this long after its timer shows zero. /auctionrefresh settles them at once.",
+      "tab": "auction",
+      "group": "Limits",
+      "min": 10,
+      "max": 3600,
+      "step": 10,
+      "unit": "s",
+      "advanced": true
+    },
+    "Config.Auction.AllowCancelWithBids": {
+      "label": "Allow cancelling with bids",
+      "tooltip": "When on, a seller may cancel a listing that already has bids. When off, a listing with any bid must run to the end.",
+      "tab": "auction",
+      "group": "Limits"
+    },
+    "Config.BlacklistedItems": {
+      "label": "Items that cannot be listed",
+      "tooltip": "Item names that can never be put up for auction, such as ID cards and licences. Use the exact item name from your items table.",
+      "tab": "auction",
+      "group": "Blacklist",
+      "picker": "item"
+    },
+    "Config.Shipment": {
+      "label": "Supply catalogue",
+      "tab": "catalogue"
+    },
+    "Config.Shipment.ShippingFeePercent": {
+      "label": "Shipping fee",
+      "tooltip": "Added on top of every catalogue order, as a percent of the order's price. 0 means no shipping fee.",
+      "tab": "catalogue",
+      "group": "Orders",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Shipment.MaxActiveOrders": {
+      "label": "Open orders per player",
+      "tooltip": "How many undelivered catalogue orders one character may have at once.",
+      "tab": "catalogue",
+      "group": "Orders",
+      "min": 1,
+      "max": 100,
+      "step": 1
+    },
+    "Config.Shipment.MaxQtyPerOrder": {
+      "label": "Largest order",
+      "tooltip": "The most units of one item a single order may ask for.",
+      "tab": "catalogue",
+      "group": "Orders",
+      "min": 1,
+      "max": 10000,
+      "step": 1
+    },
+    "Config.Shipment.PriceVariancePercent": {
+      "label": "Price swing",
+      "tooltip": "Catalogue prices move up or down by up to this percent each time the catalogue is opened. 0 keeps prices fixed.",
+      "tab": "catalogue",
+      "group": "Orders",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Shipment.ShopDelivery": {
+      "label": "Deliver to Poggy Markets shops",
+      "tooltip": "When on and poggy_markets is running, shop owners and staff who can deposit items may send an order straight into a shop's storage. When off, every order goes to the mailbox.",
+      "tab": "catalogue",
+      "group": "Orders"
+    },
+    "Config.Shipment.AllowCancelProcessing": {
+      "label": "Allow cancelling while processing (not used)",
+      "tooltip": "Currently not read by the script: players can always cancel an order, with a full refund, while it is still Processing.",
+      "tab": "catalogue",
+      "group": "Orders",
+      "advanced": true
+    },
+    "Config.Shipment.ProcessingMinMinutes": {
+      "label": "Processing: shortest",
+      "tooltip": "Each order spends a random number of whole minutes in Processing, between the shortest and longest. Keep shortest at or below longest.",
+      "tab": "catalogue",
+      "group": "Delivery times",
+      "min": 0,
+      "max": 1440,
+      "step": 1,
+      "unit": "min"
+    },
+    "Config.Shipment.ProcessingMaxMinutes": {
+      "label": "Processing: longest",
+      "tooltip": "The longest time an order can spend in Processing, in minutes. Players can cancel for a refund during this stage.",
+      "tab": "catalogue",
+      "group": "Delivery times",
+      "min": 0,
+      "max": 1440,
+      "step": 1,
+      "unit": "min"
+    },
+    "Config.Shipment.TransitMinMinutes": {
+      "label": "In transit: shortest",
+      "tooltip": "The shortest time an order spends In Transit, in minutes. Keep it at or below the longest.",
+      "tab": "catalogue",
+      "group": "Delivery times",
+      "min": 0,
+      "max": 1440,
+      "step": 1,
+      "unit": "min"
+    },
+    "Config.Shipment.TransitMaxMinutes": {
+      "label": "In transit: longest",
+      "tooltip": "The longest time an order spends In Transit, in minutes.",
+      "tab": "catalogue",
+      "group": "Delivery times",
+      "min": 0,
+      "max": 1440,
+      "step": 1,
+      "unit": "min"
+    },
+    "Config.Shipment.DeliveryMinMinutes": {
+      "label": "Out for delivery: shortest",
+      "tooltip": "The shortest time an order spends Out for Delivery before it lands in the mailbox or shop, in minutes. Keep it at or below the longest.",
+      "tab": "catalogue",
+      "group": "Delivery times",
+      "min": 0,
+      "max": 1440,
+      "step": 1,
+      "unit": "min"
+    },
+    "Config.Shipment.DeliveryMaxMinutes": {
+      "label": "Out for delivery: longest",
+      "tooltip": "The longest time an order spends Out for Delivery, in minutes.",
+      "tab": "catalogue",
+      "group": "Delivery times",
+      "min": 0,
+      "max": 1440,
+      "step": 1,
+      "unit": "min"
+    },
+    "Config.Shipment.CheckInterval": {
+      "label": "Stage check interval",
+      "tooltip": "How often the server moves orders to their next stage, in seconds. An order can wait up to this long past its stage time.",
+      "tab": "catalogue",
+      "group": "Delivery times",
+      "min": 10,
+      "max": 3600,
+      "step": 10,
+      "unit": "s",
+      "advanced": true
+    },
+    "Config.Requests": {
+      "label": "Want requests",
+      "tab": "requests"
+    },
+    "Config.Requests.SalesTaxPercent": {
+      "label": "Seller tax",
+      "tooltip": "The share taken from the pay of a player who fills a want request, in percent. With Poggy Banking's treasury installed it goes to the treasury.",
+      "tab": "requests",
+      "group": "Rules",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Requests.MaxActiveRequests": {
+      "label": "Open requests per player",
+      "tooltip": "How many want requests one character may have open at once.",
+      "tab": "requests",
+      "group": "Rules",
+      "min": 1,
+      "max": 100,
+      "step": 1
+    },
+    "Config.Requests.MinPricePerUnit": {
+      "label": "Lowest pay per unit",
+      "tooltip": "The smallest price per unit a request may offer, in dollars.",
+      "tab": "requests",
+      "group": "Rules",
+      "min": 0.01,
+      "max": 100000,
+      "step": 0.01,
+      "unit": "$"
+    },
+    "Config.Requests.MaxPricePerUnit": {
+      "label": "Highest pay per unit",
+      "tooltip": "The largest price per unit a request may offer, in dollars.",
+      "tab": "requests",
+      "group": "Rules",
+      "min": 1,
+      "max": 10000000,
+      "step": 100,
+      "unit": "$"
+    },
+    "Config.Requests.MaxQuantity": {
+      "label": "Largest request",
+      "tooltip": "The most units one request may ask for. Bigger numbers are cut down to this.",
+      "tab": "requests",
+      "group": "Rules",
+      "min": 1,
+      "max": 100000,
+      "step": 1
+    },
+    "Config.Requests.ExpirationCheckInterval": {
+      "label": "Expiry check interval",
+      "tooltip": "How often the server closes requests whose time has run out and refunds the unused money, in seconds.",
+      "tab": "requests",
+      "group": "Rules",
+      "min": 10,
+      "max": 3600,
+      "step": 10,
+      "unit": "s",
+      "advanced": true
+    },
+    "Config.Discord": {
+      "label": "Discord logging",
+      "tab": "notifications"
+    },
+    "Config.Discord.Enabled": {
+      "label": "Discord logging",
+      "tooltip": "Posts auction events to a Discord channel through the webhook below. Nothing is sent while the webhook is still the placeholder.",
+      "tab": "notifications",
+      "group": "Webhook"
+    },
+    "Config.Discord.Webhook": {
+      "label": "Webhook URL",
+      "tooltip": "The Discord webhook to post to. Create one in the channel's settings under Integrations, then paste its URL here.",
+      "tab": "notifications",
+      "group": "Webhook",
+      "picker": "webhook",
+      "placeholder": "https://discord.com/api/webhooks/..."
+    },
+    "Config.Discord.BotName": {
+      "label": "Bot name",
+      "tooltip": "The name the messages are posted under.",
+      "tab": "notifications",
+      "group": "Webhook"
+    },
+    "Config.Discord.BotAvatar": {
+      "label": "Bot avatar",
+      "tooltip": "An image URL for the bot's picture. Leave empty to use the webhook's own picture.",
+      "tab": "notifications",
+      "group": "Webhook"
+    },
+    "Config.Discord.Color": {
+      "label": "Embed colour",
+      "tooltip": "The colour bar on each message, as a decimal number (not hex). 16766720 is amber; convert a hex colour such as FFD700 to decimal.",
+      "tab": "notifications",
+      "group": "Webhook",
+      "min": 0,
+      "max": 16777215,
+      "step": 1,
+      "advanced": true
+    },
+    "Config.Discord.Events": {
+      "label": "Events to post",
+      "tab": "notifications"
+    },
+    "Config.Discord.Events.Listing": {
+      "label": "New listings",
+      "tooltip": "Post a message when an item is listed.",
+      "tab": "notifications",
+      "group": "Events to post"
+    },
+    "Config.Discord.Events.Sale": {
+      "label": "Sales",
+      "tooltip": "Post a message when a listing sells.",
+      "tab": "notifications",
+      "group": "Events to post"
+    },
+    "Config.Discord.Events.Bid": {
+      "label": "Bids",
+      "tooltip": "Post a message for every bid. Busy servers may want this off.",
+      "tab": "notifications",
+      "group": "Events to post"
+    },
+    "Config.Discord.Events.Expired": {
+      "label": "Expired listings",
+      "tooltip": "Post a message when a listing ends without a sale.",
+      "tab": "notifications",
+      "group": "Events to post"
+    },
+    "Config.Discord.Events.Cancelled": {
+      "label": "Cancelled listings",
+      "tooltip": "Post a message when a seller cancels a listing.",
+      "tab": "notifications",
+      "group": "Events to post"
+    },
+    "Config.PoggyDebug": {
+      "label": "Debug output",
+      "tab": "advanced",
+      "advanced": true
+    },
+    "Config.PoggyDebug.*": {
+      "tab": "advanced",
+      "advanced": true
+    },
+    "Config.PoggyDebug.Enabled": {
+      "label": "Debug output",
+      "tooltip": "Prints extra lines to the server console and the F8 console. Leave off on a live server.",
+      "tab": "advanced",
+      "group": "Debug output",
+      "advanced": true
+    },
+    "Config.PoggyDebug.LogToConsole": {
+      "label": "Client and bridge logging",
+      "tooltip": "When debug output is on, also print the client-side and framework-bridge lines. Only matters while debug output is on.",
+      "tab": "advanced",
+      "group": "Debug output",
+      "advanced": true
+    },
+    "Config.PoggyDebug.Categories": {
+      "label": "Debug categories",
+      "tab": "advanced",
+      "advanced": true
+    },
+    "Config.PoggyDebug.Categories.*": {
+      "tooltip": "Turn this area's debug lines on or off. Only matters while debug output is on.",
+      "tab": "advanced",
+      "group": "Debug categories",
+      "advanced": true
+    },
+    "Config.PoggyDebug.Level": {
+      "label": "Debug levels (client)",
+      "tab": "advanced",
+      "advanced": true
+    },
+    "Config.PoggyDebug.Level.*": {
+      "tooltip": "Show client debug lines of this level. Only matters while debug output is on.",
+      "tab": "advanced",
+      "group": "Debug levels (client)",
+      "advanced": true
+    },
+    "Translations.*": {
+      "tab": "text",
+      "group": "Messages",
+      "tooltip": "Text players see. Keep every %s, %d and %.2f marker, in the same order: the script fills them with names, counts and prices."
+    },
+    "Translations.en.NUI.*": {
+      "tab": "text",
+      "group": "Auction house window",
+      "tooltip": "Text shown in the auction house window. Keep every %s and %d marker, in the same order."
+    },
+    "T": {
+      "hidden": true
+    },
+    "Config.Notifications": {
+      "label": "In-game notifications",
+      "tab": "notifications"
+    },
+    "Config.ItemCategories.*": {
+      "tab": "auction",
+      "ref": "Config.Categories",
+      "refField": "key",
+      "tooltip": "The browse category this item is filed under: a Key from Browse categories. Any other word makes a category of its own with that name."
+    }
+  },
+  "lists": {
+    "Config.Locations": {
+      "label": "Auction houses",
+      "itemLabel": "auction house",
+      "tab": "locations",
+      "kind": "list",
+      "titleField": "name",
+      "subtitleField": "npc.model",
+      "columns": [
+        {
+          "field": "name",
+          "label": "Name"
+        },
+        {
+          "field": "coords",
+          "label": "Position"
+        },
+        {
+          "field": "blip.enabled",
+          "label": "Blip"
+        }
+      ],
+      "search": [
+        "name"
+      ],
+      "fields": {
+        "name": {
+          "label": "Name",
+          "tooltip": "Shown above the prompt when a player walks up to this auction house."
+        },
+        "coords": {
+          "label": "Position",
+          "tooltip": "Where the auctioneer stands, and which way they face (heading). Stand on the spot and use 'my position'.",
+          "picker": "coords"
+        },
+        "npc.model": {
+          "label": "NPC model",
+          "tooltip": "The ped model of the auctioneer. Must be a valid RedM ped model name."
+        },
+        "npc.scenario": {
+          "label": "NPC scenario",
+          "tooltip": "The idle animation the auctioneer plays, as a scenario name. Remove it for a still NPC."
+        },
+        "blip.enabled": {
+          "label": "Show map blip",
+          "tooltip": "Show this auction house on the map."
+        },
+        "blip.sprite": {
+          "label": "Blip icon",
+          "tooltip": "The blip sprite name, such as blip_ambient_crate."
+        },
+        "blip.color": {
+          "label": "Blip colour",
+          "tooltip": "The blip colour modifier name, such as BLIP_MODIFIER_MP_COLOR_32."
+        },
+        "blip.scale": {
+          "label": "Blip size",
+          "tooltip": "Size of the map blip. 0.2 is the default.",
+          "min": 0.05,
+          "max": 2,
+          "step": 0.05
+        },
+        "blip.name": {
+          "label": "Blip name",
+          "tooltip": "The name shown for the blip on the map."
+        }
+      },
+      "template": {
+        "name": "New Auction House",
+        "coords": {
+          "__type": "vec4",
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 0
+        },
+        "npc": {
+          "model": "cs_valauctionboss_01",
+          "scenario": "WORLD_HUMAN_SHOPKEEPER_MALE_A"
+        },
+        "blip": {
+          "enabled": true,
+          "sprite": "blip_ambient_crate",
+          "color": "BLIP_MODIFIER_MP_COLOR_32",
+          "scale": 0.2,
+          "name": "Auction House"
+        }
+      }
+    },
+    "Config.Auction.Durations": {
+      "label": "Listing durations",
+      "itemLabel": "duration",
+      "tab": "auction",
+      "kind": "list",
+      "titleField": "label",
+      "subtitleField": "hours",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Label"
+        },
+        {
+          "field": "hours",
+          "label": "Hours"
+        },
+        {
+          "field": "depositPercent",
+          "label": "Deposit %"
+        }
+      ],
+      "fields": {
+        "label": {
+          "label": "Label",
+          "tooltip": "The name the seller picks in the Sell tab."
+        },
+        "hours": {
+          "label": "Length",
+          "tooltip": "How long the listing runs, in hours.",
+          "min": 1,
+          "max": 720,
+          "step": 1,
+          "unit": "h"
+        },
+        "depositPercent": {
+          "label": "Deposit",
+          "tooltip": "The non-refundable deposit for this length, as a percent of the starting price. Only charged when 'Charge a listing deposit' is on.",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        }
+      },
+      "template": {
+        "label": "Custom (12h)",
+        "hours": 12,
+        "depositPercent": 10
+      }
+    },
+    "Config.Categories": {
+      "label": "Browse categories",
+      "itemLabel": "category",
+      "tab": "auction",
+      "kind": "list",
+      "titleField": "label",
+      "subtitleField": "key",
+      "columns": [
+        {
+          "field": "icon",
+          "label": "Icon"
+        },
+        {
+          "field": "label",
+          "label": "Label"
+        },
+        {
+          "field": "key",
+          "label": "Key"
+        },
+        {
+          "field": "groups",
+          "label": "Item groups"
+        }
+      ],
+      "search": [
+        "label",
+        "key"
+      ],
+      "fields": {
+        "key": {
+          "label": "Key",
+          "tooltip": "The id a listing stores for its category. Keep it stable once players have listed items: changing it moves old listings out of this category."
+        },
+        "label": {
+          "label": "Label",
+          "tooltip": "The name shown in the category filter."
+        },
+        "icon": {
+          "label": "Icon",
+          "tooltip": "An emoji shown beside the label."
+        },
+        "groups": {
+          "label": "Item groups",
+          "tooltip": "Which item groups land here. Numbers are VORP item_group ids (stock 1 to 11); words are RSG item categories. A word ending in * matches by prefix, so weapon_* covers every weapon category."
+        }
+      },
+      "template": {
+        "key": "misc",
+        "label": "Misc",
+        "icon": "📦",
+        "groups": []
+      }
+    },
+    "Config.CategoryIcons": {
+      "label": "Icons for unlisted groups",
+      "itemLabel": "icon",
+      "tab": "auction",
+      "kind": "map",
+      "tooltip": "An item group that is not in the category list still gets its own category. This gives it an emoji icon, keyed by the group name. Anything not here shows 📦.",
+      "template": "📦"
+    },
+    "Config.ItemCategories": {
+      "label": "Item category overrides",
+      "itemLabel": "override",
+      "tab": "auction",
+      "kind": "map",
+      "tooltip": "Puts one item in a category of your choice, whatever its item group says. The key is the item name; the value is a Key from Browse categories, such as ammo or herbs.",
+      "template": "default"
+    },
+    "Config.ShipmentCompanies": {
+      "label": "Suppliers",
+      "itemLabel": "supplier",
+      "tab": "catalogue",
+      "kind": "map",
+      "titleField": "name",
+      "columns": [
+        {
+          "field": "icon",
+          "label": "Icon"
+        },
+        {
+          "field": "name",
+          "label": "Name"
+        },
+        {
+          "field": "color",
+          "label": "Colour"
+        }
+      ],
+      "fields": {
+        "name": {
+          "label": "Name",
+          "tooltip": "The supplier name shown in the catalogue sidebar and on orders."
+        },
+        "icon": {
+          "label": "Icon",
+          "tooltip": "An emoji shown beside the name."
+        },
+        "color": {
+          "label": "Badge colour",
+          "tooltip": "The colour of this supplier's badge, as a hex colour.",
+          "picker": "color"
+        }
+      },
+      "template": {
+        "name": "New Supplier",
+        "icon": "📦",
+        "color": "#8b7355"
+      }
+    },
+    "Config.ShipmentCatalog": {
+      "label": "Catalogue items",
+      "itemLabel": "catalogue item",
+      "tab": "catalogue",
+      "kind": "list",
+      "titleField": "label",
+      "subtitleField": "source",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Label"
+        },
+        {
+          "field": "name",
+          "label": "Item"
+        },
+        {
+          "field": "source",
+          "label": "Supplier"
+        },
+        {
+          "field": "price",
+          "label": "Price"
+        }
+      ],
+      "search": [
+        "name",
+        "label",
+        "source",
+        "desc"
+      ],
+      "fields": {
+        "name": {
+          "label": "Item",
+          "tooltip": "The item players receive. It must exist in your items table, or this entry is left out of the catalogue.",
+          "picker": "item"
+        },
+        "label": {
+          "label": "Label",
+          "tooltip": "The name shown in the catalogue and on orders."
+        },
+        "source": {
+          "label": "Supplier",
+          "tooltip": "Which supplier sells it: one of the Suppliers on this tab, such as mining or farming.",
+          "ref": "Config.ShipmentCompanies"
+        },
+        "price": {
+          "label": "Price per unit",
+          "tooltip": "The base price of one unit, in dollars, before the price swing and shipping fee.",
+          "min": 0.01,
+          "max": 100000,
+          "step": 0.01,
+          "unit": "$"
+        },
+        "desc": {
+          "label": "Description",
+          "tooltip": "A short line shown on the catalogue card.",
+          "picker": "multiline"
+        }
+      },
+      "template": {
+        "name": "",
+        "label": "New Item",
+        "source": "crafted",
+        "price": 1.0,
+        "desc": ""
+      }
+    },
+    "Config.Requests.Durations": {
+      "label": "Request durations",
+      "itemLabel": "duration",
+      "tab": "requests",
+      "kind": "list",
+      "titleField": "label",
+      "subtitleField": "hours",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Label"
+        },
+        {
+          "field": "hours",
+          "label": "Hours"
+        }
+      ],
+      "fields": {
+        "label": {
+          "label": "Label",
+          "tooltip": "The name the player picks when posting a request."
+        },
+        "hours": {
+          "label": "Length",
+          "tooltip": "How long the request stays open, in hours. 0 means it never expires.",
+          "min": 0,
+          "max": 720,
+          "step": 1,
+          "unit": "h"
+        }
+      },
+      "template": {
+        "label": "Week (168h)",
+        "hours": 168
+      }
+    }
+  }
+}

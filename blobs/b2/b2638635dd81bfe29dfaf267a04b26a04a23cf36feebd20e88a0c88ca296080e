@@ -1,0 +1,872 @@
+{
+  "label": "Supply Drops & Scavenger Hunts",
+  "tagline": "Balloon supply drops and riddle treasure hunts that send players racing across the map",
+  "category": "World",
+  "description": "Supply drops float down under a hot air balloon at random places, and the first player to reach one claims the goods. Scavenger hunts hide a treasure somewhere in the world with a photo and a riddle; revealing the clue costs part of the reward. Both run on their own schedule, and admins can start them by command.",
+  "readme": "README.md",
+  "help": [
+    {
+      "title": "How the schedule works",
+      "file": "docs/help/schedule.md"
+    },
+    {
+      "title": "Adding drop locations and loot",
+      "file": "docs/help/supply-drops.md"
+    },
+    {
+      "title": "Adding a scavenger hunt",
+      "file": "docs/help/scavenger-hunts.md"
+    }
+  ],
+  "commands": [
+    {
+      "command": "/supplydrop",
+      "who": "Admins",
+      "description": "Starts a supply drop now, at a random location with random loot. It also starts the supply drop cooldown. Admins are decided by poggy_core; also works from the server console.",
+      "usage": "/supplydrop",
+      "examples": [
+        "/supplydrop"
+      ]
+    },
+    {
+      "command": "/scavengerhunt",
+      "who": "Admins",
+      "description": "Starts a scavenger hunt now, at a random hunt location with a random reward. It also starts the hunt cooldown. Admins are decided by poggy_core; also works from the server console.",
+      "usage": "/scavengerhunt",
+      "examples": [
+        "/scavengerhunt"
+      ]
+    },
+    {
+      "command": "/nextdrop",
+      "who": "Everyone",
+      "description": "Shows how long until the next supply drop and scavenger hunt may happen. Admins who add 'detailed' also see the clock time.",
+      "usage": "/nextdrop [detailed]",
+      "examples": [
+        "/nextdrop",
+        "/nextdrop detailed"
+      ]
+    },
+    {
+      "command": "/clue",
+      "who": "Everyone",
+      "description": "Opens the current scavenger hunt: its photo, the reward and the hidden clue. Revealing the clue lowers the reward.",
+      "usage": "/clue",
+      "examples": [
+        "/clue"
+      ]
+    },
+    {
+      "command": "testdiscord",
+      "who": "Console",
+      "description": "Sends a test message to the supply drop or scavenger hunt webhook. Server console only. Give a webhook URL as a second word to test that URL instead.",
+      "usage": "testdiscord [supply|scavenger] [url]",
+      "examples": [
+        "testdiscord supply",
+        "testdiscord scavenger"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "id": "general",
+      "label": "General",
+      "icon": "sliders"
+    },
+    {
+      "id": "drops",
+      "label": "Supply drops",
+      "icon": "parachute"
+    },
+    {
+      "id": "hunts",
+      "label": "Scavenger hunts",
+      "icon": "map"
+    },
+    {
+      "id": "schedule",
+      "label": "Timing & schedule",
+      "icon": "clock"
+    },
+    {
+      "id": "notifications",
+      "label": "Notifications & Discord",
+      "icon": "bell"
+    },
+    {
+      "id": "text",
+      "label": "Text & language",
+      "icon": "language"
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced",
+      "icon": "wrench"
+    }
+  ],
+  "settings": {
+    "Config.EnableSupplyDrops": {
+      "label": "Supply drops",
+      "tooltip": "Turns supply drops on or off completely, including the /supplydrop command.",
+      "tab": "general",
+      "group": "Features"
+    },
+    "Config.EnableScavengerHunts": {
+      "label": "Scavenger hunts",
+      "tooltip": "Turns scavenger hunts on or off completely, including /scavengerhunt and /clue.",
+      "tab": "general",
+      "group": "Features"
+    },
+    "Config.Debug": {
+      "label": "Debug output",
+      "tooltip": "Prints extra lines to the server console and the F8 console. Leave off on a live server.",
+      "tab": "advanced",
+      "group": "Diagnostics"
+    },
+    "Config.RandomEvent": {
+      "label": "Automatic events",
+      "tab": "schedule"
+    },
+    "Config.RandomEvent.Enabled": {
+      "label": "Automatic events",
+      "tooltip": "When on, drops and hunts start by themselves on the schedule below. When off, they only start when an admin uses /supplydrop or /scavengerhunt.",
+      "tab": "schedule",
+      "group": "Automatic events"
+    },
+    "Config.RandomEvent.SupplyDropTimer": {
+      "label": "Supply drop wait",
+      "tab": "schedule"
+    },
+    "Config.RandomEvent.SupplyDropTimer.MinTimeBetweenEvents": {
+      "label": "Shortest wait",
+      "tooltip": "After the cooldown ends, the next automatic supply drop comes after a random wait between the shortest and longest, in milliseconds. 600000 is 10 minutes.",
+      "tab": "schedule",
+      "group": "Supply drop wait",
+      "min": 60000,
+      "max": 86400000,
+      "step": 60000,
+      "unit": "ms"
+    },
+    "Config.RandomEvent.SupplyDropTimer.MaxTimeBetweenEvents": {
+      "label": "Longest wait",
+      "tooltip": "The longest random wait before the next automatic supply drop, in milliseconds. 2700000 is 45 minutes. If it is not above the shortest, one minute more than the shortest is used.",
+      "tab": "schedule",
+      "group": "Supply drop wait",
+      "min": 60000,
+      "max": 86400000,
+      "step": 60000,
+      "unit": "ms"
+    },
+    "Config.RandomEvent.SupplyDropCooldown": {
+      "label": "Supply drop cooldown",
+      "tab": "schedule"
+    },
+    "Config.RandomEvent.SupplyDropCooldown.Min": {
+      "label": "Cooldown",
+      "tooltip": "After any supply drop (automatic or by command), no automatic drop happens for at least this long, in milliseconds. 3600000 is 60 minutes.",
+      "tab": "schedule",
+      "group": "Supply drop cooldown",
+      "min": 60000,
+      "max": 86400000,
+      "step": 60000,
+      "unit": "ms"
+    },
+    "Config.RandomEvent.SupplyDropCooldown.RandomAdd": {
+      "label": "Extra random cooldown",
+      "tooltip": "Up to this much extra is added to the cooldown at random, in milliseconds. 1800000 is 30 minutes. 0 makes the cooldown exact.",
+      "tab": "schedule",
+      "group": "Supply drop cooldown",
+      "min": 0,
+      "max": 86400000,
+      "step": 60000,
+      "unit": "ms"
+    },
+    "Config.RandomEvent.ScavengerHuntTimer": {
+      "label": "Scavenger hunt wait",
+      "tab": "schedule"
+    },
+    "Config.RandomEvent.ScavengerHuntTimer.MinTimeBetweenEvents": {
+      "label": "Shortest wait",
+      "tooltip": "After the cooldown ends, the next automatic scavenger hunt comes after a random wait between the shortest and longest, in milliseconds. 1200000 is 20 minutes.",
+      "tab": "schedule",
+      "group": "Scavenger hunt wait",
+      "min": 60000,
+      "max": 86400000,
+      "step": 60000,
+      "unit": "ms"
+    },
+    "Config.RandomEvent.ScavengerHuntTimer.MaxTimeBetweenEvents": {
+      "label": "Longest wait",
+      "tooltip": "The longest random wait before the next automatic scavenger hunt, in milliseconds. 3600000 is 60 minutes. If it is not above the shortest, one minute more than the shortest is used.",
+      "tab": "schedule",
+      "group": "Scavenger hunt wait",
+      "min": 60000,
+      "max": 86400000,
+      "step": 60000,
+      "unit": "ms"
+    },
+    "Config.RandomEvent.ScavengerHuntCooldown": {
+      "label": "Scavenger hunt cooldown",
+      "tab": "schedule"
+    },
+    "Config.RandomEvent.ScavengerHuntCooldown.Min": {
+      "label": "Cooldown",
+      "tooltip": "After any scavenger hunt (automatic or by command), no automatic hunt happens for at least this long, in milliseconds. 5400000 is 90 minutes.",
+      "tab": "schedule",
+      "group": "Scavenger hunt cooldown",
+      "min": 60000,
+      "max": 86400000,
+      "step": 60000,
+      "unit": "ms"
+    },
+    "Config.RandomEvent.ScavengerHuntCooldown.RandomAdd": {
+      "label": "Extra random cooldown",
+      "tooltip": "Up to this much extra is added to the hunt cooldown at random, in milliseconds. 3600000 is 60 minutes. 0 makes the cooldown exact.",
+      "tab": "schedule",
+      "group": "Scavenger hunt cooldown",
+      "min": 0,
+      "max": 86400000,
+      "step": 60000,
+      "unit": "ms"
+    },
+    "Config.Supply": {
+      "label": "Supply drops",
+      "tab": "drops"
+    },
+    "Config.Supply.UseAirdrops": {
+      "label": "Balloon drops",
+      "tooltip": "On: drops float down under a hot air balloon. Off: the crate simply appears on the ground. Players who are far away when a drop starts always see it already landed.",
+      "tab": "drops",
+      "group": "Balloon"
+    },
+    "Config.Supply.AirdropChance": {
+      "label": "Balloon chance",
+      "tooltip": "Only used if you delete the UseAirdrops line from config.lua: then each drop has this percent chance to come by balloon.",
+      "tab": "drops",
+      "group": "Balloon",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "advanced": true
+    },
+    "Config.Supply.UseBasket": {
+      "label": "Basket (not used)",
+      "tooltip": "Currently not read by the script. The crate always hangs straight under the balloon.",
+      "tab": "drops",
+      "group": "Balloon",
+      "advanced": true
+    },
+    "Config.Supply.BalloonHeight": {
+      "label": "Start height",
+      "tooltip": "How high above the drop point the balloon starts, in metres.",
+      "tab": "drops",
+      "group": "Balloon",
+      "min": 10,
+      "max": 200,
+      "step": 1,
+      "unit": "m"
+    },
+    "Config.Supply.HoverHeight": {
+      "label": "Release height",
+      "tooltip": "The balloon stops this far above the ground, lets the crate fall and fades away, in metres. Too low and the balloon clips into the ground.",
+      "tab": "drops",
+      "group": "Balloon",
+      "min": 1,
+      "max": 50,
+      "step": 0.5,
+      "unit": "m"
+    },
+    "Config.Supply.DescentSpeed": {
+      "label": "Descent time",
+      "tooltip": "How long the balloon takes to come down, in seconds. Lower is faster. Players cannot collect until the crate lands.",
+      "tab": "drops",
+      "group": "Balloon",
+      "min": 5,
+      "max": 600,
+      "step": 5,
+      "unit": "s"
+    },
+    "Config.Supply.PropDistance": {
+      "label": "Rope length",
+      "tooltip": "How far below the balloon the crate hangs, in metres. Higher values hang it lower.",
+      "tab": "drops",
+      "group": "Balloon",
+      "min": 1,
+      "max": 30,
+      "step": 0.5,
+      "unit": "m"
+    },
+    "Config.Supply.Blip": {
+      "label": "Map blip",
+      "tab": "drops"
+    },
+    "Config.Supply.Blip.Sprite": {
+      "label": "Blip icon",
+      "tooltip": "The map blip sprite name for a drop, such as blip_ambient_crate.",
+      "tab": "drops",
+      "group": "Map blip"
+    },
+    "Config.Supply.Blip.Color": {
+      "label": "Blip colour",
+      "tooltip": "The blip colour modifier name, such as BLIP_MODIFIER_MP_COLOR_23 (yellow-orange).",
+      "tab": "drops",
+      "group": "Map blip"
+    },
+    "Config.Supply.Blip.Name": {
+      "label": "Blip name",
+      "tooltip": "The name shown for a drop on the map.",
+      "tab": "drops",
+      "group": "Map blip"
+    },
+    "Config.Supply.PromptDistance": {
+      "label": "Collect distance",
+      "tooltip": "How close a player must be to the crate to see the collect prompt (hold G), in metres.",
+      "tab": "drops",
+      "group": "Drop",
+      "min": 0.5,
+      "max": 10,
+      "step": 0.5,
+      "unit": "m"
+    },
+    "Config.Supply.RenderDistance": {
+      "label": "View distance",
+      "tooltip": "Players within this distance see the crate and the balloon, in metres. Lower values save a little performance.",
+      "tab": "drops",
+      "group": "Drop",
+      "min": 20,
+      "max": 1000,
+      "step": 10,
+      "unit": "m"
+    },
+    "Config.Supply.DropTimeout": {
+      "label": "Time before it vanishes",
+      "tooltip": "An uncollected drop disappears after this long, in milliseconds. 900000 is 15 minutes. The check runs every 5 minutes, so it can last up to 5 minutes longer.",
+      "tab": "drops",
+      "group": "Drop",
+      "min": 60000,
+      "max": 7200000,
+      "step": 60000,
+      "unit": "ms"
+    },
+    "Config.Scavenger": {
+      "label": "Scavenger hunts",
+      "tab": "hunts"
+    },
+    "Config.Scavenger.Theme": {
+      "label": "Window theme",
+      "tooltip": "The colour scheme of the hunt window that /clue opens.",
+      "tab": "hunts",
+      "group": "Hunt window",
+      "options": [
+        {
+          "value": "Crimson",
+          "label": "Crimson"
+        },
+        {
+          "value": "Twilight",
+          "label": "Twilight"
+        },
+        {
+          "value": "Oceanic",
+          "label": "Oceanic"
+        },
+        {
+          "value": "Forest",
+          "label": "Forest"
+        },
+        {
+          "value": "Monochrome",
+          "label": "Monochrome"
+        }
+      ]
+    },
+    "Config.Scavenger.UI": {
+      "label": "Clue",
+      "tab": "hunts"
+    },
+    "Config.Scavenger.UI.CluePenalty": {
+      "label": "Clue penalty",
+      "tooltip": "How much of the reward a player loses for revealing the clue, from 0 to 1. 0.3 takes 30%. 0 makes the clue free; keep it below 1, or a revealed clue pays nothing.",
+      "tab": "hunts",
+      "group": "Clue",
+      "min": 0,
+      "max": 0.95,
+      "step": 0.05
+    },
+    "Config.Scavenger.UI.ShowClueText": {
+      "label": "Reveal button text",
+      "tooltip": "The text on the button that reveals the clue.",
+      "tab": "hunts",
+      "group": "Clue"
+    },
+    "Config.Scavenger.UI.PenaltyText": {
+      "label": "Penalty warning",
+      "tooltip": "The warning under the reveal button. It does not update by itself: if you change the clue penalty, change the percent written here too.",
+      "tab": "hunts",
+      "group": "Clue",
+      "picker": "multiline"
+    },
+    "Config.Scavenger.Blip": {
+      "label": "Map blip",
+      "tab": "hunts"
+    },
+    "Config.Scavenger.Blip.Sprite": {
+      "label": "Blip icon",
+      "tooltip": "The map blip sprite name for a hunt, such as blip_treasure.",
+      "tab": "hunts",
+      "group": "Map blip"
+    },
+    "Config.Scavenger.Blip.Color": {
+      "label": "Blip colour",
+      "tooltip": "The blip colour modifier name, such as BLIP_MODIFIER_MP_COLOR_8 (green).",
+      "tab": "hunts",
+      "group": "Map blip"
+    },
+    "Config.Scavenger.Blip.Name": {
+      "label": "Blip name",
+      "tooltip": "The name shown for a hunt on the map.",
+      "tab": "hunts",
+      "group": "Map blip"
+    },
+    "Config.Scavenger.PromptDistance": {
+      "label": "Collect distance",
+      "tooltip": "How close a player must be to the treasure to see the collect prompt (hold G), in metres.",
+      "tab": "hunts",
+      "group": "Treasure",
+      "min": 0.5,
+      "max": 10,
+      "step": 0.5,
+      "unit": "m"
+    },
+    "Config.Scavenger.RenderDistance": {
+      "label": "View distance",
+      "tooltip": "Players within this distance see the treasure prop, in metres.",
+      "tab": "hunts",
+      "group": "Treasure",
+      "min": 20,
+      "max": 1000,
+      "step": 10,
+      "unit": "m"
+    },
+    "Config.Scavenger.HuntTimeout": {
+      "label": "Time before it vanishes",
+      "tooltip": "An unclaimed hunt disappears after this long, in milliseconds. 2700000 is 45 minutes. The check runs every 5 minutes, so it can last up to 5 minutes longer.",
+      "tab": "hunts",
+      "group": "Treasure",
+      "min": 60000,
+      "max": 14400000,
+      "step": 60000,
+      "unit": "ms"
+    },
+    "Config.NotificationDuration": {
+      "label": "Collect notification time",
+      "tooltip": "How long the 'you collected' and 'collected by' notifications stay on screen, in milliseconds. 8000 is eight seconds.",
+      "tab": "notifications",
+      "group": "In-game notifications",
+      "min": 1000,
+      "max": 30000,
+      "step": 500,
+      "unit": "ms"
+    },
+    "Config.ShowCollectedByNotifications": {
+      "label": "Tell everyone who collected",
+      "tooltip": "When on, every player is told the name of whoever collected a supply drop.",
+      "tab": "notifications",
+      "group": "In-game notifications"
+    },
+    "Config.SuccessNotificationColor": {
+      "label": "Collect notification colour",
+      "tooltip": "The colour name of the 'you collected' notification, such as COLOR_GREEN.",
+      "tab": "notifications",
+      "group": "Collect notification style",
+      "advanced": true
+    },
+    "Config.SuccessNotificationDict": {
+      "label": "Icon texture dictionary",
+      "tooltip": "The texture dictionary the notification icon comes from, such as BLIPS.",
+      "tab": "notifications",
+      "group": "Collect notification style",
+      "advanced": true
+    },
+    "Config.SuccessNotificationIcon": {
+      "label": "Icon",
+      "tooltip": "The icon texture name inside that dictionary, such as blip_cash_bag.",
+      "tab": "notifications",
+      "group": "Collect notification style",
+      "advanced": true
+    },
+    "Config.Discord": {
+      "label": "Discord",
+      "tab": "notifications"
+    },
+    "Config.Discord.SupplyDrops": {
+      "label": "Discord: supply drops",
+      "tab": "notifications"
+    },
+    "Config.Discord.ScavengerHunts": {
+      "label": "Discord: scavenger hunts",
+      "tab": "notifications"
+    },
+    "Config.Discord.SupplyDrops.Enabled": {
+      "label": "Post to Discord",
+      "tooltip": "Posts new supply drops and who collected them. Nothing is sent while the webhook is still the placeholder.",
+      "tab": "notifications",
+      "group": "Discord: supply drops"
+    },
+    "Config.Discord.SupplyDrops.WebhookURL": {
+      "label": "Webhook URL",
+      "tooltip": "The Discord webhook for supply drop messages. Create one in the channel's settings under Integrations.",
+      "tab": "notifications",
+      "group": "Discord: supply drops",
+      "picker": "webhook",
+      "placeholder": "https://discord.com/api/webhooks/..."
+    },
+    "Config.Discord.SupplyDrops.BotName": {
+      "label": "Bot name",
+      "tooltip": "The name the messages are posted under.",
+      "tab": "notifications",
+      "group": "Discord: supply drops"
+    },
+    "Config.Discord.SupplyDrops.BotIcon": {
+      "label": "Bot avatar",
+      "tooltip": "An image URL for the bot's picture. Leave empty for the webhook's own picture.",
+      "tab": "notifications",
+      "group": "Discord: supply drops"
+    },
+    "Config.Discord.SupplyDrops.Color": {
+      "label": "Embed colour",
+      "tooltip": "The colour bar on each message, as a decimal number (not hex). 16776960 is yellow.",
+      "tab": "notifications",
+      "group": "Discord: supply drops",
+      "min": 0,
+      "max": 16777215,
+      "step": 1,
+      "advanced": true
+    },
+    "Config.Discord.SupplyDrops.Footer": {
+      "label": "Footer",
+      "tooltip": "Small text at the bottom of each message.",
+      "tab": "notifications",
+      "group": "Discord: supply drops"
+    },
+    "Config.Discord.ScavengerHunts.Enabled": {
+      "label": "Post to Discord",
+      "tooltip": "Posts new scavenger hunts and who found them. Nothing is sent while the webhook is still the placeholder.",
+      "tab": "notifications",
+      "group": "Discord: scavenger hunts"
+    },
+    "Config.Discord.ScavengerHunts.WebhookURL": {
+      "label": "Webhook URL",
+      "tooltip": "The Discord webhook for scavenger hunt messages. It can be the same as the supply drop one.",
+      "tab": "notifications",
+      "group": "Discord: scavenger hunts",
+      "picker": "webhook",
+      "placeholder": "https://discord.com/api/webhooks/..."
+    },
+    "Config.Discord.ScavengerHunts.BotName": {
+      "label": "Bot name",
+      "tooltip": "The name the messages are posted under.",
+      "tab": "notifications",
+      "group": "Discord: scavenger hunts"
+    },
+    "Config.Discord.ScavengerHunts.BotIcon": {
+      "label": "Bot avatar",
+      "tooltip": "An image URL for the bot's picture. Leave empty for the webhook's own picture.",
+      "tab": "notifications",
+      "group": "Discord: scavenger hunts"
+    },
+    "Config.Discord.ScavengerHunts.Color": {
+      "label": "Embed colour",
+      "tooltip": "The colour bar on each message, as a decimal number (not hex). 65280 is green.",
+      "tab": "notifications",
+      "group": "Discord: scavenger hunts",
+      "min": 0,
+      "max": 16777215,
+      "step": 1,
+      "advanced": true
+    },
+    "Config.Discord.ScavengerHunts.Footer": {
+      "label": "Footer",
+      "tooltip": "Small text at the bottom of each message.",
+      "tab": "notifications",
+      "group": "Discord: scavenger hunts"
+    },
+    "Config.Language": {
+      "label": "Language",
+      "tooltip": "Which language players see: one of the languages on this tab (en, es, fr ship). Lines a language does not have fall back to English. To add one, copy the en block in translations.lua.",
+      "tab": "text",
+      "group": "Language",
+      "ref": "Translations"
+    },
+    "Translations.*": {
+      "tab": "text",
+      "group": "Messages",
+      "tooltip": "Text players see. Keep every word in {braces}, such as {item} or {location}: the script fills them in."
+    },
+    "T": {
+      "hidden": true
+    }
+  },
+  "lists": {
+    "Config.Supply.Locations": {
+      "label": "Drop locations",
+      "itemLabel": "location",
+      "tab": "drops",
+      "kind": "list",
+      "titleField": "name",
+      "columns": [
+        {
+          "field": "name",
+          "label": "Name"
+        },
+        {
+          "field": "location",
+          "label": "Position"
+        }
+      ],
+      "search": [
+        "name"
+      ],
+      "fields": {
+        "name": {
+          "label": "Name",
+          "tooltip": "The place name players are told in the drop notification, such as Blackwater Docks."
+        },
+        "location": {
+          "label": "Position",
+          "tooltip": "Where the crate lands. Pick an open spot on the ground with room for a balloon overhead.",
+          "picker": "coords"
+        }
+      },
+      "template": {
+        "name": "New Location",
+        "location": {
+          "__type": "vec3",
+          "x": 0,
+          "y": 0,
+          "z": 0
+        }
+      }
+    },
+    "Config.Supply.ItemDrops": {
+      "label": "Drop loot",
+      "itemLabel": "loot item",
+      "tab": "drops",
+      "kind": "list",
+      "titleField": "label",
+      "subtitleField": "name",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Label"
+        },
+        {
+          "field": "name",
+          "label": "Item"
+        },
+        {
+          "field": "amount",
+          "label": "Amount"
+        },
+        {
+          "field": "chance",
+          "label": "Weight"
+        },
+        {
+          "field": "prop",
+          "label": "Crate prop"
+        }
+      ],
+      "search": [
+        "name",
+        "label",
+        "prop"
+      ],
+      "fields": {
+        "name": {
+          "label": "Item",
+          "tooltip": "The item in the drop. It must exist in your items table. A name starting WEAPON_ gives one weapon instead.",
+          "picker": "item"
+        },
+        "label": {
+          "label": "Label",
+          "tooltip": "The name shown in the notifications and on the prompt."
+        },
+        "amount": {
+          "label": "Amount (min, max)",
+          "tooltip": "Two whole numbers: the fewest and the most a drop can hold. Ignored for weapons, which always give one."
+        },
+        "chance": {
+          "label": "Weight",
+          "tooltip": "How likely this loot is, compared with the others. It is a weight, not a percent: an entry with 20 is twice as likely as one with 10. Use whole numbers.",
+          "min": 0,
+          "max": 1000,
+          "step": 1
+        },
+        "prop": {
+          "label": "Crate prop",
+          "tooltip": "The object model players see, such as p_crateapple01b. A wrong name means the drop cannot be shown."
+        }
+      },
+      "template": {
+        "name": "",
+        "label": "New Loot",
+        "amount": [
+          1,
+          10
+        ],
+        "chance": 10,
+        "prop": "mp001_p_mp_crateweapon_01a"
+      }
+    },
+    "Config.Scavenger.Hunts": {
+      "label": "Hunt locations",
+      "itemLabel": "hunt",
+      "tab": "hunts",
+      "kind": "list",
+      "titleField": "image",
+      "subtitleField": "clue",
+      "columns": [
+        {
+          "field": "name",
+          "label": "Title"
+        },
+        {
+          "field": "image",
+          "label": "Photo"
+        },
+        {
+          "field": "location",
+          "label": "Position"
+        }
+      ],
+      "search": [
+        "name",
+        "image",
+        "clue"
+      ],
+      "fields": {
+        "name": {
+          "label": "Title",
+          "tooltip": "The title of the hunt window, and the prompt text at the treasure."
+        },
+        "location": {
+          "label": "Position",
+          "tooltip": "Exactly where the treasure sits. Stand on the spot and use 'my position'.",
+          "picker": "coords"
+        },
+        "prop": {
+          "label": "Treasure prop",
+          "tooltip": "The object model players look for, such as p_moneybag02x."
+        },
+        "image": {
+          "label": "Photo",
+          "tooltip": "A .jpg file name in the script's ui/images folder, showing the hiding place. Only .jpg files are sent to players."
+        },
+        "clue": {
+          "label": "Clue",
+          "tooltip": "The riddle players can reveal, at the cost of part of the reward.",
+          "picker": "multiline"
+        }
+      },
+      "template": {
+        "name": "SCAVENGER HUNT",
+        "location": {
+          "__type": "vec3",
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "prop": "p_moneybag02x",
+        "image": "",
+        "clue": ""
+      }
+    },
+    "Config.Scavenger.RewardTypes": {
+      "label": "Hunt rewards",
+      "itemLabel": "reward",
+      "tab": "hunts",
+      "kind": "list",
+      "titleField": "type",
+      "subtitleField": "label",
+      "columns": [
+        {
+          "field": "type",
+          "label": "Type"
+        },
+        {
+          "field": "label",
+          "label": "Label"
+        },
+        {
+          "field": "amount",
+          "label": "Amount"
+        },
+        {
+          "field": "chance",
+          "label": "Weight"
+        }
+      ],
+      "fields": {
+        "type": {
+          "label": "Type",
+          "tooltip": "money pays cash or gold; item gives an item.",
+          "options": [
+            {
+              "value": "money",
+              "label": "Money"
+            },
+            {
+              "value": "item",
+              "label": "Item"
+            }
+          ]
+        },
+        "currencyType": {
+          "label": "Currency",
+          "tooltip": "For money rewards: cash or gold.",
+          "options": [
+            {
+              "value": "cash",
+              "label": "Cash"
+            },
+            {
+              "value": "gold",
+              "label": "Gold"
+            }
+          ]
+        },
+        "name": {
+          "label": "Item",
+          "tooltip": "For item rewards: the item given. It must exist in your items table.",
+          "picker": "item"
+        },
+        "label": {
+          "label": "Label",
+          "tooltip": "For item rewards: the name players see."
+        },
+        "amount": {
+          "label": "Amount (min, max)",
+          "tooltip": "The smallest and largest reward. For items, whole numbers. For money, use whole dollars or halves such as 16 or 16.5: some cent values cannot be rolled."
+        },
+        "chance": {
+          "label": "Weight",
+          "tooltip": "How likely this reward is, compared with the others. A weight, not a percent. Use whole numbers.",
+          "min": 0,
+          "max": 1000,
+          "step": 1
+        }
+      },
+      "template": {
+        "type": "money",
+        "currencyType": "cash",
+        "amount": [
+          10,
+          50
+        ],
+        "chance": 10
+      }
+    }
+  }
+}

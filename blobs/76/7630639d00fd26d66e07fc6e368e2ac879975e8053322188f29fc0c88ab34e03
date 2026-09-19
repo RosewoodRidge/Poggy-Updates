@@ -1,0 +1,193 @@
+{
+  "label": "Skillcheck",
+  "tagline": "A slick circular skillcheck any script can call in one line",
+  "category": "Utility",
+  "description": "A Dead by Daylight style skillcheck: a needle sweeps round a ring and the player presses Space inside the zone. Other scripts call it with one export and get pass, fail and great hits back. The settings here are the defaults used when a script does not set its own.",
+  "readme": "README.md",
+  "help": [
+    {"title": "Tuning the difficulty", "file": "docs/help/difficulty.md"},
+    {"title": "Using it in your own scripts", "file": "docs/help/export.md"}
+  ],
+
+  "commands": [
+    {
+      "command": "/skillcheck",
+      "who": "Everyone",
+      "description": "Test command. Starts a skillcheck with the settings you type, or turns your skillcheck sounds on or off. It only exists when 'Test command' is on, and then any player can use it, so leave it off on a live server.",
+      "usage": "/skillcheck [speed] [difficulty] [repetition] [randomizer] [shake] [shakeSpeed] [shakeDist] [timeBetween] [direction] [great]  |  /skillcheck on|off",
+      "examples": ["/skillcheck", "/skillcheck 5 5", "/skillcheck 4 4 3 0 true 3 3 300 cw 50", "/skillcheck off"]
+    }
+  ],
+
+  "tabs": [
+    {"id": "general", "label": "General", "icon": "sliders"},
+    {"id": "difficulty", "label": "Default difficulty", "icon": "target"},
+    {"id": "appearance", "label": "Appearance", "icon": "palette"}
+  ],
+
+  "settings": {
+    "Config.SkillCheck": {"label": "Skillcheck", "tab": "general"},
+    "Config.SkillCheck.Enabled": {
+      "label": "Skillchecks enabled",
+      "tooltip": "Master switch. When off, no skillcheck is shown and every call counts as an instant pass, so players always succeed at whatever the check was guarding.",
+      "tab": "general",
+      "group": "Skillchecks"
+    },
+    "Config.SkillCheck.TestCommand": {
+      "label": "Test command",
+      "tooltip": "Adds the /skillcheck command for trying settings in game. Any player can use it while it is on, so turn it off on a live server.",
+      "tab": "general",
+      "group": "Testing"
+    },
+    "Config.SkillCheck.Defaults": {
+      "label": "Default difficulty",
+      "tooltip": "Used for every setting a calling script leaves out. A script that sets its own value always wins.",
+      "tab": "difficulty"
+    },
+    "Config.SkillCheck.Defaults.speed": {
+      "label": "Needle speed",
+      "tooltip": "How fast the needle turns. 1 is slow (about 3.5 seconds per lap), 5 is very fast (under 1 second per lap). Whole numbers only.",
+      "tab": "difficulty",
+      "group": "Needle",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    "Config.SkillCheck.Defaults.direction": {
+      "label": "Needle direction",
+      "tooltip": "Which way the needle turns. Random picks a direction again for every repetition.",
+      "tab": "difficulty",
+      "group": "Needle",
+      "options": [
+        {"value": "cw", "label": "Clockwise"},
+        {"value": "ccw", "label": "Anticlockwise"},
+        {"value": "rand", "label": "Random each time"}
+      ]
+    },
+    "Config.SkillCheck.Defaults.startOffset": {
+      "label": "Start position scatter",
+      "tooltip": "The needle starts opposite the zone, moved by a random amount up to this percentage of the ring. 0 always starts in exactly the same place, so players learn the timing; higher is less predictable. Maximum 50.",
+      "tab": "difficulty",
+      "group": "Needle",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.SkillCheck.Defaults.difficulty": {
+      "label": "Zone size",
+      "tooltip": "How big the success zone is. 1 is a large, easy zone (about a quarter of the ring); 5 is a small, hard one (about a fourteenth). Whole numbers only.",
+      "tab": "difficulty",
+      "group": "Zone",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    "Config.SkillCheck.Defaults.great": {
+      "label": "Great zone size",
+      "tooltip": "How much of the success zone is the gold 'great' part, in percent. 0 turns great hits off; 100 makes every hit great.",
+      "tab": "difficulty",
+      "group": "Zone",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%"
+    },
+    "Config.SkillCheck.Defaults.repetition": {
+      "label": "Repetitions",
+      "tooltip": "How many hits in a row the player must land to pass. One miss fails the whole skillcheck. From 1 to 10.",
+      "tab": "difficulty",
+      "group": "Repetitions",
+      "min": 1,
+      "max": 10,
+      "step": 1
+    },
+    "Config.SkillCheck.Defaults.timeBetween": {
+      "label": "Pause between repetitions",
+      "tooltip": "The gap between one repetition and the next, in milliseconds. Only matters when Repetitions is more than 1. From 100 to 500.",
+      "tab": "difficulty",
+      "group": "Repetitions",
+      "min": 100,
+      "max": 500,
+      "step": 10,
+      "unit": "ms"
+    },
+    "Config.SkillCheck.Defaults.randomizer": {
+      "label": "Screen position scatter",
+      "tooltip": "Where the ring appears. 0 is always the centre of the screen; each step moves it up to 10% of the screen further in a random direction (5 = up to 50%).",
+      "tab": "difficulty",
+      "group": "Position and shake",
+      "min": 0,
+      "max": 5,
+      "step": 1
+    },
+    "Config.SkillCheck.Defaults.shake": {
+      "label": "Shake the ring",
+      "tooltip": "Makes the ring shake while the needle turns, which makes it harder to read. Speed and distance are set below.",
+      "tab": "difficulty",
+      "group": "Position and shake"
+    },
+    "Config.SkillCheck.Defaults.shakeSpeed": {
+      "label": "Shake speed",
+      "tooltip": "How fast the ring shakes when shaking is on. 1 is a mild wobble, 5 is very fast. Whole numbers only.",
+      "tab": "difficulty",
+      "group": "Position and shake",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    "Config.SkillCheck.Defaults.shakeDist": {
+      "label": "Shake distance",
+      "tooltip": "How far the ring moves when shaking is on. 1 is about 1 pixel, 5 is about 8 pixels. Whole numbers only.",
+      "tab": "difficulty",
+      "group": "Position and shake",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    "Config.SkillCheck.Sounds": {"label": "Sounds", "tab": "appearance"},
+    "Config.SkillCheck.Sounds.Volume": {
+      "label": "Volume",
+      "tooltip": "Volume of the hit sounds, from 0 (silent) to 1 (full). The default 0.1 is quiet on purpose.",
+      "tab": "appearance",
+      "group": "Sounds",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    "Config.SkillCheck.Sounds.IncomingBoost": {
+      "label": "Warning tone boost",
+      "tooltip": "Multiplies the volume of the warning tone played one second before the ring appears. 1 = same as the hit sounds, 2 = twice as loud. The result never goes above full volume.",
+      "tab": "appearance",
+      "group": "Sounds",
+      "min": 0,
+      "max": 10,
+      "step": 0.1,
+      "unit": "×"
+    },
+    "Config.SkillCheck.Sounds.Incoming": {
+      "label": "Warning tone file",
+      "tooltip": "Not used by this version: the ring always plays ui/sfx/skillcheck/incoming.mp3. To change the sound, replace that file and keep its name.",
+      "tab": "appearance",
+      "group": "Sound files",
+      "readonly": true,
+      "advanced": true
+    },
+    "Config.SkillCheck.Sounds.Good": {
+      "label": "Hit sound file",
+      "tooltip": "Not used by this version: a normal hit always plays ui/sfx/skillcheck/good.mp3. To change the sound, replace that file and keep its name.",
+      "tab": "appearance",
+      "group": "Sound files",
+      "readonly": true,
+      "advanced": true
+    },
+    "Config.SkillCheck.Sounds.Great": {
+      "label": "Great hit sound file",
+      "tooltip": "Not used by this version: a great hit always plays ui/sfx/skillcheck/great.mp3. To change the sound, replace that file and keep its name.",
+      "tab": "appearance",
+      "group": "Sound files",
+      "readonly": true,
+      "advanced": true
+    }
+  }
+}

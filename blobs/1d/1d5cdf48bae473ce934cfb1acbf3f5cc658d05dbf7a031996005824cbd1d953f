@@ -1,0 +1,502 @@
+{
+  "label": "Trash Bins",
+  "tagline": "Rummage through town bins for scraps, and stash goods in them for others to find",
+  "category": "World",
+  "description": "Players search trash bins in every town for random loot, with a cooldown per bin so nobody can farm one. Each bin is also a small shared storage anyone can open, good for dead drops and stashes. Bins can be placed by hand or picked up automatically from the bins already in the world.",
+  "readme": "README.md",
+  "help": [
+    {
+      "title": "Adding bins",
+      "file": "docs/help/adding-bins.md"
+    },
+    {
+      "title": "Tuning the loot",
+      "file": "docs/help/loot.md"
+    }
+  ],
+  "commands": [
+    {
+      "command": "/emptytrash",
+      "configPath": "Config.WipeCommand",
+      "who": "Admins",
+      "description": "Empties every trash bin's storage on the server and resets their search cooldowns. Only characters whose group is in Staff groups may use it, and only while 'Staff wipe command' is on. Also works from the server console.",
+      "usage": "/emptytrash",
+      "examples": [
+        "/emptytrash"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "id": "general",
+      "label": "General",
+      "icon": "sliders"
+    },
+    {
+      "id": "access",
+      "label": "Access & permissions",
+      "icon": "shield"
+    },
+    {
+      "id": "locations",
+      "label": "Locations",
+      "icon": "map"
+    },
+    {
+      "id": "loot",
+      "label": "Items & loot",
+      "icon": "box"
+    },
+    {
+      "id": "timing",
+      "label": "Timing & schedule",
+      "icon": "clock"
+    },
+    {
+      "id": "text",
+      "label": "Text & language",
+      "icon": "language"
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced",
+      "icon": "wrench"
+    }
+  ],
+  "settings": {
+    "Config.InteractionRadius": {
+      "label": "Prompt distance",
+      "tooltip": "How close a player must be to a bin to see the search and storage prompts, in metres.",
+      "tab": "general",
+      "group": "Interaction",
+      "min": 0.5,
+      "max": 5,
+      "step": 0.1,
+      "unit": "m"
+    },
+    "Config.BlockTrashIfPlayerIsNearRange": {
+      "label": "Personal space",
+      "tooltip": "A player cannot search a bin while someone else stands within this distance of it, in metres. Stops two players camping one bin. 0 turns the check off.",
+      "tab": "general",
+      "group": "Interaction",
+      "min": 0,
+      "max": 20,
+      "step": 0.5,
+      "unit": "m"
+    },
+    "Config.SearchKey": {
+      "label": "Search key",
+      "tooltip": "The control hash of the key that searches a bin (0x41AC83D1 by default). Use a RedM control hash; a wrong value means the prompt never fires.",
+      "tab": "advanced",
+      "group": "Keys"
+    },
+    "Config.StorageKey": {
+      "label": "Storage key",
+      "tooltip": "The control hash of the key that opens a bin's storage (0xFF8109D8 by default). It must differ from the search key.",
+      "tab": "advanced",
+      "group": "Keys"
+    },
+    "Config.Developer": {
+      "label": "Developer mode (not used)",
+      "tooltip": "Currently not read by the script. Leave it off.",
+      "tab": "advanced",
+      "group": "Diagnostics"
+    },
+    "Config.RefillTimeMin": {
+      "label": "Cooldown: shortest",
+      "tooltip": "After a bin is searched, it stays empty for a random time between the shortest and longest cooldown, in seconds. 1800 is 30 minutes. Keep it at or below the longest.",
+      "tab": "timing",
+      "group": "Refill cooldown",
+      "min": 0,
+      "max": 86400,
+      "step": 60,
+      "unit": "s"
+    },
+    "Config.RefillTimeMax": {
+      "label": "Cooldown: longest",
+      "tooltip": "The longest a searched bin stays empty, in seconds. 7200 is 2 hours. Players who search too soon are told someone already went through it.",
+      "tab": "timing",
+      "group": "Refill cooldown",
+      "min": 0,
+      "max": 86400,
+      "step": 60,
+      "unit": "s"
+    },
+    "Config.MaxItemsPerSearch": {
+      "label": "Most items per search",
+      "tooltip": "The most different items one search can find. If more are rolled, a random few are kept. 0 means searches always find nothing.",
+      "tab": "loot",
+      "group": "Every search",
+      "min": 0,
+      "max": 20,
+      "step": 1
+    },
+    "Config.SearchTimeMin": {
+      "label": "Search time: shortest",
+      "tooltip": "A search takes a random time between the shortest and longest, in milliseconds. 5000 is five seconds. Keep it at or below the longest.",
+      "tab": "timing",
+      "group": "Search time",
+      "min": 500,
+      "max": 60000,
+      "step": 500,
+      "unit": "ms"
+    },
+    "Config.SearchTimeMax": {
+      "label": "Search time: longest",
+      "tooltip": "The longest a search takes, in milliseconds. 10000 is ten seconds.",
+      "tab": "timing",
+      "group": "Search time",
+      "min": 500,
+      "max": 60000,
+      "step": 500,
+      "unit": "ms"
+    },
+    "Config.UseScriptProgressbar": {
+      "label": "Show progress bar",
+      "tooltip": "Shows a progress bar while a player searches. Turn off if you prefer no bar; the search still takes the same time.",
+      "tab": "timing",
+      "group": "Search time"
+    },
+    "Config.AutoDetect": {
+      "label": "Find world bins",
+      "tooltip": "When on, bins that already stand in the game world (the models below) become searchable too, as players come near them. Each gets its own storage, named from its position.",
+      "tab": "locations",
+      "group": "Auto-detect world bins"
+    },
+    "Config.AutoDetectModels": {
+      "label": "Bin models to find",
+      "tooltip": "The object model names that count as a trash bin when found in the world.",
+      "tab": "locations",
+      "group": "Auto-detect world bins"
+    },
+    "Config.AutoDetectRescanInterval": {
+      "label": "Rescan every",
+      "tooltip": "How often each player's game looks for world bins around them, in seconds. Lower finds bins sooner but costs a little performance.",
+      "tab": "locations",
+      "group": "Auto-detect world bins",
+      "min": 5,
+      "max": 300,
+      "step": 5,
+      "unit": "s",
+      "advanced": true
+    },
+    "Config.AutoDetectDefaults": {
+      "label": "Found bins",
+      "tab": "locations"
+    },
+    "Config.AutoDetectDefaults.storageitemlimit": {
+      "label": "Storage slots",
+      "tooltip": "How many slots the storage of each auto-detected bin has.",
+      "tab": "locations",
+      "group": "Found bins",
+      "min": 1,
+      "max": 200,
+      "step": 1
+    },
+    "Config.AutoDetectDefaults.storagemaxweight": {
+      "label": "Storage weight (not used)",
+      "tooltip": "Currently not used: bin storage is limited by slots only.",
+      "tab": "locations",
+      "group": "Found bins",
+      "advanced": true
+    },
+    "Config.EnableBlips": {
+      "label": "Map blips",
+      "tooltip": "Shows every bin from the Bins list on the map. Auto-detected bins never get a blip.",
+      "tab": "locations",
+      "group": "Map blips"
+    },
+    "Config.SetBlipSprite": {
+      "label": "Blip icon",
+      "tooltip": "The blip sprite hash, as a number. 1109348405 is the default.",
+      "tab": "locations",
+      "group": "Map blips",
+      "advanced": true
+    },
+    "Config.BlipColor": {
+      "label": "Blip colour (not used)",
+      "tooltip": "Currently not used by the script, and built with GetHashKey, so it can only be edited in config.lua.",
+      "tab": "locations",
+      "group": "Map blips",
+      "readonly": true,
+      "advanced": true
+    },
+    "Config.WipeStorageOnScriptStart": {
+      "label": "Empty bins on restart",
+      "tooltip": "When on, every bin's storage is emptied each time the script or server starts. When off, whatever players leave in a bin stays there across restarts.",
+      "tab": "general",
+      "group": "Bin storage"
+    },
+    "Config.AllowWeaponsInStorages": {
+      "label": "Allow weapons in bins",
+      "tooltip": "When on, players may put weapons in bin storage. Not recommended: bins are open to everyone.",
+      "tab": "general",
+      "group": "Bin storage"
+    },
+    "Config.AllowStaffGroupsToWipeWithCommand": {
+      "label": "Staff wipe command",
+      "tooltip": "When on, the wipe command exists and staff can empty every bin at once. When off, the command is not registered at all.",
+      "tab": "access",
+      "group": "Wipe command"
+    },
+    "Config.WipeCommand": {
+      "label": "Wipe command name",
+      "tooltip": "The chat command that empties every bin, without the slash.",
+      "tab": "access",
+      "group": "Wipe command"
+    },
+    "Config.StaffGroups": {
+      "label": "Staff groups",
+      "tooltip": "Character groups that may use the wipe command, such as admin. Matched without caring about capitals.",
+      "tab": "access",
+      "group": "Wipe command",
+      "picker": "group"
+    },
+    "Config.EnableLogs": {
+      "label": "Discord logging",
+      "tooltip": "Posts every successful search, with who found what, to Discord. Nothing is sent while the webhook is still the placeholder.",
+      "tab": "general",
+      "group": "Discord log"
+    },
+    "Config.LogsWebhook": {
+      "label": "Webhook URL",
+      "tooltip": "The Discord webhook to post to. Create one in the channel's settings under Integrations.",
+      "tab": "general",
+      "group": "Discord log",
+      "picker": "webhook",
+      "placeholder": "https://discord.com/api/webhooks/..."
+    },
+    "Config.Language": {
+      "label": "Language",
+      "tooltip": "Which language block in translations.lua to use: one of the languages on this tab. Only en ships; to add one, copy the en block and give it a new name. An unknown name falls back to en.",
+      "tab": "text",
+      "group": "Language",
+      "ref": "Translations"
+    },
+    "Translations.*": {
+      "tab": "text",
+      "group": "Messages",
+      "tooltip": "Text players see. Keep colour codes such as ~t6~, ~t8~ and ~d~ where they are."
+    },
+    "T": {
+      "hidden": true
+    }
+  },
+  "lists": {
+    "Config.TrashBins": {
+      "kind": "collection",
+      "label": "Bins",
+      "itemLabel": "bin",
+      "tab": "locations",
+      "titleField": "storageid",
+      "columns": [
+        {
+          "field": "storageid",
+          "label": "Storage id"
+        },
+        {
+          "field": "coords",
+          "label": "Position"
+        },
+        {
+          "field": "shouldSpawn",
+          "label": "Spawn bin"
+        },
+        {
+          "field": "storageitemlimit",
+          "label": "Slots"
+        }
+      ],
+      "search": [
+        "storageid"
+      ],
+      "fields": {
+        "coords": {
+          "label": "Position",
+          "tooltip": "Where the bin is. Stand at it and use 'my position'.",
+          "picker": "coords"
+        },
+        "shouldSpawn": {
+          "label": "Spawn a bin here",
+          "tooltip": "On: the script places a street trash can at this spot. Off: use it where a bin already stands in the world."
+        },
+        "storageid": {
+          "label": "Storage id",
+          "tooltip": "This bin's own storage. Every bin needs a different id. Changing it loses whatever is stored in the bin."
+        },
+        "storageitemlimit": {
+          "label": "Storage slots",
+          "tooltip": "How many slots this bin's storage has.",
+          "min": 1,
+          "max": 200,
+          "step": 1
+        },
+        "storagemaxweight": {
+          "label": "Storage weight (not used)",
+          "tooltip": "Currently not used: bin storage is limited by slots only."
+        }
+      },
+      "sublists": {
+        "loot": {
+          "label": "Own loot (optional)",
+          "tooltip": "Leave empty to use the Shared loot list (Items & loot tab). Fill it only to give this one bin a different loot table.",
+          "itemLabel": "loot item",
+          "titleField": "label",
+          "subtitleField": "item",
+          "columns": [
+            {
+              "field": "label",
+              "label": "Label"
+            },
+            {
+              "field": "item",
+              "label": "Item"
+            },
+            {
+              "field": "chance",
+              "label": "Chance %"
+            },
+            {
+              "field": "minamount",
+              "label": "Min"
+            },
+            {
+              "field": "maxamount",
+              "label": "Max"
+            }
+          ],
+          "search": [
+            "item",
+            "label"
+          ],
+          "fields": {
+            "item": {
+              "label": "Item",
+              "picker": "item",
+              "tooltip": "The item found. It must exist in your items table."
+            },
+            "label": {
+              "label": "Label",
+              "tooltip": "The name shown to the player when they find it."
+            },
+            "chance": {
+              "label": "Chance",
+              "min": 0,
+              "max": 100,
+              "step": 1,
+              "unit": "%",
+              "tooltip": "The percent chance this item is found on each search, from 1 to 100. Every item is rolled on its own, then 'Most items per search' keeps a random few."
+            },
+            "minamount": {
+              "label": "Fewest",
+              "min": 1,
+              "max": 100,
+              "step": 1,
+              "tooltip": "The fewest found at once. Whole number, at or below the most."
+            },
+            "maxamount": {
+              "label": "Most",
+              "min": 1,
+              "max": 100,
+              "step": 1,
+              "tooltip": "The most found at once. Whole number."
+            }
+          },
+          "template": {
+            "item": "",
+            "label": "New Item",
+            "chance": 10,
+            "minamount": 1,
+            "maxamount": 1
+          }
+        }
+      },
+      "template": {
+        "coords": {
+          "__type": "vec3",
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "shouldSpawn": true,
+        "storageid": "34",
+        "storageitemlimit": 20,
+        "storagemaxweight": 4000000
+      }
+    },
+    "Config.CommonLoot": {
+      "label": "Shared loot",
+      "itemLabel": "loot item",
+      "tab": "loot",
+      "kind": "list",
+      "titleField": "label",
+      "subtitleField": "item",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Label"
+        },
+        {
+          "field": "item",
+          "label": "Item"
+        },
+        {
+          "field": "chance",
+          "label": "Chance %"
+        },
+        {
+          "field": "minamount",
+          "label": "Min"
+        },
+        {
+          "field": "maxamount",
+          "label": "Max"
+        }
+      ],
+      "search": [
+        "item",
+        "label"
+      ],
+      "fields": {
+        "item": {
+          "label": "Item",
+          "tooltip": "The item found. It must exist in your items table.",
+          "picker": "item"
+        },
+        "label": {
+          "label": "Label",
+          "tooltip": "The name shown to the player when they find it."
+        },
+        "chance": {
+          "label": "Chance",
+          "tooltip": "The percent chance this item is found on each search, from 1 to 100. Every item is rolled on its own, then 'Most items per search' keeps a random few.",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        },
+        "minamount": {
+          "label": "Fewest",
+          "tooltip": "The fewest found at once. Whole number, at or below the most.",
+          "min": 1,
+          "max": 100,
+          "step": 1
+        },
+        "maxamount": {
+          "label": "Most",
+          "tooltip": "The most found at once. Whole number.",
+          "min": 1,
+          "max": 100,
+          "step": 1
+        }
+      },
+      "template": {
+        "item": "",
+        "label": "New Item",
+        "chance": 10,
+        "minamount": 1,
+        "maxamount": 1
+      }
+    }
+  }
+}

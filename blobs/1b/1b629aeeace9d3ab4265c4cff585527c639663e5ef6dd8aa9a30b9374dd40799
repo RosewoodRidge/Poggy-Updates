@@ -1,0 +1,815 @@
+{
+  "label": "Poggy Storage",
+  "tagline": "Player-owned stashes with shared keys, job access, a cash box and a ledger",
+  "category": "Economy",
+  "description": "Players buy a storage where they stand, upgrade it, and choose who else can open it: named players at four access levels, or a whole job by grade. Each storage has its own money balance and ledger. Job storages, job-locked armories and Discord logging are set up here too.",
+  "readme": "README.md",
+  "help": [
+    {
+      "title": "Managing storages in /poggy",
+      "file": "docs/help/managing-storages.md"
+    },
+    {
+      "title": "Setting up a job storage",
+      "file": "docs/help/job-storages.md"
+    },
+    {
+      "title": "Setting up an armory",
+      "file": "docs/help/armories.md"
+    },
+    {
+      "title": "Prices, upgrades and expiry",
+      "file": "docs/help/prices-and-upgrades.md"
+    }
+  ],
+  "files": [
+    "config.lua"
+  ],
+  "commands": [
+    {
+      "command": "/createstorage",
+      "configPath": "Config.menustorage",
+      "who": "Everyone",
+      "description": "Opens the create menu. Confirming buys a new storage at the spot where you stand, for the creation price, up to the maximum a character may own.",
+      "usage": "/createstorage",
+      "examples": [
+        "/createstorage"
+      ]
+    },
+    {
+      "command": "/movestorage",
+      "configPath": "Config.adminmovestorage",
+      "who": "Admins",
+      "description": "Moves a player storage to new coordinates. Works on player storages only (they have a number id); job storages are moved by editing their locations. The Storages panel in /poggy does the same with \"Move to my position\". Admins are players with the ACE in Admin ACE or a character group in Admin groups.",
+      "usage": "/movestorage <id> <x> <y> <z>",
+      "examples": [
+        "/movestorage 12 -758.7 -1242.8 44.4"
+      ]
+    },
+    {
+      "command": "/deletestorage",
+      "configPath": "Config.admindeletestorage",
+      "who": "Admins",
+      "description": "Deletes a player storage. Its container is unregistered, not emptied: the items stay in the inventory database but nobody can reach them (empty it first with Contents in the Storages panel if they should go). The Storages panel in /poggy does the same. Admins are players with the ACE in Admin ACE or a character group in Admin groups.",
+      "usage": "/deletestorage <id>",
+      "examples": [
+        "/deletestorage 12"
+      ]
+    },
+    {
+      "command": "/storageadmin",
+      "configPath": "Config.adminStorageCommand",
+      "who": "Admins",
+      "description": "Shows the map blip of every storage on the server, or goes back to only the ones you can open. Lasts until you change it or reconnect.",
+      "usage": "/storageadmin show | hide",
+      "examples": [
+        "/storageadmin show",
+        "/storageadmin hide"
+      ]
+    },
+    {
+      "command": "/adminshop",
+      "configPath": "Config.adminShopCommand",
+      "who": "Admins",
+      "description": "Opens a free shop with every item in the server's item list. Add \"cache\" to rebuild the item list after adding items. Cannot be run from the server console.",
+      "usage": "/adminshop [cache]",
+      "examples": [
+        "/adminshop",
+        "/adminshop cache"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "id": "storages",
+      "label": "Storages",
+      "icon": "box"
+    },
+    {
+      "id": "general",
+      "label": "General",
+      "icon": "sliders"
+    },
+    {
+      "id": "access",
+      "label": "Access & permissions",
+      "icon": "shield"
+    },
+    {
+      "id": "locations",
+      "label": "Locations",
+      "icon": "map"
+    },
+    {
+      "id": "armory",
+      "label": "Armories",
+      "icon": "box"
+    },
+    {
+      "id": "economy",
+      "label": "Economy & prices",
+      "icon": "coins"
+    },
+    {
+      "id": "text",
+      "label": "Text & language",
+      "icon": "language"
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced",
+      "icon": "wrench"
+    }
+  ],
+  "panels": [
+    {
+      "id": "storages",
+      "label": "Storages",
+      "tab": "storages",
+      "export": "HubPanel",
+      "itemLabel": "storage",
+      "tooltip": "Every storage on the server: player storages and the job storages from config.lua. Rename and resize player storages in the table; move one to where you stand, give it to another character or delete it from its row; open a row to see and change who has a key; use Contents to see, add or remove what is inside. Changes apply at once, no restart."
+    }
+  ],
+  "settings": {
+    "Config.Debug": {
+      "label": "Debug output",
+      "tooltip": "Prints extra lines to the server and client consoles, and shows [DEBUG] notices on screen to players using the storage menus. Leave off on a live server.",
+      "tab": "advanced",
+      "group": "Diagnostics"
+    },
+    "Config.DiscordDebug": {
+      "label": "Discord debug output",
+      "tooltip": "Prints every Discord webhook step to the server console. Turn on only while setting up webhooks, then turn it off.",
+      "tab": "advanced",
+      "group": "Diagnostics"
+    },
+    "Config.DefaultLanguage": {
+      "label": "Language",
+      "tooltip": "The language of every menu, prompt and notice: one of the Languages on this tab. A name with no language block shows the raw text keys.",
+      "tab": "text",
+      "group": "Language",
+      "ref": "Config.Translations"
+    },
+    "Config.StorageCreationPrice": {
+      "label": "Creation price",
+      "tooltip": "Cash a player pays to create a storage. Whole dollars only: the menu shows it as a whole number, and a decimal breaks the message. 0 makes storages free.",
+      "tab": "economy",
+      "group": "Buying a storage",
+      "min": 0,
+      "max": 100000,
+      "step": 1,
+      "unit": "$"
+    },
+    "Config.StorageUpgradePrice": {
+      "label": "First upgrade price",
+      "tooltip": "What the first capacity upgrade costs. Later upgrades cost more (see the multiplier). The price is rounded down to whole dollars, so 1.5 charges $1.",
+      "tab": "economy",
+      "group": "Upgrades",
+      "min": 0,
+      "max": 100000,
+      "step": 0.5,
+      "unit": "$"
+    },
+    "Config.StorageUpgradePriceMultiplier": {
+      "label": "Upgrade price increase",
+      "tooltip": "How much each upgrade raises the next one. Price = first upgrade price x (1 + this) to the power of upgrades already bought, rounded down. 0.1 = 10% more each time; 0 keeps every upgrade at the first price.",
+      "tab": "economy",
+      "group": "Upgrades",
+      "min": 0,
+      "max": 5,
+      "step": 0.01
+    },
+    "Config.StorageUpgradeSlots": {
+      "label": "Slots per upgrade",
+      "tooltip": "Capacity each upgrade adds. It is also used to count how many upgrades a storage already has, so changing it later changes what existing storages pay for their next upgrade.",
+      "tab": "economy",
+      "group": "Upgrades",
+      "min": 1,
+      "max": 1000,
+      "step": 1,
+      "unit": "slots"
+    },
+    "Config.DefaultCapacity": {
+      "label": "Starting capacity",
+      "tooltip": "Capacity of a new player storage. Existing storages keep theirs. It is also the baseline for counting upgrades, so raising it later makes existing storages' next upgrade cheaper.",
+      "tab": "general",
+      "group": "Player storages",
+      "min": 1,
+      "max": 100000,
+      "step": 1,
+      "unit": "slots"
+    },
+    "Config.MaxStorages": {
+      "label": "Storages per character",
+      "tooltip": "How many storages one character may own. Storages they were only given access to do not count.",
+      "tab": "general",
+      "group": "Player storages",
+      "min": 1,
+      "max": 100,
+      "step": 1
+    },
+    "Config.AccessRadius": {
+      "label": "Open distance",
+      "tooltip": "How close a player must stand to a storage (player or job storage) to get the open prompt. Too small and players struggle to hit it; too large and prompts overlap.",
+      "tab": "general",
+      "group": "Player storages",
+      "min": 0.5,
+      "max": 10,
+      "step": 0.5,
+      "unit": "metres"
+    },
+    "Config.EnableStorageExpiration": {
+      "label": "Delete unused storages",
+      "tooltip": "When the script starts, player storages nobody has opened for the number of days below are deleted, with no warning. Job storages are never deleted.",
+      "tab": "general",
+      "group": "Expiry"
+    },
+    "Config.StorageExpirationDays": {
+      "label": "Unused for",
+      "tooltip": "Days without anyone opening a player storage before it is deleted. Only used when Delete unused storages is on.",
+      "tab": "general",
+      "group": "Expiry",
+      "min": 1,
+      "max": 3650,
+      "step": 1,
+      "unit": "days"
+    },
+    "Config.ManagerJobGrades": {
+      "label": "Manager grades",
+      "tooltip": "Job grades that get Manager access when a storage lets a whole job in: open, deposit, withdraw, read the ledger and upgrade. The grade must match exactly.",
+      "tab": "access",
+      "group": "Job grade access levels"
+    },
+    "Config.MemberJobGrades": {
+      "label": "Member grades",
+      "tooltip": "Job grades that get Member access when a storage lets a whole job in: open, deposit and read the ledger, but not withdraw. Any grade in neither list gets Basic access (open only).",
+      "tab": "access",
+      "group": "Job grade access levels"
+    },
+    "Config.UseBlips": {
+      "label": "Map blips",
+      "tooltip": "Shows a map blip on every storage the player can open. Turn off for no storage blips at all (admins included).",
+      "tab": "general",
+      "group": "Map blips"
+    },
+    "Config.BlipSprite": {
+      "label": "Player storage blip",
+      "tooltip": "Blip icon hash for player storages. Job storages use their own blip. Find hashes at redlookup.com/blips.",
+      "tab": "general",
+      "group": "Map blips",
+      "advanced": true
+    },
+    "Config.OnlyShowAccessibleBlips": {
+      "label": "Only blips the player can open",
+      "tooltip": "Has no effect in this version: blips are always limited to storages the player can open. Admins can see them all with the storageadmin command.",
+      "tab": "general",
+      "group": "Map blips",
+      "advanced": true
+    },
+    "Config.PromptKey": {
+      "label": "Open key",
+      "tooltip": "The key that opens a storage when you stand next to it. The default is G.",
+      "tab": "advanced",
+      "group": "Keys",
+      "picker": "key"
+    },
+    "Config.NPCs": {
+      "label": "Clerk NPCs",
+      "tab": "locations"
+    },
+    "Config.NPCs.Enabled": {
+      "label": "Spawn clerks",
+      "tooltip": "Spawns the clerk NPCs listed under Clerks. They are scenery only: frozen, unkillable and not interactive.",
+      "tab": "locations",
+      "group": "Clerk NPCs"
+    },
+    "Config.NPCs.SpawnDistance": {
+      "label": "Spawn distance",
+      "tooltip": "A clerk appears when a player comes this close. Armory clerks use the same distance.",
+      "tab": "locations",
+      "group": "Clerk NPCs",
+      "min": 10,
+      "max": 300,
+      "step": 5,
+      "unit": "metres"
+    },
+    "Config.NPCs.DespawnDistance": {
+      "label": "Despawn distance",
+      "tooltip": "A clerk is removed when the player is further away than this. Keep it larger than the spawn distance, or clerks flicker in and out.",
+      "tab": "locations",
+      "group": "Clerk NPCs",
+      "min": 10,
+      "max": 400,
+      "step": 5,
+      "unit": "metres"
+    },
+    "Config.ArmoryAccessRadius": {
+      "label": "Armory open distance",
+      "tooltip": "How close a player must stand to an armory's position to get its prompt.",
+      "tab": "armory",
+      "group": "Armory settings",
+      "min": 0.5,
+      "max": 10,
+      "step": 0.5,
+      "unit": "metres"
+    },
+    "Config.ArmoryPromptKey": {
+      "label": "Armory key",
+      "tooltip": "The key that opens an armory. The default is G, the same as storages.",
+      "tab": "advanced",
+      "group": "Keys",
+      "picker": "key"
+    },
+    "Config.ArmoryDefaultQuantity": {
+      "label": "Default quantity",
+      "tooltip": "The number already filled in the How many? box for ammo and supplies. Players can still type 1 to 999. Weapons are always one.",
+      "tab": "armory",
+      "group": "Armory settings",
+      "min": 1,
+      "max": 999,
+      "step": 1
+    },
+    "Config.ArmoryCurrencyType": {
+      "label": "Currency",
+      "tooltip": "What armory prices are charged in. The menu always shows a $ sign.",
+      "tab": "armory",
+      "group": "Armory settings",
+      "options": [
+        {
+          "value": 0,
+          "label": "Cash"
+        },
+        {
+          "value": 1,
+          "label": "Gold"
+        }
+      ]
+    },
+    "Config.menustorage": {
+      "label": "Create command",
+      "tooltip": "Chat command players type to create a storage, without the slash.",
+      "tab": "access",
+      "group": "Command names"
+    },
+    "Config.adminmovestorage": {
+      "label": "Move command",
+      "tooltip": "Admin chat command that moves a player storage, without the slash.",
+      "tab": "access",
+      "group": "Command names"
+    },
+    "Config.admindeletestorage": {
+      "label": "Delete command",
+      "tooltip": "Admin chat command that deletes a player storage, without the slash.",
+      "tab": "access",
+      "group": "Command names"
+    },
+    "Config.adminStorageCommand": {
+      "label": "Show-all-blips command",
+      "tooltip": "Admin chat command that shows or hides every storage blip, without the slash.",
+      "tab": "access",
+      "group": "Command names"
+    },
+    "Config.adminShopCommand": {
+      "label": "Admin shop command",
+      "tooltip": "Admin chat command that opens the free all-items shop, without the slash.",
+      "tab": "access",
+      "group": "Command names"
+    },
+    "Config.AdminAce": {
+      "label": "Admin ACE",
+      "tooltip": "ACE permission that makes someone a storage admin. Grant it in server.cfg, e.g. add_ace group.admin character_storage.admin allow. Checked before Admin groups.",
+      "tab": "access",
+      "group": "Admins",
+      "advanced": true
+    },
+    "Config.AdminGroups": {
+      "label": "Admin groups",
+      "tooltip": "Character groups (as poggy_core reports them) that count as storage admins. Checked after the ACE. Not case-sensitive.",
+      "tab": "access",
+      "group": "Admins",
+      "picker": "group"
+    },
+    "Config.Translations.*": {
+      "tab": "text",
+      "tooltip": "Text players see. Keep every %d, %s and %.2f: the script puts a number, a name or a price there."
+    },
+    "Config.Translations[\"english\"].*": {
+      "group": "English"
+    },
+    "Config.Translations[\"spanish\"].*": {
+      "group": "Spanish"
+    },
+    "Config.Translations[\"german\"].*": {
+      "group": "German"
+    },
+    "Config.Translations[\"english\"].usage_movestorage": {
+      "tooltip": "Shown when the move command is typed wrong. %s becomes the move command's name."
+    },
+    "Config.Translations[\"english\"].usage_deletestorage": {
+      "tooltip": "Shown when the delete command is typed without an id. %s becomes the delete command's name."
+    },
+    "Config.Translations[\"spanish\"].usage_movestorage": {
+      "tooltip": "Shown when the move command is typed wrong. %s becomes the move command's name."
+    },
+    "Config.Translations[\"spanish\"].usage_deletestorage": {
+      "tooltip": "Shown when the delete command is typed without an id. %s becomes the delete command's name."
+    },
+    "Config.Translations[\"german\"].usage_movestorage": {
+      "tooltip": "Shown when the move command is typed wrong. %s becomes the move command's name."
+    },
+    "Config.Translations[\"german\"].usage_deletestorage": {
+      "tooltip": "Shown when the delete command is typed without an id. %s becomes the delete command's name."
+    }
+  },
+  "lists": {
+    "Config.DefaultStorages": {
+      "label": "Job storages",
+      "itemLabel": "job storage",
+      "tab": "locations",
+      "kind": "list",
+      "titleField": "name",
+      "subtitleField": "id",
+      "columns": [
+        {
+          "field": "name",
+          "label": "Name"
+        },
+        {
+          "field": "id",
+          "label": "Id"
+        },
+        {
+          "field": "capacity",
+          "label": "Capacity"
+        },
+        {
+          "field": "linked",
+          "label": "Shared"
+        }
+      ],
+      "search": [
+        "name",
+        "id"
+      ],
+      "fields": {
+        "id": {
+          "label": "Id",
+          "tooltip": "Unique id. The items are stored under it, so changing it later hides everything already inside."
+        },
+        "name": {
+          "label": "Name",
+          "tooltip": "Shown on the prompt and the blip, followed by the location number."
+        },
+        "locations": {
+          "label": "Locations",
+          "tooltip": "Every spot the storage can be opened from."
+        },
+        "locations[]": {
+          "picker": "coords"
+        },
+        "linked": {
+          "label": "One shared inventory",
+          "tooltip": "On: every location opens the same inventory. Off needs a different layout (id_prefix, name_template and named locations); see the Job storages help page and edit it in the file."
+        },
+        "capacity": {
+          "label": "Capacity",
+          "tooltip": "How many slots the storage holds.",
+          "min": 1,
+          "max": 100000,
+          "step": 1,
+          "unit": "slots"
+        },
+        "blipSprite": {
+          "label": "Blip",
+          "tooltip": "Blip icon hash for this storage. Find hashes at redlookup.com/blips. Set to false in the file for no blip."
+        },
+        "authorized_jobs": {
+          "label": "Jobs with access",
+          "tooltip": "Job name to rule, e.g. [\"sheriff\"] = { all_grades = true }, or { grades = { 2 } } for grade 2 and above. Job names are case-sensitive. The grade then decides Manager / Member / Basic access."
+        },
+        "authorized_charids": {
+          "label": "Character ids with access",
+          "tooltip": "Extra characters (by character id) who may open it, whatever their job. They get Basic access."
+        },
+        "public_access": {
+          "label": "Open to everyone",
+          "tooltip": "Optional. When true, anyone can open it with Basic access."
+        },
+        "discord": {
+          "label": "Discord tracking"
+        },
+        "discord.enabled": {
+          "label": "Discord tracking on",
+          "tooltip": "Posts an inventory summary and an activity log to the webhook below. Stays off until the webhook is a real URL."
+        },
+        "discord.webhook": {
+          "label": "Webhook",
+          "picker": "webhook",
+          "tooltip": "The Discord channel webhook URL."
+        },
+        "discord.inventory_message_id": {
+          "label": "Inventory message id",
+          "tooltip": "Leave empty at first. After the first run the server console prints the id; paste it here so the same message is edited instead of a new one posted."
+        },
+        "discord.activity_message_id": {
+          "label": "Activity message id",
+          "tooltip": "Leave empty at first. After the first run the server console prints the id; paste it here so the same message is edited."
+        },
+        "discord.update_interval": {
+          "label": "Update every",
+          "tooltip": "How often the Discord messages are refreshed.",
+          "min": 15,
+          "max": 86400,
+          "step": 15,
+          "unit": "seconds"
+        }
+      },
+      "template": {
+        "id": "new_storage",
+        "name": "New Job Storage",
+        "locations": [
+          {
+            "__type": "vec3",
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        ],
+        "linked": true,
+        "capacity": 1000,
+        "blipSprite": -1138864184,
+        "authorized_jobs": [],
+        "authorized_charids": [],
+        "discord": {
+          "enabled": false,
+          "webhook": "",
+          "inventory_message_id": "",
+          "activity_message_id": "",
+          "update_interval": 600
+        }
+      }
+    },
+    "Config.NPCs.Clerks": {
+      "label": "Clerks",
+      "itemLabel": "clerk",
+      "tab": "locations",
+      "kind": "list",
+      "titleField": "model",
+      "subtitleField": "scenario",
+      "columns": [
+        {
+          "field": "model",
+          "label": "Model"
+        },
+        {
+          "field": "coords",
+          "label": "Position"
+        },
+        {
+          "field": "scenario",
+          "label": "Scenario"
+        }
+      ],
+      "search": [
+        "model",
+        "scenario"
+      ],
+      "fields": {
+        "model": {
+          "label": "Ped model",
+          "tooltip": "Any RDR3 ped model name."
+        },
+        "coords": {
+          "label": "Position",
+          "picker": "coords",
+          "tooltip": "Where the clerk stands, with the direction it faces."
+        },
+        "scenario": {
+          "label": "Scenario",
+          "tooltip": "Idle animation, e.g. WORLD_HUMAN_CLIPBOARD. Leave empty to stand still."
+        }
+      },
+      "template": {
+        "model": "MP_U_M_O_BlWPoliceChief_01",
+        "coords": {
+          "__type": "vec4",
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "w": 0
+        },
+        "scenario": "WORLD_HUMAN_CLIPBOARD"
+      }
+    },
+    "Config.ArmoryShops": {
+      "label": "Armories",
+      "itemLabel": "armory",
+      "tab": "armory",
+      "kind": "list",
+      "titleField": "Name",
+      "subtitleField": "id",
+      "columns": [
+        {
+          "field": "Name",
+          "label": "Name"
+        },
+        {
+          "field": "id",
+          "label": "Id"
+        },
+        {
+          "field": "joblock",
+          "label": "Jobs"
+        },
+        {
+          "field": "sellitems",
+          "label": "Item list"
+        }
+      ],
+      "search": [
+        "Name",
+        "id"
+      ],
+      "fields": {
+        "Pos": {
+          "label": "Position",
+          "picker": "coords",
+          "tooltip": "Where players press the key to open the armory."
+        },
+        "blipSprite": {
+          "label": "Blip",
+          "tooltip": "Blip icon hash. Find hashes at redlookup.com/blips."
+        },
+        "id": {
+          "label": "Id",
+          "tooltip": "Unique id, used for Discord tracking."
+        },
+        "Name": {
+          "label": "Name",
+          "tooltip": "Shown on the prompt, the blip and the menu title."
+        },
+        "joblock": {
+          "label": "Jobs",
+          "picker": "job",
+          "tooltip": "Only these jobs can open it. Exact, case-sensitive job names. Empty = everyone."
+        },
+        "showblip": {
+          "label": "Show blip",
+          "tooltip": "Shows the armory on the map for everyone."
+        },
+        "npc": {
+          "label": "Clerk"
+        },
+        "npc.model": {
+          "label": "Clerk model",
+          "tooltip": "Any RDR3 ped model name."
+        },
+        "npc.coords": {
+          "label": "Clerk position",
+          "picker": "coords"
+        },
+        "npc.scenario": {
+          "label": "Clerk scenario",
+          "tooltip": "Idle animation, e.g. WORLD_HUMAN_CLIPBOARD."
+        },
+        "sellitems": {
+          "label": "Item list",
+          "tooltip": "The name of an item list in config.lua, e.g. WeaponArmoryItems (the Armory items list on this tab). Another name needs its own Config.<name> list in the file."
+        },
+        "discord": {
+          "label": "Discord tracking"
+        },
+        "discord.enabled": {
+          "label": "Discord tracking on",
+          "tooltip": "Logs who took what to the webhook below. Stays off until the webhook is a real URL."
+        },
+        "discord.webhook": {
+          "label": "Webhook",
+          "picker": "webhook",
+          "tooltip": "The Discord channel webhook URL."
+        },
+        "discord.activity_message_id": {
+          "label": "Activity message id",
+          "tooltip": "Leave empty at first. After the first run the server console prints the id; paste it here so the same message is edited."
+        },
+        "discord.update_interval": {
+          "label": "Update every",
+          "tooltip": "How often the activity message is refreshed.",
+          "min": 15,
+          "max": 86400,
+          "step": 15,
+          "unit": "seconds"
+        }
+      },
+      "template": {
+        "Pos": {
+          "__type": "vec3",
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "blipSprite": -145868367,
+        "id": "armory_new",
+        "Name": "New Armory",
+        "joblock": [
+          "sheriff"
+        ],
+        "showblip": true,
+        "npc": {
+          "model": "MP_U_M_O_BlWPoliceChief_01",
+          "coords": {
+            "__type": "vec4",
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "w": 0
+          },
+          "scenario": "WORLD_HUMAN_CLIPBOARD"
+        },
+        "sellitems": "WeaponArmoryItems",
+        "discord": {
+          "enabled": false,
+          "webhook": "",
+          "activity_message_id": "",
+          "update_interval": 15
+        }
+      }
+    },
+    "Config.WeaponArmoryItems": {
+      "label": "Armory items",
+      "itemLabel": "item",
+      "tab": "armory",
+      "kind": "list",
+      "titleField": "label",
+      "subtitleField": "name",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Label"
+        },
+        {
+          "field": "name",
+          "label": "Item"
+        },
+        {
+          "field": "price",
+          "label": "Price"
+        },
+        {
+          "field": "type",
+          "label": "Type"
+        }
+      ],
+      "search": [
+        "label",
+        "name"
+      ],
+      "fields": {
+        "name": {
+          "label": "Item or weapon",
+          "picker": "item",
+          "tooltip": "The item name, or the weapon name (WEAPON_...) for weapons."
+        },
+        "label": {
+          "label": "Label",
+          "tooltip": "Used when the item list has no label of its own for it (weapons, mostly)."
+        },
+        "price": {
+          "label": "Price",
+          "tooltip": "Price per item. 0 shows as Free.",
+          "min": 0,
+          "max": 100000,
+          "step": 0.01,
+          "unit": "$"
+        },
+        "type": {
+          "label": "Type",
+          "tooltip": "Weapons are always handed out one at a time; items ask how many.",
+          "options": [
+            {
+              "value": "item_weapon",
+              "label": "Weapon"
+            },
+            {
+              "value": "item_standard",
+              "label": "Item"
+            }
+          ]
+        }
+      },
+      "template": {
+        "name": "",
+        "label": "New item",
+        "price": 0.0,
+        "type": "item_standard"
+      }
+    },
+    "Config.Translations": {
+      "label": "Languages",
+      "itemLabel": "language",
+      "tab": "text",
+      "kind": "map"
+    }
+  }
+}

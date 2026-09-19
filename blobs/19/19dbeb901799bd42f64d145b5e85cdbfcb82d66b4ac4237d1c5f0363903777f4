@@ -1,0 +1,593 @@
+{
+  "label": "Poggy Balloon",
+  "tagline": "Hot air balloon taxis, self-flown rentals and passengers who stay in the basket",
+  "category": "World",
+  "description": "Balloon operators across the map fly players to any waypoint for a fare, or rent them a balloon to fly themselves. Captains get proper climb, descend, boost and brake controls, and up to four passengers ride with sitting animations instead of ragdolling.",
+  "readme": "README.md",
+  "help": [
+    {"title": "Adding a balloon station", "file": "docs/help/adding-a-station.md"},
+    {"title": "Tuning taxi flights and rentals", "file": "docs/help/tuning-flights.md"}
+  ],
+
+  "commands": [
+    {
+      "command": "/spawnballoon",
+      "who": "Admins",
+      "description": "Spawns a balloon next to you. With Admin only on, the player needs the ACE set in ACE permission or must be an admin in the framework. Turn it off entirely with Command enabled. The name is fixed.",
+      "usage": "/spawnballoon",
+      "examples": ["/spawnballoon"]
+    },
+    {
+      "command": "/spawnballoon_local",
+      "who": "Everyone",
+      "description": "A client-side spawn that only exists when Admin only is turned off. Spawns a balloon next to you.",
+      "usage": "/spawnballoon_local",
+      "examples": ["/spawnballoon_local"]
+    },
+    {
+      "command": "/balloon_server_status",
+      "who": "ACE: command.balloon_server_status",
+      "description": "Prints every tracked balloon and who sits in each seat to the server console.",
+      "usage": "/balloon_server_status",
+      "examples": ["/balloon_server_status"]
+    },
+    {
+      "command": "/balloon_taxi_debug",
+      "who": "Everyone",
+      "description": "Taxi debugging in your own F8 console: toggle logging, set the level, or show the current ride state. Affects only the player who types it.",
+      "usage": "/balloon_taxi_debug toggle | level <0-4> | status",
+      "examples": ["/balloon_taxi_debug status", "/balloon_taxi_debug level 4"]
+    },
+    {
+      "command": "/balloon_debug_main",
+      "who": "Everyone",
+      "description": "Seat and boarding debugging in your own F8 console. Affects only the player who types it.",
+      "usage": "/balloon_debug_main level <0-4> | toggle | status",
+      "examples": ["/balloon_debug_main status"]
+    },
+    {
+      "command": "/balloon_debug_anim",
+      "who": "Everyone",
+      "description": "Animation debugging in your own F8 console. Affects only the player who types it.",
+      "usage": "/balloon_debug_anim level <0-4> | toggle",
+      "examples": ["/balloon_debug_anim toggle"]
+    },
+    {
+      "command": "/balloon_debug_ctrl",
+      "who": "Everyone",
+      "description": "Captain controls debugging in your own F8 console. Affects only the player who types it.",
+      "usage": "/balloon_debug_ctrl level <0-4> | toggle",
+      "examples": ["/balloon_debug_ctrl toggle"]
+    },
+    {
+      "command": "balloon_taxi_server_debug",
+      "who": "Console",
+      "description": "Server console: toggle taxi logging, list active rides, or clear a stuck ride so the player can book again.",
+      "usage": "balloon_taxi_server_debug toggle | status | clear <playerId>",
+      "examples": ["balloon_taxi_server_debug status", "balloon_taxi_server_debug clear 12"]
+    },
+    {
+      "command": "balloon_rental_debug",
+      "who": "Console",
+      "description": "Server console: list active rentals with the time left, or end one early.",
+      "usage": "balloon_rental_debug status | end <playerId>",
+      "examples": ["balloon_rental_debug status", "balloon_rental_debug end 12"]
+    }
+  ],
+
+  "tabs": [
+    {"id": "general", "label": "General", "icon": "sliders"},
+    {"id": "locations", "label": "Locations", "icon": "map"},
+    {"id": "taxi", "label": "Taxi rides", "icon": "navigation"},
+    {"id": "rental", "label": "Rentals & flying", "icon": "balloon"},
+    {"id": "economy", "label": "Economy & prices", "icon": "coins"},
+    {"id": "text", "label": "Text & language", "icon": "globe"},
+    {"id": "advanced", "label": "Advanced", "icon": "cog"}
+  ],
+
+  "settings": {
+    "Config.Commands": {"label": "Commands", "tab": "general"},
+    "Config.Commands.SpawnBalloon": {"label": "Spawn command", "tab": "general"},
+    "Config.Commands.SpawnBalloon.Enabled": {
+      "label": "/spawnballoon enabled",
+      "tooltip": "Turn off to disable /spawnballoon (and /spawnballoon_local) for everyone.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.Commands.SpawnBalloon.AdminOnly": {
+      "label": "/spawnballoon admins only",
+      "tooltip": "On: only framework admins, or players with the ACE below, can spawn a balloon. Off: anyone can, and /spawnballoon_local also appears.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.Commands.SpawnBalloon.AcePermission": {
+      "label": "/spawnballoon ACE permission",
+      "tooltip": "An ACE that also allows /spawnballoon when Admin only is on, for example command.spawnballoon. Leave it unset to allow framework admins only.",
+      "tab": "general",
+      "group": "Commands",
+      "advanced": true
+    },
+    "Config.BalloonTaxi.Enabled": {
+      "label": "Taxi service on",
+      "tooltip": "Turn off to remove the Take a Ride option. Stations stay open for rentals if rentals are on; with both off, no operators or blips appear.",
+      "tab": "general",
+      "group": "Services"
+    },
+    "Config.BalloonRental.Enabled": {
+      "label": "Rentals on",
+      "tooltip": "Turn off to remove the Rent a Balloon option at every station.",
+      "tab": "general",
+      "group": "Services"
+    },
+    "Config.BalloonTaxi": {"label": "Taxi rides", "tab": "taxi"},
+    "Config.BalloonTaxi.CruisingAltitude": {
+      "label": "Cruising altitude",
+      "tooltip": "How high above the ground the pilot flies, in metres. Higher clears hills more easily but takes longer to climb and land.",
+      "tab": "taxi",
+      "group": "Flight",
+      "min": 20,
+      "max": 300,
+      "step": 5,
+      "unit": "metres"
+    },
+    "Config.BalloonTaxi.AltitudeTolerance": {
+      "label": "Altitude tolerance",
+      "tooltip": "How far below cruising altitude the balloon may drift before the pilot climbs again, in metres. Small values mean constant small corrections.",
+      "tab": "taxi",
+      "group": "Flight",
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "unit": "metres",
+      "advanced": true
+    },
+    "Config.BalloonTaxi.HeightCheckInterval": {
+      "label": "Height check interval",
+      "tooltip": "How often the pilot checks and corrects the altitude while cruising, in milliseconds. Lower reacts faster to terrain.",
+      "tab": "taxi",
+      "group": "Flight",
+      "min": 100,
+      "max": 5000,
+      "step": 100,
+      "unit": "ms",
+      "advanced": true
+    },
+    "Config.BalloonTaxi.TravelSpeed": {
+      "label": "Travel speed",
+      "tooltip": "Normal cruising speed, in metres per second. 22 m/s crosses the map in a few minutes.",
+      "tab": "taxi",
+      "group": "Flight",
+      "min": 5,
+      "max": 60,
+      "step": 1,
+      "unit": "m/s"
+    },
+    "Config.BalloonTaxi.TravelSpeedFast": {
+      "label": "\"Step on it\" speed",
+      "tooltip": "Speed while the passenger has Step On It! turned on, in metres per second.",
+      "tab": "taxi",
+      "group": "Flight",
+      "min": 5,
+      "max": 80,
+      "step": 1,
+      "unit": "m/s"
+    },
+    "Config.BalloonTaxi.AscentSpeed": {
+      "label": "Climb speed",
+      "tooltip": "How fast the taxi climbs after take-off and when it rises away empty, in metres per second.",
+      "tab": "taxi",
+      "group": "Flight",
+      "min": 1,
+      "max": 20,
+      "step": 0.5,
+      "unit": "m/s"
+    },
+    "Config.BalloonTaxi.DescentSpeed": {
+      "label": "Landing speed",
+      "tooltip": "Top sink speed while landing, in metres per second. The balloon slows as it nears the ground; very high values can make landings rough.",
+      "tab": "taxi",
+      "group": "Flight",
+      "min": 1,
+      "max": 40,
+      "step": 0.5,
+      "unit": "m/s"
+    },
+    "Config.BalloonTaxi.FinalApproachDistance": {
+      "label": "Final approach distance",
+      "tooltip": "How far from the waypoint the pilot starts slowing down and reading the ground height for landing, in metres.",
+      "tab": "taxi",
+      "group": "Arrival",
+      "min": 20,
+      "max": 500,
+      "step": 10,
+      "unit": "metres"
+    },
+    "Config.BalloonTaxi.ArrivalDistance": {
+      "label": "Arrival distance",
+      "tooltip": "How close to the waypoint (flat distance) counts as arrived and starts the landing, in metres.",
+      "tab": "taxi",
+      "group": "Arrival",
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "unit": "metres"
+    },
+    "Config.BalloonTaxi.LandingHeightOffset": {
+      "label": "Landing height",
+      "tooltip": "How far above the ground the basket settles, in metres, so it does not clip into the terrain.",
+      "tab": "taxi",
+      "group": "Arrival",
+      "min": 0,
+      "max": 10,
+      "step": 0.5,
+      "unit": "metres",
+      "advanced": true
+    },
+    "Config.BalloonTaxi.ExitWaitTime": {
+      "label": "Wait for passenger to exit",
+      "tooltip": "How long the pilot waits after landing before moving the passenger out of the basket, in milliseconds (30000 = 30 seconds).",
+      "tab": "taxi",
+      "group": "After landing",
+      "min": 5000,
+      "max": 300000,
+      "step": 1000,
+      "unit": "ms"
+    },
+    "Config.BalloonTaxi.DespawnRiseTime": {
+      "label": "Rise time before despawn",
+      "tooltip": "How long the empty balloon rises away after the ride, in milliseconds.",
+      "tab": "taxi",
+      "group": "After landing",
+      "min": 0,
+      "max": 120000,
+      "step": 1000,
+      "unit": "ms",
+      "advanced": true
+    },
+    "Config.BalloonTaxi.DespawnDelay": {
+      "label": "Extra time before despawn",
+      "tooltip": "How long the balloon keeps rising after the rise time before it is deleted, in milliseconds.",
+      "tab": "taxi",
+      "group": "After landing",
+      "min": 0,
+      "max": 120000,
+      "step": 1000,
+      "unit": "ms",
+      "advanced": true
+    },
+    "Config.BalloonRental": {"label": "Rentals", "tab": "rental"},
+    "Config.BalloonRental.RentalDurationMinutes": {
+      "label": "Rental length",
+      "tooltip": "How long a rental lasts, in minutes. When it runs out the balloon is taken back. The menu shows this length; the 'Your balloon is ready' message text says 1 hour unless you edit it.",
+      "tab": "rental",
+      "group": "Rental time",
+      "min": 1,
+      "max": 1440,
+      "step": 1,
+      "unit": "minutes"
+    },
+    "Config.BalloonRental.WarningTimeMinutes": {
+      "label": "Expiry warning",
+      "tooltip": "How many minutes before the rental ends the player is warned.",
+      "tab": "rental",
+      "group": "Rental time",
+      "min": 1,
+      "max": 60,
+      "step": 1,
+      "unit": "minutes"
+    },
+    "Config.Flight": {"label": "Captain controls", "tab": "rental"},
+    "Config.Flight.ScriptedAscent": {
+      "label": "Scripted climb",
+      "tooltip": "On: holding Shift climbs, driven by this script (needed on current game builds). Off: rely on the game's own burner, which often does nothing.",
+      "tab": "rental",
+      "group": "Captain climbing (Shift)"
+    },
+    "Config.Flight.AscentAccel": {
+      "label": "Climb acceleration",
+      "tooltip": "Climb speed added every frame while Shift is held, in metres per second. Higher reaches top climb speed sooner.",
+      "tab": "rental",
+      "group": "Captain climbing (Shift)",
+      "min": 0.01,
+      "max": 0.5,
+      "step": 0.01,
+      "unit": "m/s per frame"
+    },
+    "Config.Flight.AscentMax": {
+      "label": "Top climb speed",
+      "tooltip": "The fastest a captain can climb by holding Shift, in metres per second.",
+      "tab": "rental",
+      "group": "Captain climbing (Shift)",
+      "min": 0.5,
+      "max": 15,
+      "step": 0.5,
+      "unit": "m/s"
+    },
+    "Config.Flight.DescendKey": {
+      "label": "Ctrl descends",
+      "tooltip": "On: holding Ctrl pushes the balloon down. Off: the balloon only sinks on its own and the Descend prompt is hidden.",
+      "tab": "rental",
+      "group": "Captain descending (Ctrl)"
+    },
+    "Config.Flight.DescentAccel": {
+      "label": "Descend acceleration",
+      "tooltip": "Sink speed added every frame while Ctrl is held, in metres per second.",
+      "tab": "rental",
+      "group": "Captain descending (Ctrl)",
+      "min": 0.01,
+      "max": 0.5,
+      "step": 0.01,
+      "unit": "m/s per frame"
+    },
+    "Config.Flight.DescentMax": {
+      "label": "Top descend speed",
+      "tooltip": "The fastest a captain can push the balloon down with Ctrl, in metres per second.",
+      "tab": "rental",
+      "group": "Captain descending (Ctrl)",
+      "min": 0.5,
+      "max": 15,
+      "step": 0.5,
+      "unit": "m/s"
+    },
+    "Config.BalloonTaxi.Price": {
+      "label": "Taxi ride price",
+      "tooltip": "What one taxi ride costs, taken from the player's cash when they order it. 0 makes rides free.",
+      "tab": "economy",
+      "group": "Prices",
+      "min": 0,
+      "max": 10000,
+      "step": 1,
+      "unit": "$"
+    },
+    "Config.BalloonRental.Price": {
+      "label": "Rental price",
+      "tooltip": "What one rental costs, taken from the player's cash. A player can hold one rental at a time.",
+      "tab": "economy",
+      "group": "Prices",
+      "min": 0,
+      "max": 10000,
+      "step": 1,
+      "unit": "$"
+    },
+    "Config.Language": {
+      "label": "Language",
+      "tooltip": "Which translation set players see. Keys missing from French, Spanish or German fall back to English.",
+      "tab": "text",
+      "group": "Language",
+      "options": [
+        {"value": "en", "label": "English"},
+        {"value": "fr", "label": "French"},
+        {"value": "es", "label": "Spanish"},
+        {"value": "de", "label": "German"}
+      ]
+    },
+    "Translations.*": {
+      "tab": "text",
+      "tooltip": "Text players see. Keep every %s and %d: the script fills in prices, times and minutes there."
+    },
+    "Translations.en.*": {
+      "tab": "text",
+      "group": "English",
+      "tooltip": "Text players see. Keep every %s and %d: the script fills in prices, times and minutes there."
+    },
+    "Translations.fr.*": {
+      "tab": "text",
+      "group": "French",
+      "tooltip": "Text players see. Keep every %s and %d: the script fills in prices, times and minutes there."
+    },
+    "Translations.es.*": {
+      "tab": "text",
+      "group": "Spanish",
+      "tooltip": "Text players see. Keep every %s and %d: the script fills in prices, times and minutes there."
+    },
+    "Translations.de.*": {
+      "tab": "text",
+      "group": "German",
+      "tooltip": "Text players see. Keep every %s and %d: the script fills in prices, times and minutes there."
+    },
+    "Config.Debug": {"label": "Debug", "tab": "advanced", "advanced": true},
+    "Config.Debug.Enabled": {
+      "label": "Debug logging",
+      "tooltip": "Prints taxi, rental and spawn logs to the server console and players' F8 consoles. Leave off on a live server.",
+      "tab": "advanced",
+      "group": "Diagnostics",
+      "advanced": true
+    },
+    "Config.Debug.Level": {
+      "label": "Debug detail",
+      "tooltip": "How much is printed when debug logging is on. Higher shows more.",
+      "tab": "advanced",
+      "group": "Diagnostics",
+      "advanced": true,
+      "options": [
+        {"value": 0, "label": "0 - Off"},
+        {"value": 1, "label": "1 - Errors"},
+        {"value": 2, "label": "2 - Warnings"},
+        {"value": 3, "label": "3 - Info"},
+        {"value": 4, "label": "4 - Everything"}
+      ]
+    },
+    "Config.Commands.SpawnBalloon.Name": {
+      "label": "Command name",
+      "tooltip": "Not used: the spawn command is always /spawnballoon. Changing this has no effect.",
+      "tab": "advanced",
+      "group": "Not used",
+      "advanced": true
+    },
+    "Config.BalloonTaxi.PositionAdjustSpeed": {
+      "label": "Position adjust speed",
+      "tooltip": "Not used by the current version.",
+      "tab": "advanced",
+      "group": "Not used",
+      "advanced": true
+    },
+    "Config.BalloonTaxi.PositionLockSmoothness": {
+      "label": "Position lock smoothness",
+      "tooltip": "Not used by the current version.",
+      "tab": "advanced",
+      "group": "Not used",
+      "advanced": true
+    },
+    "Config.BalloonTaxi.BalloonModel": {
+      "label": "Taxi balloon model",
+      "tooltip": "The vehicle model spawned for taxi rides. Leave as hotairballoon01 unless you stream another balloon.",
+      "tab": "advanced",
+      "group": "Models",
+      "advanced": true
+    },
+    "Config.BalloonTaxi.PilotModel": {
+      "label": "Fallback pilot model",
+      "tooltip": "The pilot's ped model when a station has no npcModel of its own.",
+      "tab": "advanced",
+      "group": "Models",
+      "advanced": true
+    },
+    "Config.BalloonTaxi.PilotScenario": {
+      "label": "Pilot scenario",
+      "tooltip": "Not used by the current version: the pilot always plays the balloon captain animations.",
+      "tab": "advanced",
+      "group": "Not used",
+      "advanced": true
+    },
+    "Config.BalloonRental.BalloonModel": {
+      "label": "Rental balloon model",
+      "tooltip": "The vehicle model spawned for rentals. The captain controls only work on hotairballoon01, so leave this unless you know your model.",
+      "tab": "advanced",
+      "group": "Models",
+      "advanced": true
+    },
+    "Config.Controls": {
+      "label": "Taxi keys",
+      "tooltip": "Control hashes for the taxi prompts. Find hashes in the rdr3_discoveries controls list.",
+      "tab": "advanced",
+      "advanced": true
+    },
+    "Config.Controls.Speak": {
+      "label": "Talk to operator",
+      "tooltip": "Control hash for the Talk prompt at a station operator. Default 0x760A9C6F (G).",
+      "tab": "advanced",
+      "group": "Taxi keys",
+      "advanced": true
+    },
+    "Config.Controls.TakeOff": {
+      "label": "Take off",
+      "tooltip": "Control hash the passenger presses to take off. Default 0x4CC0E2FE (B). The 'Press [B]' message is text in Text & language; change it too if you change this key.",
+      "tab": "advanced",
+      "group": "Taxi keys",
+      "advanced": true
+    },
+    "Config.Controls.Stop": {
+      "label": "Stop here",
+      "tooltip": "Control hash for landing early at the current spot. The shipped value is the same as Disembark.",
+      "tab": "advanced",
+      "group": "Taxi keys",
+      "advanced": true
+    },
+    "Config.Controls.Reroute": {
+      "label": "Change destination",
+      "tooltip": "Control hash for flying to a newly set waypoint. Default 0xE30CD707 (R).",
+      "tab": "advanced",
+      "group": "Taxi keys",
+      "advanced": true
+    },
+    "Config.Controls.SpeedBoost": {
+      "label": "Step on it",
+      "tooltip": "Control hash that toggles the fast travel speed. Default 0x7065027D (A).",
+      "tab": "advanced",
+      "group": "Taxi keys",
+      "advanced": true
+    },
+    "Config.Controls.ChangeSeat": {
+      "label": "Change seat",
+      "tooltip": "Control hash that moves the passenger to the next seat. Default 0x26E9DC00 (C).",
+      "tab": "advanced",
+      "group": "Taxi keys",
+      "advanced": true
+    },
+    "Config.Controls.Exit": {
+      "label": "Disembark",
+      "tooltip": "Control hash for leaving the basket. The shipped value is the same as Stop here (the comment in the file says F); give it its own key if the two clash.",
+      "tab": "advanced",
+      "group": "Taxi keys",
+      "advanced": true
+    },
+    "BlipIcons": {"label": "Notification icons", "tab": "advanced", "advanced": true},
+    "BlipIcons.*": {
+      "tab": "advanced",
+      "group": "Notification icons",
+      "advanced": true,
+      "tooltip": "The texture name of the icon shown beside this kind of balloon notification."
+    }
+  },
+
+  "lists": {
+    "Config.BalloonTaxi.Locations": {
+      "label": "Balloon stations",
+      "itemLabel": "station",
+      "tab": "locations",
+      "kind": "list",
+      "tooltip": "Each station has an operator players talk to, a map blip and a spot where the balloon appears. Operators spawn when a player is within 100 metres.",
+      "titleField": "name",
+      "subtitleField": "id",
+      "columns": [
+        {"field": "name", "label": "Name"},
+        {"field": "coords", "label": "Operator"},
+        {"field": "rentalEnabled", "label": "Rentals"},
+        {"field": "blipEnabled", "label": "Blip"}
+      ],
+      "search": ["name", "id", "blipName"],
+      "fields": {
+        "id": {
+          "label": "Station id",
+          "tooltip": "A unique short name for this station, for example valentine_balloon. Used in logs."
+        },
+        "name": {"label": "Name", "tooltip": "The station's name, shown in logs."},
+        "coords": {
+          "label": "Operator position",
+          "picker": "coords",
+          "tooltip": "Where the operator stands. Players talk to them from within 2.5 metres."
+        },
+        "heading": {
+          "label": "Operator heading",
+          "picker": "heading",
+          "tooltip": "Which way the operator faces, in degrees."
+        },
+        "npcModel": {
+          "label": "Operator / pilot model",
+          "tooltip": "Ped model for the operator. The same model flies the taxi. Default cs_balloonoperator."
+        },
+        "balloonSpawnCoords": {
+          "label": "Balloon spawn point",
+          "picker": "coords",
+          "tooltip": "Where the taxi or rental balloon appears. Pick an open, flat spot a few metres from the operator."
+        },
+        "balloonHeading": {
+          "label": "Balloon heading",
+          "picker": "heading",
+          "tooltip": "Which way the balloon faces when it spawns, in degrees."
+        },
+        "blipEnabled": {"label": "Show map blip", "tooltip": "Show this station on the map."},
+        "blipSprite": {
+          "label": "Blip icon",
+          "tooltip": "The blip sprite hash. 531267562 is the balloon icon.",
+          "advanced": true
+        },
+        "blipName": {"label": "Blip name", "tooltip": "The name shown for the blip on the map."},
+        "rentalEnabled": {"label": "Rentals here", "tooltip": "Offer Rent a Balloon at this station (Rentals must be on too)."}
+      },
+      "template": {
+        "id": "new_balloon",
+        "name": "New Balloon Tours",
+        "coords": {"__type": "vec3", "x": 0.0, "y": 0.0, "z": 0.0},
+        "heading": 0.0,
+        "npcModel": "cs_balloonoperator",
+        "balloonSpawnCoords": {"__type": "vec3", "x": 0.0, "y": 0.0, "z": 0.0},
+        "balloonHeading": 0.0,
+        "blipEnabled": true,
+        "blipSprite": 531267562,
+        "blipName": "Balloon Tours",
+        "rentalEnabled": true
+      }
+    }
+  }
+}

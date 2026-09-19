@@ -1,0 +1,507 @@
+{
+  "label": "Poggy Transform",
+  "tagline": "Become a wolf, a bear, a legend or any character on your server",
+  "category": "Roleplay",
+  "description": "Players pick from ninety animals and characters in a card menu and become them, with their own attacks, jump and emotes. Lock any of them behind a job. Admins can also type in any ped model or wear another character's exact appearance.",
+  "readme": "README.md",
+  "help": [
+    {
+      "title": "Adding a transformation",
+      "file": "docs/help/adding-transformations.md"
+    },
+    {
+      "title": "Tuning animal attacks",
+      "file": "docs/help/attacks.md"
+    }
+  ],
+  "files": [
+    "config.lua"
+  ],
+  "commands": [
+    {
+      "command": "/transform",
+      "configPath": "Config.Command",
+      "who": "Everyone",
+      "description": "Opens the transform menu. Players see only the entries with no job lock or their own job. Admins see everything, plus the custom ped box and (on VORP) the character browser. The menu also has the button to turn back.",
+      "usage": "/transform",
+      "examples": [
+        "/transform"
+      ]
+    },
+    {
+      "command": "/ae",
+      "who": "Everyone",
+      "description": "Animal emotes, while transformed into an animal that has emotes. With no word it opens the emote picker; with an emote name it plays it; stop ends a looping emote (Backspace does too).",
+      "usage": "/ae [emote | stop]",
+      "examples": [
+        "/ae",
+        "/ae howl",
+        "/ae stop"
+      ]
+    },
+    {
+      "command": "/rcp",
+      "who": "Everyone",
+      "description": "Re-applies the appearance you are wearing from the character browser, if clothing colours drift. Does nothing otherwise.",
+      "usage": "/rcp",
+      "examples": [
+        "/rcp"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "id": "general",
+      "label": "General",
+      "icon": "sliders"
+    },
+    {
+      "id": "access",
+      "label": "Access & permissions",
+      "icon": "shield"
+    },
+    {
+      "id": "animals",
+      "label": "Transformations",
+      "icon": "paw"
+    },
+    {
+      "id": "combat",
+      "label": "Combat",
+      "icon": "swords"
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced",
+      "icon": "cog"
+    }
+  ],
+  "settings": {
+    "Config.Command": {
+      "label": "Menu command",
+      "tooltip": "Chat command that opens the transform menu, without the slash.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.Debug": {
+      "label": "Debug output",
+      "tooltip": "Prints extra lines to the server and client consoles (transforms, emotes, bad animation names). Leave off on a live server.",
+      "tab": "advanced",
+      "group": "Diagnostics",
+      "advanced": true
+    },
+    "Config.AttackCooldown": {
+      "label": "Attack cooldown",
+      "tooltip": "Wait between basic attacks, and for any extra attack move that has no cooldown of its own. Lower means faster attacks.",
+      "tab": "combat",
+      "group": "Attacks",
+      "min": 0,
+      "max": 30000,
+      "step": 100,
+      "unit": "ms"
+    },
+    "Config.AttackMinInterval": {
+      "label": "Server attack limit",
+      "tooltip": "Anti-abuse: the server refuses to pass on attacks from one player faster than this. Keep it below the attack cooldowns, or real attacks get dropped.",
+      "tab": "combat",
+      "group": "Anti-abuse",
+      "min": 0,
+      "max": 5000,
+      "step": 50,
+      "unit": "ms",
+      "advanced": true
+    },
+    "Config.AttackRangeTolerance": {
+      "label": "Range tolerance",
+      "tooltip": "Anti-abuse: extra distance on top of an animal's reach that the target still accepts an attack from. Raise it if attacks miss on a laggy server; 0 is strictest.",
+      "tab": "combat",
+      "group": "Anti-abuse",
+      "min": 0,
+      "max": 20,
+      "step": 0.5,
+      "unit": "metres",
+      "advanced": true
+    },
+    "Config.AdminAce": {
+      "label": "Admin ACE",
+      "tooltip": "ACE permission that makes someone a transform admin: every entry unlocked, plus the custom ped box and character browser. Grant it in server.cfg, e.g. add_ace group.admin poggy_transform.admin allow.",
+      "tab": "access",
+      "group": "Admins",
+      "advanced": true
+    },
+    "Config.AdminGroups": {
+      "label": "Admin groups",
+      "tooltip": "Character groups (as poggy_core reports them) that count as transform admins. Checked after the ACE. Not case-sensitive.",
+      "tab": "access",
+      "group": "Admins",
+      "picker": "group"
+    }
+  },
+  "lists": {
+    "Config.Animals": {
+      "kind": "collection",
+      "label": "Transformations",
+      "itemLabel": "transformation",
+      "tab": "animals",
+      "tooltip": "Every card in the /transform menu. Each can have extra attack moves and /ae emotes of its own.",
+      "titleField": "label",
+      "subtitleField": "model",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Name"
+        },
+        {
+          "field": "category",
+          "label": "Category"
+        },
+        {
+          "field": "job",
+          "label": "Job"
+        },
+        {
+          "field": "aggressive",
+          "label": "Attacks"
+        }
+      ],
+      "search": [
+        "id",
+        "label",
+        "model",
+        "category",
+        "job"
+      ],
+      "fields": {
+        "id": {
+          "label": "Id",
+          "tooltip": "Unique id. Must not repeat, and must not be \"playerskin\" or \"customped\" (used by the script)."
+        },
+        "label": {
+          "label": "Name",
+          "tooltip": "Shown on the card in the menu."
+        },
+        "model": {
+          "label": "Ped model",
+          "tooltip": "Any RDR3 ped model name, e.g. A_C_Wolf or cs_dutch."
+        },
+        "image": {
+          "label": "Card image",
+          "tooltip": "A PNG file name in ui/images/. A missing file shows a category icon instead."
+        },
+        "category": {
+          "label": "Category",
+          "tooltip": "The menu tab it appears under.",
+          "options": [
+            {
+              "value": "predator",
+              "label": "Predators"
+            },
+            {
+              "value": "prey",
+              "label": "Prey & Wildlife"
+            },
+            {
+              "value": "bird",
+              "label": "Birds"
+            },
+            {
+              "value": "aquatic",
+              "label": "Aquatic & Reptile"
+            },
+            {
+              "value": "legendary",
+              "label": "Legendary"
+            },
+            {
+              "value": "people",
+              "label": "People"
+            }
+          ]
+        },
+        "job": {
+          "label": "Job lock",
+          "picker": "job",
+          "tooltip": "Only this job can pick it. Leave empty for everyone. Not case-sensitive. Admins always can."
+        },
+        "aggressive": {
+          "label": "Can attack",
+          "tooltip": "Lets the player attack people and animals while in this form. Also needs an attack animation."
+        },
+        "scale": {
+          "label": "Size",
+          "tooltip": "Optional. 1.0 is normal size; 1.5 is half as big again.",
+          "min": 0.1,
+          "max": 3,
+          "step": 0.1
+        },
+        "brawlStyle": {
+          "label": "Brawl style",
+          "tooltip": "Not used by this version of the script. Kept for reference.",
+          "advanced": true
+        },
+        "attackAnim": {
+          "label": "Basic attack animation",
+          "tooltip": "Played on left click (INPUT_ATTACK). Needed for the animal to attack at all."
+        },
+        "attackAnim.dict": {
+          "label": "Animation dictionary"
+        },
+        "attackAnim.name": {
+          "label": "Animation name"
+        },
+        "attackRadius": {
+          "label": "Reach",
+          "tooltip": "How far the basic attack finds a target. Extra moves use it when they have no reach of their own.",
+          "min": 0,
+          "max": 20,
+          "step": 0.5,
+          "unit": "metres"
+        },
+        "attackForce": {
+          "label": "Knockback",
+          "tooltip": "How hard a hit throws the target. 0 = no knockback.",
+          "min": 0,
+          "max": 20,
+          "step": 0.5
+        },
+        "attackDamage": {
+          "label": "Damage",
+          "tooltip": "Health taken per basic hit. Extra moves use it when they have no damage of their own.",
+          "min": 0,
+          "max": 1000,
+          "step": 1
+        },
+        "attacks": {
+          "label": "Extra attack moves",
+          "tooltip": "Moves bound to the Attack inputs list on the Combat tab. The key must match a slot there, e.g. pounce, ground or taunt."
+        },
+        "jumpAnim": {
+          "label": "Jump animation",
+          "tooltip": "Optional. Played on the jump key (Space) while in animal form."
+        },
+        "jumpAnim.dict": {
+          "label": "Animation dictionary"
+        },
+        "jumpAnim.name": {
+          "label": "Animation name"
+        },
+        "emotes": {
+          "label": "Emotes",
+          "tooltip": "Optional. Played with /ae <command> or picked from the /ae menu."
+        }
+      },
+      "sublists": {
+        "attacks": {
+          "label": "Extra attack moves",
+          "itemLabel": "attack move",
+          "tooltip": "Moves bound to the Attack inputs list on the Combat tab. The key must match a slot there, e.g. pounce, ground or taunt.",
+          "columns": [
+            {
+              "field": "key",
+              "label": "Slot"
+            },
+            {
+              "field": "label",
+              "label": "Name"
+            },
+            {
+              "field": "damage",
+              "label": "Damage"
+            },
+            {
+              "field": "cooldown",
+              "label": "Cooldown"
+            }
+          ],
+          "fields": {
+            "key": {
+              "label": "Slot",
+              "tooltip": "Which input triggers it (a slot in the Attack inputs list)."
+            },
+            "label": {
+              "label": "Name"
+            },
+            "anim.dict": {
+              "label": "Animation dictionary"
+            },
+            "anim.name": {
+              "label": "Animation name"
+            },
+            "damage": {
+              "label": "Damage",
+              "tooltip": "Empty = the basic damage. Damage 0 with reach 0 makes it a taunt: it plays with no target. Hits on players use the basic damage.",
+              "min": 0,
+              "max": 1000,
+              "step": 1
+            },
+            "force": {
+              "label": "Knockback",
+              "min": 0,
+              "max": 20,
+              "step": 0.5
+            },
+            "radius": {
+              "label": "Reach",
+              "min": 0,
+              "max": 20,
+              "step": 0.5,
+              "unit": "metres"
+            },
+            "cooldown": {
+              "label": "Cooldown",
+              "tooltip": "Empty = the general attack cooldown.",
+              "min": 0,
+              "max": 30000,
+              "step": 100,
+              "unit": "ms"
+            }
+          },
+          "template": {
+            "key": "pounce",
+            "label": "New Move",
+            "anim": {
+              "dict": "",
+              "name": ""
+            },
+            "damage": 30,
+            "force": 3.0
+          }
+        },
+        "emotes": {
+          "label": "Emotes",
+          "itemLabel": "emote",
+          "tooltip": "Optional. Played with /ae <command> or picked from the /ae menu.",
+          "columns": [
+            {
+              "field": "cmd",
+              "label": "Command"
+            },
+            {
+              "field": "label",
+              "label": "Name"
+            },
+            {
+              "field": "loop",
+              "label": "Loops"
+            }
+          ],
+          "fields": {
+            "cmd": {
+              "label": "Command",
+              "tooltip": "The word after /ae, lower case, e.g. howl."
+            },
+            "label": {
+              "label": "Name"
+            },
+            "loop": {
+              "label": "Loops",
+              "tooltip": "On: plays until /ae stop or Backspace. Off: plays once."
+            },
+            "anim.dict": {
+              "label": "Animation dictionary"
+            },
+            "anim.name": {
+              "label": "Animation name"
+            }
+          },
+          "template": {
+            "cmd": "newemote",
+            "label": "New Emote",
+            "loop": false,
+            "anim": {
+              "dict": "",
+              "name": ""
+            }
+          }
+        }
+      },
+      "template": {
+        "id": "my_ped",
+        "label": "My Ped",
+        "model": "A_C_Wolf",
+        "image": "my_ped.png",
+        "category": "predator",
+        "job": "",
+        "aggressive": false
+      }
+    },
+    "Config.Categories": {
+      "label": "Categories",
+      "itemLabel": "category",
+      "tab": "animals",
+      "kind": "list",
+      "titleField": "label",
+      "subtitleField": "id",
+      "columns": [
+        {
+          "field": "icon",
+          "label": "Icon"
+        },
+        {
+          "field": "label",
+          "label": "Label"
+        },
+        {
+          "field": "id",
+          "label": "Id"
+        }
+      ],
+      "fields": {
+        "id": {
+          "label": "Id",
+          "tooltip": "What a transformation's Category field refers to."
+        },
+        "label": {
+          "label": "Label",
+          "tooltip": "Reference only in this version: the menu uses its own built-in names and icons for the six shipped categories, and shows any other category by its id."
+        },
+        "icon": {
+          "label": "Icon",
+          "tooltip": "Reference only in this version (see Label)."
+        }
+      },
+      "template": {
+        "id": "new_category",
+        "label": "New Category",
+        "icon": ""
+      },
+      "advanced": true,
+      "tooltip": "Not used by this version of the script: the menu builds its tabs from each transformation's Category, with its own names and icons. Kept for reference."
+    },
+    "Config.AttackInputs": {
+      "label": "Attack inputs",
+      "itemLabel": "input",
+      "tab": "combat",
+      "kind": "list",
+      "titleField": "slot",
+      "columns": [
+        {
+          "field": "slot",
+          "label": "Slot"
+        },
+        {
+          "field": "input",
+          "label": "Key"
+        }
+      ],
+      "fields": {
+        "slot": {
+          "label": "Slot",
+          "tooltip": "Which extra attack move this key triggers: the key of a move in a transformation's Extra attack moves (pounce, ground, taunt...)."
+        },
+        "input": {
+          "label": "Key",
+          "picker": "key",
+          "tooltip": "The control that triggers it. Left click (INPUT_ATTACK) always does the basic attack as well."
+        }
+      },
+      "template": {
+        "slot": "pounce",
+        "input": {
+          "__type": "hash",
+          "name": "INPUT_ENTER"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1843 @@
+{
+  "label": "Poggy Markets",
+  "tagline": "Player-owned stores, living prices and a frontier commodities exchange",
+  "category": "Economy",
+  "description": "Players buy or found their own shops, stock and price them, hire staff and read a sales dashboard. NPC stores across the map trade from catalogs you control. Optional modules add supply-and-demand pricing, a commodities exchange and simulated customers.",
+  "readme": "README.md",
+  "help": [
+    {
+      "title": "Adding a store",
+      "file": "docs/help/adding-a-store.md"
+    },
+    {
+      "title": "Editing what stores trade",
+      "file": "docs/help/catalog.md"
+    },
+    {
+      "title": "Running the economy modules",
+      "file": "docs/help/economy-modules.md"
+    }
+  ],
+  "commands": [
+    {
+      "command": "/pmhere",
+      "configPath": "Config.Admin.commands.storeHere",
+      "who": "Admins",
+      "description": "Prints a finished store block for where you stand to the server console, ready to paste into config/stores.lua. In game only.",
+      "usage": "/pmhere <type> <name>",
+      "examples": [
+        "/pmhere gunsmith Valentine Gunsmith",
+        "/pmhere butcher"
+      ]
+    },
+    {
+      "command": "/pmgiveshop",
+      "configPath": "Config.Admin.commands.giveShop",
+      "who": "Admins",
+      "description": "Founds a shop at a player's feet and makes them the owner. No deed needed. Also works from the server console.",
+      "usage": "/pmgiveshop <serverId>",
+      "examples": [
+        "/pmgiveshop 12"
+      ]
+    },
+    {
+      "command": "/pmdelshop",
+      "configPath": "Config.Admin.commands.deleteShop",
+      "who": "Admins",
+      "description": "Deletes a shop permanently, with its stock and ledger. Also works from the server console.",
+      "usage": "/pmdelshop <shopId>",
+      "examples": [
+        "/pmdelshop 7"
+      ]
+    },
+    {
+      "command": "/pmmoveshop",
+      "configPath": "Config.Admin.commands.moveShop",
+      "who": "Admins",
+      "description": "Moves a shop. With no coordinates it moves to where you stand; from the console, coordinates are required.",
+      "usage": "/pmmoveshop <shopId> [x y z]",
+      "examples": [
+        "/pmmoveshop 7",
+        "/pmmoveshop 7 -325.4 797.5 117.9"
+      ]
+    },
+    {
+      "command": "/pmreposhop",
+      "configPath": "Config.Admin.commands.repoShop",
+      "who": "Admins",
+      "description": "Repossesses a shop: hidden from players, owner locked out, nothing deleted.",
+      "usage": "/pmreposhop <shopId>",
+      "examples": [
+        "/pmreposhop 7"
+      ]
+    },
+    {
+      "command": "/pmunreposhop",
+      "configPath": "Config.Admin.commands.unrepoShop",
+      "who": "Admins",
+      "description": "Restores a repossessed shop to its owner.",
+      "usage": "/pmunreposhop <shopId>",
+      "examples": [
+        "/pmunreposhop 7"
+      ]
+    },
+    {
+      "command": "/pmshopjob",
+      "configPath": "Config.Admin.commands.shopJob",
+      "who": "Admins, console",
+      "description": "Sets the job a shop gives its owner and staff. Optional: the Shop jobs panel in /poggy does the same and is the main way. Players can never change a shop's job; they see it locked in the staff tab. none = no job even if config/stores.lua names one; reset = back to config/stores.lua. With no job it shows the current one. Also works from the server console.",
+      "usage": "/pmshopjob <shopId> <job|none|reset>",
+      "examples": [
+        "/pmshopjob 7 generalstore",
+        "/pmshopjob 7 none",
+        "/pmshopjob 7 reset",
+        "/pmshopjob 7"
+      ]
+    },
+    {
+      "command": "/pmshops",
+      "who": "Admins",
+      "description": "Lists every shop with its ID, owner, ledger and linked storefront in the server console. Also works from the console.",
+      "usage": "/pmshops",
+      "examples": [
+        "/pmshops"
+      ]
+    },
+    {
+      "command": "/pmdiag",
+      "who": "Admins",
+      "description": "Prints what loaded to the server console: framework, stores, catalog lists, modules and tracked markets. Start here when a store shows nothing.",
+      "usage": "/pmdiag",
+      "examples": [
+        "/pmdiag"
+      ]
+    },
+    {
+      "command": "/pmreload",
+      "who": "Admins",
+      "description": "Rebuilds the store index and reloads shops from the database. It does not re-read the config files; restart the script for config changes.",
+      "usage": "/pmreload",
+      "examples": [
+        "/pmreload"
+      ]
+    },
+    {
+      "command": "/pmmanage",
+      "who": "Admins",
+      "description": "Opens any shop's manager as its owner. With no ID, opens the shop you are standing in. In game only.",
+      "usage": "/pmmanage [shopId]",
+      "examples": [
+        "/pmmanage 7"
+      ]
+    },
+    {
+      "command": "/openstore",
+      "who": "Everyone",
+      "description": "Opens the \"name your store\" prompt, for frameworks where the shop deed cannot be used from the inventory. The deed is still needed and used up. Only exists while player shops and the deed item are on.",
+      "usage": "/openstore",
+      "examples": [
+        "/openstore"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "id": "general",
+      "label": "General",
+      "icon": "sliders"
+    },
+    {
+      "id": "access",
+      "label": "Access & permissions",
+      "icon": "shield"
+    },
+    {
+      "id": "locations",
+      "label": "Locations",
+      "icon": "map"
+    },
+    {
+      "id": "catalogs",
+      "label": "Catalogs",
+      "icon": "list"
+    },
+    {
+      "id": "shops",
+      "label": "Player shops",
+      "icon": "store"
+    },
+    {
+      "id": "economy",
+      "label": "Economy & prices",
+      "icon": "coins"
+    },
+    {
+      "id": "text",
+      "label": "Text & language",
+      "icon": "language"
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced",
+      "icon": "wrench"
+    }
+  ],
+  "panels": [
+    {
+      "id": "shopjobs",
+      "label": "Shop jobs",
+      "tab": "shops",
+      "export": "HubPanel",
+      "itemLabel": "shop",
+      "tooltip": "Which job each shop gives its owner and staff. Changes apply at once: hired staff get or lose the job (added to their poggy_multijob list when it runs). Only server staff can change it; players see it locked."
+    },
+    {
+      "id": "playershops",
+      "label": "Player shops",
+      "tab": "shops",
+      "export": "HubPanel",
+      "itemLabel": "shop",
+      "tooltip": "Every shop with its owner, stock, ledger, staff and whether it is repossessed. Open a shop for its staff (remove someone) and its shelf stock (change a price). Row actions: transfer ownership, repossess or restore, and adjust the ledger (logged with a reason). Changes apply at once."
+    },
+    {
+      "id": "prices",
+      "label": "Market prices",
+      "tab": "economy",
+      "export": "HubPanel",
+      "itemLabel": "item",
+      "tooltip": "Dynamic pricing, one row per tracked item: price now, base, multiplier, trend and last trade. Edit the price to nudge it (kept within the floor and ceiling), or reset it to base. Open an item for its recent price history. Needs dynamic pricing on."
+    },
+    {
+      "id": "exchange",
+      "label": "Exchange accounts",
+      "tab": "economy",
+      "export": "HubPanel",
+      "itemLabel": "account",
+      "tooltip": "Commodities exchange accounts: player, balance and open positions. Correct a balance (logged with a reason), or open an account to close a position at the live price. Needs the exchange on."
+    }
+  ],
+  "settings": {
+    "Config.Modules": {
+      "label": "Optional modules",
+      "tooltip": "Switch the three extra systems on or off. The core store system always runs.",
+      "tab": "general"
+    },
+    "Config.Modules.dynamicPricing": {
+      "label": "Dynamic pricing",
+      "tooltip": "Prices at config stores rise and fall with supply and demand for the items you track in the Economy & prices tab. Off = every store charges its catalog price.",
+      "tab": "general",
+      "group": "Optional modules"
+    },
+    "Config.Modules.exchange": {
+      "label": "Commodities exchange",
+      "tooltip": "Opens the exchange desks where players take positions on tracked markets. Needs dynamic pricing on; without it the exchange has nothing to trade.",
+      "tab": "general",
+      "group": "Optional modules"
+    },
+    "Config.Modules.ghostBuyer": {
+      "label": "Ghost buyers",
+      "tooltip": "Unseen NPC customers now and then buy a few items from player shops, so owners see some income on a quiet server. Tune them in the Economy & prices tab.",
+      "tab": "general",
+      "group": "Optional modules"
+    },
+    "Config.debug": {
+      "label": "Debug output",
+      "tooltip": "Prints extra lines to the server console (store index, denied actions, ghost sales). Leave off on a live server.",
+      "tab": "advanced",
+      "group": "Diagnostics"
+    },
+    "Config.interactionDistance": {
+      "label": "Prompt distance",
+      "tooltip": "How close a player must stand to a store, shop or exchange desk before its prompt appears. Too small and players struggle to find the spot.",
+      "tab": "general",
+      "group": "Prompts and keys",
+      "min": 0.5,
+      "max": 10,
+      "step": 0.25,
+      "unit": "metres"
+    },
+    "Config.openKey": {
+      "label": "Open key",
+      "tooltip": "The key that opens a store, a player shop or an exchange desk. Pick a key name from Key bindings (Advanced tab); a name that is not there falls back to G.",
+      "tab": "general",
+      "group": "Prompts and keys",
+      "ref": "Config.Keys"
+    },
+    "Config.purchaseKey": {
+      "label": "Buy storefront key",
+      "tooltip": "The key that buys a storefront that is for sale. The first press shows the price; a second press within 6 seconds pays. Keep it different from the open key. A name not in Key bindings falls back to B.",
+      "tab": "general",
+      "group": "Prompts and keys",
+      "ref": "Config.Keys"
+    },
+    "Config.fallbackClerkModel": {
+      "label": "Fallback clerk model",
+      "tooltip": "The ped model used when a store's clerk model does not exist on this server. Must be a model you know loads.",
+      "tab": "advanced",
+      "group": "Clerks"
+    },
+    "Config.analyticsChartDays": {
+      "label": "Revenue chart length",
+      "tooltip": "How many days of history the shop dashboard's revenue chart shows. Values are held between 1 and 365. Top sellers are always all-time.",
+      "tab": "general",
+      "group": "Look and interface",
+      "min": 1,
+      "max": 365,
+      "step": 1,
+      "unit": "days"
+    },
+    "Config.currency": {
+      "label": "Currency symbol",
+      "tooltip": "The symbol shown before every price in the shop, manager, exchange and notifications.",
+      "tab": "general",
+      "group": "Look and interface"
+    },
+    "Config.blacklistedItems": {
+      "label": "Items no store may trade",
+      "tooltip": "Items that can never be stocked, bought or sold at any shop, whatever the catalog or a player tries. Use it for quest items, licences and admin tools.",
+      "tab": "catalogs",
+      "group": "Every store",
+      "picker": "item"
+    },
+    "Config.UI": {
+      "label": "Look and interface",
+      "tooltip": "The look of the shop panels.",
+      "tab": "general"
+    },
+    "Config.UI.skin": {
+      "label": "Interface skin",
+      "tooltip": "The look of the shop, store manager and exchange. \"default\" is the dark theme, \"leather\" is stitched leather and parchment. Any other name loads ui/css/skin-<name>.css.",
+      "tab": "general",
+      "group": "Look and interface"
+    },
+    "Config.PlayerShops": {
+      "label": "Player-owned shops",
+      "tooltip": "Rules for shops that players found or buy.",
+      "tab": "shops"
+    },
+    "Config.PlayerShops.enabled": {
+      "label": "Player shops on",
+      "tooltip": "Master switch. Off = NPC stores only: nobody can found, buy or run a shop.",
+      "tab": "shops",
+      "group": "Player-owned shops"
+    },
+    "Config.PlayerShops.creationItem": {
+      "label": "Shop deed item",
+      "tooltip": "The item a player uses to found a new shop where they stand; one is used up. Set to false to stop player-founded shops (players can then only buy storefronts you offer).",
+      "tab": "shops",
+      "group": "Player-owned shops",
+      "picker": "item"
+    },
+    "Config.PlayerShops.maxPerPlayer": {
+      "label": "Shops per character",
+      "tooltip": "How many shops one character may own, counting founded and bought shops.",
+      "tab": "shops",
+      "group": "Player-owned shops",
+      "min": 1,
+      "max": 50,
+      "step": 1
+    },
+    "Config.PlayerShops.adminBypassMax": {
+      "label": "Admins ignore the limit",
+      "tooltip": "On = characters in an admin group (Access & permissions tab) can own any number of shops.",
+      "tab": "shops",
+      "group": "Player-owned shops"
+    },
+    "Config.PlayerShops.startingSlots": {
+      "label": "Starting storage",
+      "tooltip": "Storage slots a brand-new shop starts with.",
+      "tab": "shops",
+      "group": "Player-owned shops",
+      "min": 1,
+      "max": 100000,
+      "step": 10,
+      "unit": "slots"
+    },
+    "Config.PlayerShops.slotUpgradeCost": {
+      "label": "Cost per extra slot",
+      "tooltip": "What an owner pays for each storage slot they add when upgrading. 0 makes upgrades free.",
+      "tab": "shops",
+      "group": "Player-owned shops",
+      "min": 0,
+      "max": 1000,
+      "step": 0.05,
+      "unit": "$ per slot"
+    },
+    "Config.PlayerShops.minSpacing": {
+      "label": "Minimum spacing",
+      "tooltip": "How far a new shop must be from any other shop or config store, measured flat on the map.",
+      "tab": "shops",
+      "group": "Player-owned shops",
+      "min": 0,
+      "max": 500,
+      "step": 1,
+      "unit": "metres"
+    },
+    "Config.PlayerShops.relocateCost": {
+      "label": "Relocation cost",
+      "tooltip": "What an owner pays to move their shop to where they stand. 0 makes moving free.",
+      "tab": "shops",
+      "group": "Player-owned shops",
+      "min": 0,
+      "max": 100000,
+      "step": 10,
+      "unit": "$"
+    },
+    "Config.PlayerShops.blipSprite": {
+      "label": "Player shop blip",
+      "tooltip": "Map blip sprite hash for player shops. An owner can pick their own sprite name in the manager, which overrides this.",
+      "tab": "shops",
+      "group": "Player-owned shops",
+      "advanced": true
+    },
+    "Config.PlayerShops.allowOwnerWebhooks": {
+      "label": "Owner webhooks",
+      "tooltip": "On = owners may set their own Discord webhook for their shop's logs. Only discord.com webhook URLs are accepted.",
+      "tab": "shops",
+      "group": "Player-owned shops"
+    },
+    "Config.Tax": {
+      "label": "Tax and repossession",
+      "tooltip": "A shop that cannot pay its tax on collection day is repossessed: hidden from the map and locked, but nothing is deleted.",
+      "tab": "shops"
+    },
+    "Config.Tax.enabled": {
+      "label": "Taxes on",
+      "tooltip": "Off = no tax is ever collected and no shop is repossessed.",
+      "tab": "shops",
+      "group": "Tax and repossession"
+    },
+    "Config.Tax.amount": {
+      "label": "Tax per shop",
+      "tooltip": "Taken from each owned shop's ledger on collection day. A shop whose ledger holds less is repossessed. 0 turns collection off.",
+      "tab": "shops",
+      "group": "Tax and repossession",
+      "min": 0,
+      "max": 100000,
+      "step": 5,
+      "unit": "$"
+    },
+    "Config.Tax.schedule": {
+      "label": "Schedule",
+      "tooltip": "Collect once a month, or on several days of each month.",
+      "tab": "shops",
+      "group": "Tax and repossession",
+      "options": [
+        {
+          "value": "monthly",
+          "label": "Monthly"
+        },
+        {
+          "value": "weekly",
+          "label": "Several days a month"
+        }
+      ]
+    },
+    "Config.Tax.monthly": {
+      "label": "Tax day: monthly",
+      "tooltip": "Used when the schedule is Monthly. Times are the server's clock.",
+      "tab": "shops"
+    },
+    "Config.Tax.monthly.day": {
+      "label": "Day of the month",
+      "tooltip": "The day tax is collected. A day the month does not have (e.g. 31) is skipped that month.",
+      "tab": "shops",
+      "group": "Tax day: monthly",
+      "min": 1,
+      "max": 31,
+      "step": 1
+    },
+    "Config.Tax.monthly.hour": {
+      "label": "Hour",
+      "tooltip": "Server-clock hour of collection, 0-23.",
+      "tab": "shops",
+      "group": "Tax day: monthly",
+      "min": 0,
+      "max": 23,
+      "step": 1
+    },
+    "Config.Tax.monthly.minute": {
+      "label": "Minute",
+      "tooltip": "Minute of collection, 0-59.",
+      "tab": "shops",
+      "group": "Tax day: monthly",
+      "min": 0,
+      "max": 59,
+      "step": 1
+    },
+    "Config.Tax.weekly": {
+      "label": "Tax days: several a month",
+      "tooltip": "Used when the schedule is Several days a month. Times are the server's clock.",
+      "tab": "shops"
+    },
+    "Config.Tax.weekly.days": {
+      "label": "Days of the month",
+      "tooltip": "Days of the month (1-31, not weekdays) on which tax is collected, e.g. 3, 10, 17, 24 for roughly weekly.",
+      "tab": "shops",
+      "group": "Tax days: several a month"
+    },
+    "Config.Tax.weekly.hour": {
+      "label": "Hour",
+      "tooltip": "Server-clock hour of collection, 0-23.",
+      "tab": "shops",
+      "group": "Tax days: several a month",
+      "min": 0,
+      "max": 23,
+      "step": 1
+    },
+    "Config.Tax.weekly.minute": {
+      "label": "Minute",
+      "tooltip": "Minute of collection, 0-59.",
+      "tab": "shops",
+      "group": "Tax days: several a month",
+      "min": 0,
+      "max": 59,
+      "step": 1
+    },
+    "Config.Roles": {
+      "label": "Shop staff roles",
+      "tooltip": "What each staff role can do in a player shop's manager. Owners hire staff from the shop and give each one a role. The three role names are fixed.",
+      "tab": "access"
+    },
+    "Config.Roles.owner": {
+      "label": "Shop owner can",
+      "tooltip": "What a shop owner can do.",
+      "tab": "access"
+    },
+    "Config.Roles.owner.viewDashboard": {
+      "label": "View dashboard",
+      "tooltip": "Can see the shop's dashboard (takings, best sellers, low stock). Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop owner can"
+    },
+    "Config.Roles.owner.viewInventory": {
+      "label": "View stock",
+      "tooltip": "Can see the shop's stock and storage. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop owner can"
+    },
+    "Config.Roles.owner.depositItems": {
+      "label": "Stock items",
+      "tooltip": "Can put items from their own inventory into the shop. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop owner can"
+    },
+    "Config.Roles.owner.setPrices": {
+      "label": "Set prices",
+      "tooltip": "Can change item prices and show or hide items. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop owner can"
+    },
+    "Config.Roles.owner.removeStock": {
+      "label": "Remove stock",
+      "tooltip": "Can take items out of the shop into their own inventory, including items players sold to it. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop owner can"
+    },
+    "Config.Roles.owner.manageBuyList": {
+      "label": "Manage buy list",
+      "tooltip": "Can choose what the shop buys from the public, and for how much. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop owner can"
+    },
+    "Config.Roles.owner.viewLedger": {
+      "label": "View ledger",
+      "tooltip": "Can see the shop's money. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop owner can"
+    },
+    "Config.Roles.owner.depositLedger": {
+      "label": "Deposit money",
+      "tooltip": "Can put their own money into the shop's ledger. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop owner can"
+    },
+    "Config.Roles.owner.withdrawLedger": {
+      "label": "Withdraw money",
+      "tooltip": "Can take money out of the shop's ledger. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop owner can"
+    },
+    "Config.Roles.owner.viewAnalytics": {
+      "label": "View analytics",
+      "tooltip": "Can see the sales charts and transaction history. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop owner can"
+    },
+    "Config.Roles.owner.viewSoldItems": {
+      "label": "View sold items",
+      "tooltip": "Can see the items players sold to the shop. Collecting them needs Remove stock. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop owner can"
+    },
+    "Config.Roles.owner.manageStaff": {
+      "label": "Manage staff",
+      "tooltip": "Can hire and fire staff and change their role. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop owner can"
+    },
+    "Config.Roles.owner.changeSettings": {
+      "label": "Change settings",
+      "tooltip": "Can rename the shop, change its blip, upgrade storage, relocate it and set its webhook. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop owner can"
+    },
+    "Config.Roles.manager": {
+      "label": "Shop manager can",
+      "tooltip": "What a shop manager can do.",
+      "tab": "access"
+    },
+    "Config.Roles.manager.viewDashboard": {
+      "label": "View dashboard",
+      "tooltip": "Can see the shop's dashboard (takings, best sellers, low stock). Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop manager can"
+    },
+    "Config.Roles.manager.viewInventory": {
+      "label": "View stock",
+      "tooltip": "Can see the shop's stock and storage. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop manager can"
+    },
+    "Config.Roles.manager.depositItems": {
+      "label": "Stock items",
+      "tooltip": "Can put items from their own inventory into the shop. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop manager can"
+    },
+    "Config.Roles.manager.setPrices": {
+      "label": "Set prices",
+      "tooltip": "Can change item prices and show or hide items. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop manager can"
+    },
+    "Config.Roles.manager.removeStock": {
+      "label": "Remove stock",
+      "tooltip": "Can take items out of the shop into their own inventory, including items players sold to it. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop manager can"
+    },
+    "Config.Roles.manager.manageBuyList": {
+      "label": "Manage buy list",
+      "tooltip": "Can choose what the shop buys from the public, and for how much. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop manager can"
+    },
+    "Config.Roles.manager.viewLedger": {
+      "label": "View ledger",
+      "tooltip": "Can see the shop's money. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop manager can"
+    },
+    "Config.Roles.manager.depositLedger": {
+      "label": "Deposit money",
+      "tooltip": "Can put their own money into the shop's ledger. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop manager can"
+    },
+    "Config.Roles.manager.withdrawLedger": {
+      "label": "Withdraw money",
+      "tooltip": "Can take money out of the shop's ledger. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop manager can"
+    },
+    "Config.Roles.manager.viewAnalytics": {
+      "label": "View analytics",
+      "tooltip": "Can see the sales charts and transaction history. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop manager can"
+    },
+    "Config.Roles.manager.viewSoldItems": {
+      "label": "View sold items",
+      "tooltip": "Can see the items players sold to the shop. Collecting them needs Remove stock. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop manager can"
+    },
+    "Config.Roles.manager.manageStaff": {
+      "label": "Manage staff",
+      "tooltip": "Can hire and fire staff and change their role. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop manager can"
+    },
+    "Config.Roles.manager.changeSettings": {
+      "label": "Change settings",
+      "tooltip": "Can rename the shop, change its blip, upgrade storage, relocate it and set its webhook. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop manager can"
+    },
+    "Config.Roles.employee": {
+      "label": "Shop employee can",
+      "tooltip": "What a shop employee can do.",
+      "tab": "access"
+    },
+    "Config.Roles.employee.viewDashboard": {
+      "label": "View dashboard",
+      "tooltip": "Can see the shop's dashboard (takings, best sellers, low stock). Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop employee can"
+    },
+    "Config.Roles.employee.viewInventory": {
+      "label": "View stock",
+      "tooltip": "Can see the shop's stock and storage. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop employee can"
+    },
+    "Config.Roles.employee.depositItems": {
+      "label": "Stock items",
+      "tooltip": "Can put items from their own inventory into the shop. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop employee can"
+    },
+    "Config.Roles.employee.setPrices": {
+      "label": "Set prices",
+      "tooltip": "Can change item prices and show or hide items. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop employee can"
+    },
+    "Config.Roles.employee.removeStock": {
+      "label": "Remove stock",
+      "tooltip": "Can take items out of the shop into their own inventory, including items players sold to it. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop employee can"
+    },
+    "Config.Roles.employee.manageBuyList": {
+      "label": "Manage buy list",
+      "tooltip": "Can choose what the shop buys from the public, and for how much. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop employee can"
+    },
+    "Config.Roles.employee.viewLedger": {
+      "label": "View ledger",
+      "tooltip": "Can see the shop's money. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop employee can"
+    },
+    "Config.Roles.employee.depositLedger": {
+      "label": "Deposit money",
+      "tooltip": "Can put their own money into the shop's ledger. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop employee can"
+    },
+    "Config.Roles.employee.withdrawLedger": {
+      "label": "Withdraw money",
+      "tooltip": "Can take money out of the shop's ledger. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop employee can"
+    },
+    "Config.Roles.employee.viewAnalytics": {
+      "label": "View analytics",
+      "tooltip": "Can see the sales charts and transaction history. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop employee can"
+    },
+    "Config.Roles.employee.viewSoldItems": {
+      "label": "View sold items",
+      "tooltip": "Can see the items players sold to the shop. Collecting them needs Remove stock. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop employee can"
+    },
+    "Config.Roles.employee.manageStaff": {
+      "label": "Manage staff",
+      "tooltip": "Can hire and fire staff and change their role. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop employee can"
+    },
+    "Config.Roles.employee.changeSettings": {
+      "label": "Change settings",
+      "tooltip": "Can rename the shop, change its blip, upgrade storage, relocate it and set its webhook. Admins can always do everything.",
+      "tab": "access",
+      "group": "Shop employee can"
+    },
+    "Config.ShopJobs": {
+      "label": "Shop jobs",
+      "tooltip": "A shop with a job gives it to its owner and staff at the grade for their role, and takes it back when they leave. Only server staff set a shop's job: the Shop jobs panel on this page, /pmshopjob, or config/stores.lua. With poggy_multijob running (detected on its own) the job is added to their job list; without it the job is set directly.",
+      "tab": "shops"
+    },
+    "Config.ShopJobs.enabled": {
+      "label": "Give shop jobs",
+      "tooltip": "On = the owner and everyone hired at a shop with a job get that job, and lose it when let go or when the shop is sold, repossessed or deleted. Checked on every start and when a character loads in. Off = poggy_markets never touches anyone's job.",
+      "tab": "shops",
+      "group": "Shop jobs"
+    },
+    "Config.ShopJobs.grades": {
+      "label": "Job grade per role",
+      "tooltip": "The job grade each role is given at a shop with a job. The same numbers decide access by job.",
+      "tab": "shops",
+      "group": "Shop jobs"
+    },
+    "Config.ShopJobs.grades.employee": {
+      "label": "Employee grade",
+      "tooltip": "Job grade given to a hired employee. With access by job, this grade or higher gets employee access.",
+      "tab": "shops",
+      "group": "Job grade per role",
+      "min": 0,
+      "max": 20,
+      "step": 1
+    },
+    "Config.ShopJobs.grades.manager": {
+      "label": "Manager grade",
+      "tooltip": "Job grade given to a hired manager. With access by job, this grade or higher gets manager access.",
+      "tab": "shops",
+      "group": "Job grade per role",
+      "min": 0,
+      "max": 20,
+      "step": 1
+    },
+    "Config.ShopJobs.grades.owner": {
+      "label": "Owner grade",
+      "tooltip": "Job grade given to the shop's owner (unless the older owner's-grade setting holds a number). With access by job, this grade or higher gets owner access.",
+      "tab": "shops",
+      "group": "Job grade per role",
+      "min": 0,
+      "max": 20,
+      "step": 1
+    },
+    "Config.ShopJobs.ownerGrade": {
+      "label": "Owner's grade (older setting)",
+      "tooltip": "Kept so older configs keep working: a number here is given to the owner instead of the owner grade above. false = use the owner grade above.",
+      "tab": "shops",
+      "group": "Shop jobs",
+      "advanced": true
+    },
+    "Config.ShopJobs.fallbackJob": {
+      "label": "Job after losing a shop job",
+      "tooltip": "Only without poggy_multijob: the job a character is moved to when a shop job is taken from them while they wear it. false leaves their job alone. With poggy_multijob its own default job is used.",
+      "tab": "shops",
+      "group": "Shop jobs",
+      "picker": "job",
+      "advanced": true
+    },
+    "Config.ShopJobs.grantAccessByJob": {
+      "label": "Access by job",
+      "tooltip": "With shop jobs on, a character whose job matches a shop's job gets in without being hired, by grade (see Job grade per role). Shop jobs are only set by server staff; give two shops the same job and its holders get into both.",
+      "tab": "shops",
+      "group": "Shop jobs"
+    },
+    "Config.Admin": {
+      "label": "Admins",
+      "tooltip": "Who counts as an admin, the admin command names and the admin log.",
+      "tab": "access"
+    },
+    "Config.Admin.groups": {
+      "label": "Admin groups",
+      "tooltip": "Framework groups treated as admin: they may use the admin commands, open any shop's manager and ignore staff permissions.",
+      "tab": "access",
+      "group": "Admins",
+      "picker": "group"
+    },
+    "Config.Admin.commands": {
+      "label": "Admin command names",
+      "tooltip": "The chat command for each admin tool, without the slash. Set one to false to remove that command.",
+      "tab": "access",
+      "advanced": true
+    },
+    "Config.Admin.commands.giveShop": {
+      "label": "Give shop command",
+      "tooltip": "Founds a shop at a player's feet, no deed needed. Name without the slash; false removes the command.",
+      "tab": "access",
+      "group": "Admin command names",
+      "advanced": true
+    },
+    "Config.Admin.commands.deleteShop": {
+      "label": "Delete shop command",
+      "tooltip": "Deletes a shop permanently. Name without the slash; false removes the command.",
+      "tab": "access",
+      "group": "Admin command names",
+      "advanced": true
+    },
+    "Config.Admin.commands.moveShop": {
+      "label": "Move shop command",
+      "tooltip": "Moves a shop to given coordinates, or to where you stand. Name without the slash; false removes the command.",
+      "tab": "access",
+      "group": "Admin command names",
+      "advanced": true
+    },
+    "Config.Admin.commands.repoShop": {
+      "label": "Repossess command",
+      "tooltip": "Hides a shop from players, keeping all its data. Name without the slash; false removes the command.",
+      "tab": "access",
+      "group": "Admin command names",
+      "advanced": true
+    },
+    "Config.Admin.commands.unrepoShop": {
+      "label": "Restore command",
+      "tooltip": "Restores a repossessed shop. Name without the slash; false removes the command.",
+      "tab": "access",
+      "group": "Admin command names",
+      "advanced": true
+    },
+    "Config.Admin.commands.storeHere": {
+      "label": "Store-here command",
+      "tooltip": "Prints a ready-to-paste store block for where you stand. Name without the slash; false removes the command.",
+      "tab": "access",
+      "group": "Admin command names",
+      "advanced": true
+    },
+    "Config.Admin.commands.shopJob": {
+      "label": "Shop job command",
+      "tooltip": "Sets a shop's job (the Shop jobs panel does the same). Owners and staff cannot. Name without the slash; false removes the command.",
+      "tab": "access",
+      "group": "Admin command names",
+      "advanced": true
+    },
+    "Config.Admin.webhook": {
+      "label": "Admin webhook",
+      "tooltip": "Discord webhook for shop events (opened, sold, deleted, repossessed), and for any shop without its own. Leave the placeholder or blank to switch it off.",
+      "tab": "access",
+      "group": "Admins",
+      "picker": "webhook",
+      "placeholder": "https://discord.com/api/webhooks/..."
+    },
+    "Config.Admin.webhookAvatar": {
+      "label": "Webhook avatar",
+      "tooltip": "Image URL used as the webhook's avatar. Blank uses Discord's default.",
+      "tab": "access",
+      "group": "Admins",
+      "advanced": true
+    },
+    "Config.Selling": {
+      "label": "Selling to shops (not used)",
+      "tooltip": "Reserved settings for item condition and metadata. This version does not read them, so changing them has no effect.",
+      "tab": "advanced"
+    },
+    "Config.Selling.useCondition": {
+      "label": "Check item condition (not used)",
+      "tooltip": "Reserved. This version does not read this setting.",
+      "tab": "advanced",
+      "group": "Selling to shops (not used)",
+      "advanced": true
+    },
+    "Config.Selling.minCondition": {
+      "label": "Minimum condition (not used)",
+      "tooltip": "Reserved. This version does not read this setting.",
+      "tab": "advanced",
+      "group": "Selling to shops (not used)",
+      "advanced": true,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Selling.keepMetadata": {
+      "label": "Keep metadata (not used)",
+      "tooltip": "Reserved. This version does not read this setting.",
+      "tab": "advanced",
+      "group": "Selling to shops (not used)",
+      "advanced": true
+    },
+    "Config.Keys": {
+      "label": "Key bindings",
+      "tooltip": "Key names the Open key and Buy storefront key can use, each with its RedM control hash. Add a key only with a confirmed hash: a wrong one binds a control you did not intend.",
+      "tab": "advanced",
+      "advanced": true
+    },
+    "Config.Keys.*": {
+      "tab": "advanced",
+      "group": "Key bindings",
+      "advanced": true,
+      "tooltip": "RedM control hash for this key name. Do not guess a hash."
+    },
+    "Config.BlipSprites": {
+      "label": "Map blips",
+      "tooltip": "Named map blip sprites that store types point at (\"shop\", \"outfitter\"). Change a hash here and every store type using that name follows.",
+      "tab": "locations"
+    },
+    "Config.BlipSprites.shop": {
+      "label": "Storefront blip",
+      "tooltip": "Sprite hash for most store types, and for exchange desks.",
+      "tab": "locations",
+      "group": "Map blips"
+    },
+    "Config.BlipSprites.outfitter": {
+      "label": "Outfitter blip",
+      "tooltip": "Sprite hash for camp outfitters.",
+      "tab": "locations",
+      "group": "Map blips"
+    },
+    "Config.Pricing": {
+      "label": "Dynamic pricing",
+      "tooltip": "How prices move when dynamic pricing is on. Each tracked item has a multiplier starting at 1.0; the quoted price is the catalog price times it.",
+      "tab": "economy"
+    },
+    "Config.Pricing.floor": {
+      "label": "Lowest multiplier",
+      "tooltip": "The lowest a price can fall, as a fraction of its catalog price. 0.20 = a fifth of the price.",
+      "tab": "economy",
+      "group": "Dynamic pricing",
+      "min": 0.01,
+      "max": 1,
+      "step": 0.01,
+      "unit": "x"
+    },
+    "Config.Pricing.ceiling": {
+      "label": "Highest multiplier",
+      "tooltip": "The highest a price can rise, as a multiple of its catalog price. 1.80 = nearly double.",
+      "tab": "economy",
+      "group": "Dynamic pricing",
+      "min": 1,
+      "max": 10,
+      "step": 0.05,
+      "unit": "x"
+    },
+    "Config.Pricing.decayPerUnit": {
+      "label": "Drop per unit sold",
+      "tooltip": "How much the multiplier falls for every unit players sell to a store. At 0.012 it takes about 65 units to halve a price.",
+      "tab": "economy",
+      "group": "Dynamic pricing",
+      "min": 0,
+      "max": 0.2,
+      "step": 0.001
+    },
+    "Config.Pricing.demandPerUnit": {
+      "label": "Rise per unit bought",
+      "tooltip": "How much the multiplier rises for every unit players buy from a store.",
+      "tab": "economy",
+      "group": "Dynamic pricing",
+      "min": 0,
+      "max": 0.2,
+      "step": 0.001
+    },
+    "Config.Pricing.recoveryPerHour": {
+      "label": "Recovery per hour",
+      "tooltip": "How fast an item's multiplier drifts back toward 1.0 while it is not traded. Small = a crashed price stays down for a long time.",
+      "tab": "economy",
+      "group": "Dynamic pricing",
+      "min": 0,
+      "max": 0.1,
+      "step": 0.001
+    },
+    "Config.Pricing.scarcityHours": {
+      "label": "Scarce after",
+      "tooltip": "Hours with no trades before an item counts as scarce: it then recovers faster and may climb above 1.0 toward the highest multiplier.",
+      "tab": "economy",
+      "group": "Dynamic pricing",
+      "min": 1,
+      "max": 720,
+      "step": 1,
+      "unit": "hours"
+    },
+    "Config.Pricing.scarcityBonus": {
+      "label": "Scarcity bonus per hour",
+      "tooltip": "Extra recovery per hour added once an item is scarce.",
+      "tab": "economy",
+      "group": "Dynamic pricing",
+      "min": 0,
+      "max": 0.1,
+      "step": 0.001
+    },
+    "Config.Pricing.spillover": {
+      "label": "Spillover",
+      "tooltip": "How much one item's trade moves the other items in the same market. 0 = independent; 0.4 = siblings move 40% as much.",
+      "tab": "economy",
+      "group": "Dynamic pricing",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    "Config.Pricing.tradeFee": {
+      "label": "Store spread",
+      "tooltip": "Added to store selling prices and taken off store buying prices, so buying and selling straight back always loses a little. 0.015 = 1.5% each way.",
+      "tab": "economy",
+      "group": "Dynamic pricing",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.005
+    },
+    "Config.Pricing.drift": {
+      "label": "Background drift",
+      "tooltip": "Small random price movement so markets are never perfectly still.",
+      "tab": "economy"
+    },
+    "Config.Pricing.drift.enabled": {
+      "label": "Drift on",
+      "tooltip": "Off = prices only move on real trades and recovery.",
+      "tab": "economy",
+      "group": "Background drift"
+    },
+    "Config.Pricing.drift.intervalMs": {
+      "label": "Price update interval",
+      "tooltip": "How often prices are recalculated (recovery and drift), in milliseconds. 300000 = 5 minutes. Very short intervals cost database writes.",
+      "tab": "economy",
+      "group": "Background drift",
+      "min": 10000,
+      "max": 3600000,
+      "step": 10000,
+      "unit": "ms",
+      "advanced": true
+    },
+    "Config.Pricing.drift.marketMax": {
+      "label": "Market move per tick",
+      "tooltip": "Largest random move of a whole market per update.",
+      "tab": "economy",
+      "group": "Background drift",
+      "min": 0,
+      "max": 0.05,
+      "step": 0.0001,
+      "advanced": true
+    },
+    "Config.Pricing.drift.itemMax": {
+      "label": "Item jitter per tick",
+      "tooltip": "Largest random move of a single item per update.",
+      "tab": "economy",
+      "group": "Background drift",
+      "min": 0,
+      "max": 0.05,
+      "step": 0.0001,
+      "advanced": true
+    },
+    "Config.Pricing.drift.momentum": {
+      "label": "Momentum",
+      "tooltip": "How much of the last market move carries into the next, 0-1. Higher = moves trend; lower = moves jitter.",
+      "tab": "economy",
+      "group": "Background drift",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "advanced": true
+    },
+    "Config.Pricing.snapshotIntervalMs": {
+      "label": "Chart snapshot interval",
+      "tooltip": "How often prices are saved for the exchange's charts, in milliseconds. 3600000 = hourly.",
+      "tab": "economy",
+      "group": "Dynamic pricing",
+      "min": 60000,
+      "max": 86400000,
+      "step": 60000,
+      "unit": "ms",
+      "advanced": true
+    },
+    "Config.Pricing.historyDays": {
+      "label": "Chart history kept",
+      "tooltip": "Price snapshots older than this are deleted.",
+      "tab": "economy",
+      "group": "Dynamic pricing",
+      "min": 1,
+      "max": 365,
+      "step": 1,
+      "unit": "days",
+      "advanced": true
+    },
+    "Config.Exchange": {
+      "label": "Commodities exchange",
+      "tooltip": "Limits for the exchange desks. Positions settle in cash against the live market price.",
+      "tab": "economy"
+    },
+    "Config.Exchange.tradableMarkets": {
+      "label": "Tradable markets",
+      "tooltip": "Markets from the Price markets list that players may trade. A market left out still moves prices but cannot be speculated on.",
+      "tab": "economy",
+      "group": "Commodities exchange",
+      "ref": "Config.Pricing.markets"
+    },
+    "Config.Exchange.maxPositionSize": {
+      "label": "Largest position",
+      "tooltip": "The most units one character may hold in one commodity. The main brake on cornering a market.",
+      "tab": "economy",
+      "group": "Commodities exchange",
+      "min": 1,
+      "max": 100000,
+      "step": 1,
+      "unit": "units"
+    },
+    "Config.Exchange.maxOpenPositions": {
+      "label": "Open positions per character",
+      "tooltip": "How many separate positions one character may hold at once.",
+      "tab": "economy",
+      "group": "Commodities exchange",
+      "min": 1,
+      "max": 100,
+      "step": 1
+    },
+    "Config.Exchange.tradeFee": {
+      "label": "Exchange fee",
+      "tooltip": "Charged on opening and on closing a position, as a fraction of its value. 0.015 = 1.5%. Stops rapid in-and-out trading being free.",
+      "tab": "economy",
+      "group": "Commodities exchange",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.005
+    },
+    "Config.Exchange.allowShorts": {
+      "label": "Allow short selling",
+      "tooltip": "On = players can bet on a price falling. A short can lose more than it staked, so it ships off.",
+      "tab": "economy",
+      "group": "Commodities exchange"
+    },
+    "Config.Exchange.shortMargin": {
+      "label": "Short collateral",
+      "tooltip": "Collateral held against a short, as a fraction of its value. 0.50 = half. Only used when shorts are allowed.",
+      "tab": "economy",
+      "group": "Commodities exchange",
+      "min": 0.05,
+      "max": 2,
+      "step": 0.05
+    },
+    "Config.Exchange.useSeparateAccount": {
+      "label": "Separate account (not used)",
+      "tooltip": "Reserved. This version always trades through the exchange balance and does not read this setting.",
+      "tab": "economy",
+      "group": "Commodities exchange",
+      "advanced": true
+    },
+    "Config.Exchange.minimumDeposit": {
+      "label": "Minimum deposit",
+      "tooltip": "The smallest amount a player may pay into their exchange balance at once.",
+      "tab": "economy",
+      "group": "Commodities exchange",
+      "min": 0,
+      "max": 10000,
+      "step": 1,
+      "unit": "$"
+    },
+    "Config.GhostBuyer": {
+      "label": "Ghost buyers",
+      "tooltip": "Simulated customers for player shops. Defaults earn a shop a few dollars a day, not a living.",
+      "tab": "economy"
+    },
+    "Config.GhostBuyer.blockMinHours": {
+      "label": "Shortest gap",
+      "tooltip": "Each shop waits a random time between the shortest and longest gap before its next round of ghost sales.",
+      "tab": "economy",
+      "group": "Ghost buyers",
+      "min": 0.5,
+      "max": 168,
+      "step": 0.5,
+      "unit": "hours"
+    },
+    "Config.GhostBuyer.blockMaxHours": {
+      "label": "Longest gap",
+      "tooltip": "Upper end of the random wait between rounds. If lower than the shortest gap, the shortest is used.",
+      "tab": "economy",
+      "group": "Ghost buyers",
+      "min": 0.5,
+      "max": 168,
+      "step": 0.5,
+      "unit": "hours"
+    },
+    "Config.GhostBuyer.newShopScanMinutes": {
+      "label": "New shop scan",
+      "tooltip": "How often newly opened shops are added to the ghost-buyer cycle.",
+      "tab": "economy",
+      "group": "Ghost buyers",
+      "min": 1,
+      "max": 1440,
+      "step": 1,
+      "unit": "minutes",
+      "advanced": true
+    },
+    "Config.GhostBuyer.minTotalStock": {
+      "label": "Minimum shop stock",
+      "tooltip": "A shop needs at least this many units in stock before ghost buyers visit.",
+      "tab": "economy",
+      "group": "Ghost buyers",
+      "min": 0,
+      "max": 10000,
+      "step": 1,
+      "unit": "units"
+    },
+    "Config.GhostBuyer.visibleItemsOnly": {
+      "label": "Visible items only",
+      "tooltip": "On = ghost buyers never take items the owner has hidden from customers.",
+      "tab": "economy",
+      "group": "Ghost buyers"
+    },
+    "Config.GhostBuyer.quantityWeights": {
+      "label": "Units per sale",
+      "tooltip": "How many units one ghost sale takes, as number = weight. The default { [1]=60, [2]=30, [4]=10 } means 1 unit 60% of the time.",
+      "tab": "economy",
+      "group": "Ghost buyers",
+      "advanced": true
+    },
+    "Config.GhostBuyer.maxItemPrice": {
+      "label": "Most expensive item bought",
+      "tooltip": "Items priced above this are never bought by ghosts. 0 = no cap. Stops an owner pricing one item at $999,999 and printing money.",
+      "tab": "economy",
+      "group": "Ghost buyers",
+      "min": 0,
+      "max": 100000,
+      "step": 1,
+      "unit": "$"
+    },
+    "Config.GhostBuyer.minItemStock": {
+      "label": "Minimum item stock",
+      "tooltip": "An item needs at least this many units in stock to be bought.",
+      "tab": "economy",
+      "group": "Ghost buyers",
+      "min": 1,
+      "max": 1000,
+      "step": 1,
+      "unit": "units"
+    },
+    "Config.GhostBuyer.maxRevenuePerSale": {
+      "label": "Most per sale",
+      "tooltip": "Hard ceiling on what one ghost sale pays. 0 = no ceiling.",
+      "tab": "economy",
+      "group": "Ghost buyers",
+      "min": 0,
+      "max": 100000,
+      "step": 1,
+      "unit": "$"
+    },
+    "Config.GhostBuyer.payTo": {
+      "label": "Pay into",
+      "tooltip": "Ledger = income goes to the shop and the owner must visit to withdraw it. Cash = paid straight to the owner while online (ledger when offline).",
+      "tab": "economy",
+      "group": "Ghost buyers",
+      "options": [
+        {
+          "value": "ledger",
+          "label": "Shop ledger"
+        },
+        {
+          "value": "cash",
+          "label": "Owner's cash"
+        }
+      ]
+    },
+    "Config.GhostBuyer.notifyOwner": {
+      "label": "Tell the owner",
+      "tooltip": "On = an online owner gets a notification for every ghost sale. That makes the illusion obvious.",
+      "tab": "economy",
+      "group": "Ghost buyers"
+    },
+    "Config.GhostBuyer.notifyDuration": {
+      "label": "Notification length",
+      "tooltip": "How long that notification stays on screen.",
+      "tab": "economy",
+      "group": "Ghost buyers",
+      "min": 1000,
+      "max": 30000,
+      "step": 500,
+      "unit": "ms"
+    },
+    "PM.Locale.*": {
+      "tab": "text",
+      "group": "Messages",
+      "tooltip": "Text players see. Keep every %s marker: each is filled in with a value (an amount, a name) in order."
+    },
+    "PM.Locale": {
+      "label": "Messages",
+      "tooltip": "Every player-facing message. Translate these to translate the script.",
+      "tab": "text"
+    }
+  },
+  "lists": {
+    "Config.Stores": {
+      "label": "Stores",
+      "itemLabel": "store",
+      "tab": "locations",
+      "kind": "list",
+      "titleField": "name",
+      "subtitleField": "type",
+      "columns": [
+        {
+          "field": "name",
+          "label": "Name"
+        },
+        {
+          "field": "type",
+          "label": "Type"
+        },
+        {
+          "field": "coords",
+          "label": "Location"
+        },
+        {
+          "field": "shopId",
+          "label": "Shop ID"
+        }
+      ],
+      "search": [
+        "name",
+        "type"
+      ],
+      "fields": {
+        "type": {
+          "label": "Store type",
+          "tooltip": "One of your Store types. It supplies the catalogs, map blip and clerk.",
+          "ref": "Config.StoreTypes"
+        },
+        "name": {
+          "label": "Name",
+          "tooltip": "Shown on the prompt and the map. Also links the store to its database row, so renaming a store that has an owner can lose the link; give it a fixed key first."
+        },
+        "key": {
+          "label": "Fixed key",
+          "tooltip": "Optional. A permanent id for the store, used instead of one made from its name.",
+          "advanced": true
+        },
+        "coords": {
+          "label": "Prompt position",
+          "tooltip": "Where the player stands to get the prompt.",
+          "picker": "coords"
+        },
+        "heading": {
+          "label": "Heading",
+          "tooltip": "Which way the clerk faces, in degrees, when the clerk has no heading of its own.",
+          "picker": "heading",
+          "min": 0,
+          "max": 360,
+          "step": 0.1,
+          "unit": "degrees"
+        },
+        "blip": {
+          "label": "Map blip",
+          "tooltip": "false hides this store from the map. Default on."
+        },
+        "blipSprite": {
+          "label": "Blip sprite",
+          "tooltip": "Overrides the type's blip: a Map blips name such as \"shop\", or a sprite hash."
+        },
+        "sell": {
+          "label": "Sells from catalog",
+          "tooltip": "Overrides the type's catalog for what this store sells. false = sells nothing. Left out, the type's catalog is used.",
+          "ref": "Config.Catalog"
+        },
+        "buy": {
+          "label": "Buys from catalog",
+          "tooltip": "Overrides the type's catalog for what this store buys. false = buys nothing. Left out, the type's catalog is used.",
+          "ref": "Config.Catalog"
+        },
+        "npc": {
+          "label": "Clerk",
+          "tooltip": "false = no clerk. A table sets the clerk's model, position and heading. Left out, the type's clerk is used."
+        },
+        "npc.model": {
+          "label": "Clerk model",
+          "tooltip": "Ped model name. A model that does not exist is replaced by the fallback clerk."
+        },
+        "npc.coords": {
+          "label": "Clerk position",
+          "tooltip": "Where the clerk stands: behind the counter, not on the prompt. Left out, the clerk spawns on the prompt.",
+          "picker": "coords"
+        },
+        "npc.offset": {
+          "label": "Clerk offset",
+          "tooltip": "Alternative to Clerk position: an offset from the prompt position.",
+          "advanced": true
+        },
+        "npc.heading": {
+          "label": "Clerk heading",
+          "tooltip": "Which way the clerk faces, in degrees.",
+          "picker": "heading",
+          "min": 0,
+          "max": 360,
+          "step": 0.1,
+          "unit": "degrees"
+        },
+        "npc.grounded": {
+          "label": "Snap to ground",
+          "tooltip": "On = the clerk is placed on the ground. Leave off under a roof, which is most stores."
+        },
+        "jobLock": {
+          "label": "Job lock",
+          "tooltip": "Only these jobs may use the store. Empty or left out = everyone."
+        },
+        "jobLock[]": {
+          "picker": "job"
+        },
+        "purchasable": {
+          "label": "For sale",
+          "tooltip": "Offer this storefront for sale. Only works with a Shop ID whose playershops row is unowned or repossessed."
+        },
+        "price": {
+          "label": "Sale price",
+          "tooltip": "What the storefront costs. Left out, the price column of its playershops row is used.",
+          "min": 0,
+          "step": 50,
+          "unit": "$"
+        },
+        "job": {
+          "label": "Job",
+          "tooltip": "The shop's job: given to its owner and everyone they hire, at the grade for their role, and taken back when they leave. Only used when Shop jobs are on. Admins can override it in game with /pmshopjob; players never can.",
+          "picker": "job"
+        },
+        "shopId": {
+          "label": "Shop ID",
+          "tooltip": "The playershops row this storefront uses: its owner, stock and ledger. Left out, a row is created on first sale.",
+          "min": 1,
+          "step": 1
+        },
+        "purchaseCoords": {
+          "label": "For-sale position",
+          "tooltip": "Where the FOR SALE prompt appears. Left out: the row's coordinates, then the prompt position.",
+          "picker": "coords"
+        }
+      },
+      "template": {
+        "type": "generalstore",
+        "name": "New Store",
+        "coords": {
+          "__type": "vec3",
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "heading": 0.0,
+        "npc": false
+      }
+    },
+    "Config.StoreTypes": {
+      "label": "Store types",
+      "itemLabel": "store type",
+      "tab": "locations",
+      "kind": "map",
+      "titleField": "label",
+      "subtitleField": "sell",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Label"
+        },
+        {
+          "field": "sell",
+          "label": "Sells from"
+        },
+        {
+          "field": "buy",
+          "label": "Buys from"
+        },
+        {
+          "field": "npcModel",
+          "label": "Clerk"
+        }
+      ],
+      "search": [
+        "label",
+        "sell",
+        "buy"
+      ],
+      "fields": {
+        "label": {
+          "label": "Label",
+          "tooltip": "The type's name, and the store name when a store has none."
+        },
+        "sell": {
+          "label": "Sells from catalog",
+          "tooltip": "The catalog this type sells to players, e.g. \"GeneralStore\". false = sells nothing.",
+          "ref": "Config.Catalog"
+        },
+        "buy": {
+          "label": "Buys from catalog",
+          "tooltip": "The catalog this type buys from players. false = buys nothing.",
+          "ref": "Config.Catalog"
+        },
+        "blipSprite": {
+          "label": "Blip sprite",
+          "tooltip": "A Map blips name (\"shop\", \"outfitter\") or a sprite hash."
+        },
+        "npcModel": {
+          "label": "Clerk model",
+          "tooltip": "Ped model of the clerk. false = no clerk, right wherever the game already puts a shopkeeper."
+        }
+      },
+      "template": {
+        "label": "New Store Type",
+        "sell": false,
+        "buy": false,
+        "blipSprite": "shop",
+        "npcModel": false
+      }
+    },
+    "Config.Exchange.desks": {
+      "label": "Exchange desks",
+      "itemLabel": "desk",
+      "tab": "locations",
+      "kind": "list",
+      "titleField": "name",
+      "columns": [
+        {
+          "field": "name",
+          "label": "Name"
+        },
+        {
+          "field": "coords",
+          "label": "Location"
+        }
+      ],
+      "search": [
+        "name"
+      ],
+      "fields": {
+        "name": {
+          "label": "Name",
+          "tooltip": "Shown on the map blip."
+        },
+        "coords": {
+          "label": "Position",
+          "tooltip": "Where the clerk stands and the prompt appears.",
+          "picker": "coords"
+        },
+        "heading": {
+          "label": "Heading",
+          "tooltip": "Which way the clerk faces, in degrees.",
+          "picker": "heading",
+          "min": 0,
+          "max": 360,
+          "step": 0.1,
+          "unit": "degrees"
+        },
+        "npc": {
+          "label": "Clerk model",
+          "tooltip": "Ped model of the desk clerk."
+        },
+        "blip": {
+          "label": "Map blip",
+          "tooltip": "Show this desk on the map."
+        }
+      },
+      "template": {
+        "name": "New Exchange",
+        "coords": {
+          "__type": "vec3",
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "heading": 0.0,
+        "npc": "mp_u_m_m_trader_01",
+        "blip": true
+      }
+    },
+    "Config.Catalog": {
+      "kind": "collection",
+      "label": "Catalogs",
+      "itemLabel": "catalog",
+      "tab": "catalogs",
+      "tooltip": "What each kind of store trades. A store type points at a catalog by name, so one edit changes every store of that type. Add your own catalogs freely; the name is what store types refer to.",
+      "sublists": {
+        "sell": {
+          "label": "Sells to players",
+          "itemLabel": "item",
+          "titleField": "label",
+          "subtitleField": "name",
+          "columns": [
+            {
+              "field": "label",
+              "label": "Label"
+            },
+            {
+              "field": "name",
+              "label": "Item"
+            },
+            {
+              "field": "price",
+              "label": "Price"
+            }
+          ],
+          "search": [
+            "label",
+            "name"
+          ],
+          "fields": {
+            "name": {
+              "label": "Item",
+              "tooltip": "The item's name in your framework's item list. A name that does not exist is skipped and reported at start.",
+              "picker": "item"
+            },
+            "label": {
+              "label": "Label",
+              "tooltip": "The name shown in the store."
+            },
+            "price": {
+              "label": "Price",
+              "tooltip": "Price per unit the store charges players. With dynamic pricing on, tracked items move around this.",
+              "min": 0,
+              "step": 0.05,
+              "unit": "$"
+            },
+            "type": {
+              "label": "Kind",
+              "tooltip": "Weapons must be marked as weapons.",
+              "options": [
+                {
+                  "value": "item_standard",
+                  "label": "Item"
+                },
+                {
+                  "value": "item_weapon",
+                  "label": "Weapon"
+                }
+              ]
+            },
+            "stock": {
+              "label": "Stock",
+              "tooltip": "Starting stock. Left out = unlimited.",
+              "min": 0,
+              "step": 1
+            },
+            "hidden": {
+              "label": "Hidden",
+              "tooltip": "Stocked but not shown to customers, and not bought or sold."
+            }
+          },
+          "template": {
+            "name": "item_name",
+            "label": "New Item",
+            "price": 1.0
+          }
+        },
+        "buy": {
+          "label": "Buys from players",
+          "itemLabel": "item",
+          "titleField": "label",
+          "subtitleField": "name",
+          "columns": [
+            {
+              "field": "label",
+              "label": "Label"
+            },
+            {
+              "field": "name",
+              "label": "Item"
+            },
+            {
+              "field": "price",
+              "label": "Price"
+            }
+          ],
+          "search": [
+            "label",
+            "name"
+          ],
+          "fields": {
+            "name": {
+              "label": "Item",
+              "tooltip": "The item's name in your framework's item list. A name that does not exist is skipped and reported at start.",
+              "picker": "item"
+            },
+            "label": {
+              "label": "Label",
+              "tooltip": "The name shown in the store."
+            },
+            "price": {
+              "label": "Price",
+              "tooltip": "Price per unit the store pays players. With dynamic pricing on, tracked items move around this.",
+              "min": 0,
+              "step": 0.05,
+              "unit": "$"
+            },
+            "type": {
+              "label": "Kind",
+              "tooltip": "Weapons must be marked as weapons.",
+              "options": [
+                {
+                  "value": "item_standard",
+                  "label": "Item"
+                },
+                {
+                  "value": "item_weapon",
+                  "label": "Weapon"
+                }
+              ]
+            },
+            "stock": {
+              "label": "Stock",
+              "tooltip": "Starting stock. Left out = unlimited.",
+              "min": 0,
+              "step": 1
+            },
+            "hidden": {
+              "label": "Hidden",
+              "tooltip": "Stocked but not shown to customers, and not bought or sold."
+            }
+          },
+          "template": {
+            "name": "item_name",
+            "label": "New Item",
+            "price": 1.0
+          }
+        }
+      },
+      "template": {
+        "sell": [],
+        "buy": []
+      }
+    },
+    "Config.Pricing.markets": {
+      "label": "Price markets",
+      "itemLabel": "market",
+      "tab": "economy",
+      "kind": "map",
+      "titleField": "label",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Label"
+        },
+        {
+          "field": "lists",
+          "label": "Catalogs tracked"
+        }
+      ],
+      "search": [
+        "label"
+      ],
+      "fields": {
+        "label": {
+          "label": "Label",
+          "tooltip": "The market's name on the exchange."
+        },
+        "lists": {
+          "label": "Catalogs tracked",
+          "tooltip": "Catalogs whose \"buys from players\" items are tracked, e.g. \"Butcher\"."
+        },
+        "patterns": {
+          "label": "Name patterns",
+          "tooltip": "Lua patterns matched against item names anywhere in the catalog, e.g. \"_pelt$\"."
+        },
+        "exclude": {
+          "label": "Excluded items",
+          "tooltip": "Item names never tracked, even when a list or pattern matches."
+        },
+        "exclude[]": {
+          "picker": "item"
+        },
+        "lists[]": {
+          "ref": "Config.Catalog"
+        }
+      },
+      "template": {
+        "label": "New Market",
+        "lists": [],
+        "patterns": [],
+        "exclude": []
+      }
+    },
+    "Config.GhostBuyer.tiers": {
+      "label": "Ghost buyer sales per round",
+      "itemLabel": "tier",
+      "tab": "economy",
+      "kind": "list",
+      "titleField": "min",
+      "columns": [
+        {
+          "field": "min",
+          "label": "From stock"
+        }
+      ],
+      "fields": {
+        "min": {
+          "label": "From total stock",
+          "tooltip": "This tier applies to shops holding at least this many units. The highest matching tier wins.",
+          "min": 0,
+          "step": 1,
+          "unit": "units"
+        },
+        "weights": {
+          "label": "Sales weights",
+          "tooltip": "Number of sales in one round = weight, e.g. [0]=70, [1]=30: no sale 70% of the time, one sale 30%."
+        }
+      },
+      "template": {
+        "min": 100,
+        "weights": {
+          "0": 30,
+          "1": 40,
+          "2": 30,
+          "__int_keys": true
+        }
+      }
+    }
+  }
+}

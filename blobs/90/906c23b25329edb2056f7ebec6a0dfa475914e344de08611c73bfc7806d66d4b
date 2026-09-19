@@ -1,0 +1,296 @@
+{
+  "label": "Poggy Multijob",
+  "tagline": "Hold every job you're hired for and switch between them in one command",
+  "category": "Jobs",
+  "description": "Every job a character is given is remembered, so players can switch between them from a menu or with a quick /mj command. Staff get a full admin panel to add, edit, remove and assign jobs for online and offline characters, with one-click job presets.",
+  "readme": "README.md",
+  "help": [
+    {
+      "title": "Setting up admin access and job presets",
+      "file": "docs/help/admin-and-presets.md"
+    },
+    {
+      "title": "How players switch jobs",
+      "file": "docs/help/switching-jobs.md"
+    }
+  ],
+  "commands": [
+    {
+      "command": "/multijob",
+      "configPath": "Config.Command",
+      "who": "Everyone",
+      "description": "Opens the job menu: every job the character holds (the active one marked), plus Unemployed, Quit Job and Quit All Jobs.",
+      "usage": "/multijob",
+      "examples": [
+        "/multijob"
+      ]
+    },
+    {
+      "command": "/mj",
+      "configPath": "Config.SwitchCommand",
+      "who": "Everyone",
+      "description": "Switches straight to one of your other jobs by number. 1 is the first job that is not your current one; Unemployed is always last.",
+      "usage": "/mj <number>",
+      "examples": [
+        "/mj 1",
+        "/mj 2"
+      ]
+    },
+    {
+      "command": "/mjadmin",
+      "who": "Admins",
+      "description": "Opens the admin panel: see every character's jobs, set the active job, add, edit or remove jobs, and apply presets. Allowed for the groups in Admin groups. The name is fixed.",
+      "usage": "/mjadmin",
+      "examples": [
+        "/mjadmin"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "id": "general",
+      "label": "General",
+      "icon": "sliders"
+    },
+    {
+      "id": "access",
+      "label": "Access & permissions",
+      "icon": "shield"
+    },
+    {
+      "id": "presets",
+      "label": "Job presets",
+      "icon": "clipboard"
+    },
+    {
+      "id": "text",
+      "label": "Text & language",
+      "icon": "globe"
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced",
+      "icon": "cog"
+    },
+    {
+      "id": "shopjobs",
+      "label": "Shop jobs",
+      "icon": "store"
+    }
+  ],
+  "panels": [
+    {
+      "id": "shopjobs",
+      "label": "Shop jobs",
+      "tab": "shopjobs",
+      "resource": "poggy_markets",
+      "export": "HubPanel",
+      "itemLabel": "shop",
+      "tooltip": "Which job each Poggy Markets shop gives its owner and staff. Everyone hired at a shop gets that job added to their multijob list (their current job is left alone) and loses it when let go. Changes apply at once. Needs poggy_markets running, with its shop jobs switched on."
+    }
+  ],
+  "settings": {
+    "Config.Debug": {
+      "label": "Debug output",
+      "tooltip": "Prints admin panel actions and failed job changes to the server and F8 consoles. Leave off on a live server.",
+      "tab": "advanced",
+      "group": "Diagnostics",
+      "advanced": true
+    },
+    "Config.Command": {
+      "label": "Menu command",
+      "tooltip": "The chat command, without the slash, that opens the job menu.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.CommandDescription": {
+      "label": "Menu command description",
+      "tooltip": "Not used by the current version: no chat suggestion is registered.",
+      "tab": "general",
+      "group": "Commands",
+      "advanced": true
+    },
+    "Config.SwitchCommand": {
+      "label": "Quick switch command",
+      "tooltip": "The chat command, without the slash, that switches job by number. Its usage hint always says /mj.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.SwitchCommandDescription": {
+      "label": "Quick switch description",
+      "tooltip": "Not used by the current version: no chat suggestion is registered.",
+      "tab": "general",
+      "group": "Commands",
+      "advanced": true
+    },
+    "Config.MaxJobs": {
+      "label": "Maximum jobs",
+      "tooltip": "Not enforced by the current version: a character keeps every job they are given. Remove jobs from the admin panel if needed.",
+      "tab": "general",
+      "group": "Limits",
+      "advanced": true,
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "unit": "jobs"
+    },
+    "Config.DefaultJob": {
+      "label": "Job after quitting",
+      "tooltip": "The job a character gets when they quit their active job or quit all jobs, and when another script removes the job they are wearing (the RemoveJob export, e.g. a Poggy Markets firing). Picking Unemployed from the menu always uses 'unemployed', grade 0.",
+      "tab": "general",
+      "group": "After quitting",
+      "picker": "job"
+    },
+    "Config.DefaultGrade": {
+      "label": "Grade after quitting",
+      "tooltip": "The grade given with the job after quitting.",
+      "tab": "general",
+      "group": "After quitting",
+      "min": 0,
+      "max": 20,
+      "step": 1
+    },
+    "Config.DefaultJobLabel": {
+      "label": "Label after quitting",
+      "tooltip": "The job label shown after quitting.",
+      "tab": "general",
+      "group": "After quitting"
+    },
+    "Config.Webhook": {
+      "label": "Discord webhook",
+      "tooltip": "Not used by the current version: nothing is sent to Discord.",
+      "tab": "advanced",
+      "group": "Discord",
+      "picker": "webhook",
+      "advanced": true
+    },
+    "Config.AdminGroups": {
+      "label": "Admin groups",
+      "tooltip": "Groups allowed to use /mjadmin. Both the account group and the character group are checked, not case-sensitive. Every admin action is re-checked on the server.",
+      "tab": "access",
+      "group": "Admin panel",
+      "picker": "group"
+    },
+    "Locales.*": {
+      "tab": "text",
+      "group": "Messages",
+      "tooltip": "Text players see. Keep every %s: the script fills in the job name or number there."
+    },
+    "Locales[\"current_job\"]": {
+      "advanced": true,
+      "tooltip": "Not used by the current version."
+    },
+    "Locales[\"max_jobs_reached\"]": {
+      "advanced": true,
+      "tooltip": "Not used by the current version (there is no job limit)."
+    },
+    "Locales[\"job_already_has\"]": {
+      "advanced": true,
+      "tooltip": "Not used by the current version."
+    },
+    "Locales[\"admin_menu_title\"]": {
+      "advanced": true,
+      "tooltip": "Not used by the current version: the admin panel title is part of the panel itself."
+    }
+  },
+  "lists": {
+    "Config.JobPresets": {
+      "kind": "collection",
+      "label": "Job presets",
+      "itemLabel": "preset group",
+      "tab": "presets",
+      "tooltip": "Ready-made jobs admins can hand out in one click from the Job Presets tab of /mjadmin. Each group has a name and a list of jobs. The panel's filter dropdown only knows the keys police, medical, business and shops; other groups show under All Categories.",
+      "titleField": "name",
+      "columns": [
+        {
+          "field": "name",
+          "label": "Group name"
+        },
+        {
+          "field": "jobs",
+          "label": "Jobs"
+        }
+      ],
+      "search": [
+        "name",
+        "jobs[].job",
+        "jobs[].label",
+        "jobs[].category"
+      ],
+      "fields": {
+        "name": {
+          "label": "Group name",
+          "tooltip": "The heading shown for this group in the admin panel."
+        },
+        "jobs": {
+          "label": "Jobs",
+          "tooltip": "The jobs in this group."
+        }
+      },
+      "sublists": {
+        "jobs": {
+          "label": "Jobs",
+          "itemLabel": "job",
+          "tooltip": "The jobs in this group, each with the grade it gives. Admins apply one to a character in one click.",
+          "columns": [
+            {
+              "field": "job",
+              "label": "Job name"
+            },
+            {
+              "field": "label",
+              "label": "Label"
+            },
+            {
+              "field": "grade",
+              "label": "Grade"
+            },
+            {
+              "field": "category",
+              "label": "Subcategory"
+            }
+          ],
+          "fields": {
+            "job": {
+              "label": "Job name",
+              "picker": "job",
+              "tooltip": "Must match a job on your server exactly (case-sensitive on VORP)."
+            },
+            "label": {
+              "label": "Label",
+              "tooltip": "The name shown for this job, for example SHERIFF or Valentine Saloon."
+            },
+            "grade": {
+              "label": "Grade",
+              "min": 0,
+              "max": 20,
+              "step": 1,
+              "tooltip": "The grade (rank number) given."
+            },
+            "category": {
+              "label": "Subcategory",
+              "tooltip": "Groups jobs inside the panel, for example Sheriff or Saloons."
+            }
+          },
+          "template": {
+            "job": "newjob",
+            "label": "New Job",
+            "grade": 0,
+            "category": "General"
+          }
+        }
+      },
+      "template": {
+        "name": "New group",
+        "jobs": [
+          {
+            "job": "newjob",
+            "label": "New Job",
+            "grade": 0,
+            "category": "General"
+          }
+        ]
+      }
+    }
+  }
+}

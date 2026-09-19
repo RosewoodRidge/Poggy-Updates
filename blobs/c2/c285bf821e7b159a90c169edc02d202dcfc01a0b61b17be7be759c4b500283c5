@@ -1,0 +1,110 @@
+{
+  "label": "Admin Blips",
+  "tagline": "See every player on the map, live, with their ID and character name",
+  "category": "Admin",
+  "description": "Staff see a blip for every player on the map, labelled with their server ID and character name. Access comes from your framework's admin groups, with an optional list of allowed player names on top. Each admin can hide or show the blips with one command.",
+  "readme": "README.md",
+  "help": [{"title": "Who can see the blips", "file": "docs/help/access.md"}],
+
+  "commands": [
+    {
+      "command": "/ahb",
+      "who": "Admins",
+      "description": "Shows or hides the player blips on your own map. Only players in one of the Admin groups can use it. Blips start visible when you join.",
+      "usage": "/ahb",
+      "examples": ["/ahb"]
+    }
+  ],
+
+  "tabs": [
+    {"id": "access", "label": "Access & permissions", "icon": "shield"},
+    {"id": "appearance", "label": "Appearance", "icon": "palette"},
+    {"id": "advanced", "label": "Advanced", "icon": "cog"}
+  ],
+
+  "settings": {
+    "Config.ADMIN_GROUPS": {
+      "label": "Admin groups",
+      "tooltip": "Framework groups (for example admin, superadmin) whose members see the blips and may use /ahb. Upper or lower case does not matter. An empty list means nobody sees them.",
+      "tab": "access",
+      "group": "Who can see blips",
+      "picker": "group"
+    },
+    "Config.ALLOWED_NAMES": {
+      "label": "Allowed player names",
+      "tooltip": "Optional extra filter. When this list has names, only these players get blips, and they must also be in an Admin group. Use the exact Steam / RedM display name (case-sensitive). Leave empty to give blips to every admin.",
+      "tab": "access",
+      "group": "Who can see blips"
+    },
+    "Config.BLIP_SPRITE": {
+      "label": "Blip icon",
+      "tooltip": "The map icon used for each player, as a blip sprite name (for example blip_ambient_companion). An unknown name gives an invisible or default icon.",
+      "tab": "appearance",
+      "group": "Map blips"
+    },
+    "Config.BLIP_MODIFIER": {
+      "label": "Blip colour",
+      "tooltip": "Colour modifier applied to each blip, for example BLIP_MODIFIER_DEBUG_GREEN, _RED, _BLUE or _YELLOW. An unknown name leaves the icon's own colour.",
+      "tab": "appearance",
+      "group": "Map blips"
+    },
+    "Config.BLIP_STYLE": {
+      "label": "Blip style",
+      "tooltip": "The style the blip is created with (BLIP_STYLE_ENEMY by default). The icon and colour above are applied on top. If blips stop appearing after a change, put this back.",
+      "tab": "appearance",
+      "group": "Map blips",
+      "advanced": true
+    },
+    "Config.BLIP_NAME_FORMAT": {
+      "label": "Blip name",
+      "tooltip": "The text shown for each blip on the map. {id} becomes the player's server ID and {name} their character name (their Steam name if no character is loaded). Example: [{id}] {name}.",
+      "tab": "appearance",
+      "group": "Blip label"
+    },
+    "Config.HIDE_OWN_BLIP": {
+      "label": "Hide my own blip",
+      "tooltip": "On: an admin does not see a blip for themselves. Off: you also see your own blip on top of your map marker.",
+      "tab": "appearance",
+      "group": "Blip label"
+    },
+    "Config.UPDATE_INTERVAL_MS": {
+      "label": "Update interval",
+      "tooltip": "How often every blip position is sent to the admins, in milliseconds. Lower is smoother but costs more server work and network traffic with many players; 500 is a good balance.",
+      "tab": "advanced",
+      "group": "Timing",
+      "min": 100,
+      "max": 10000,
+      "step": 50,
+      "unit": "ms"
+    },
+    "Config.INIT_WAIT_TIME": {
+      "label": "Wait after joining",
+      "tooltip": "How long the script waits after a player joins (or after it starts) before checking whether they are an admin, in milliseconds. Raise it if admins sometimes get no blips until they reconnect.",
+      "tab": "advanced",
+      "group": "Timing",
+      "min": 0,
+      "max": 60000,
+      "step": 500,
+      "unit": "ms",
+      "advanced": true
+    },
+    "Config.PENDING_RETRY_INTERVAL": {
+      "label": "Loading player re-check",
+      "tooltip": "How often players whose character has not loaded yet are checked again, in milliseconds. Players still loading simply have no blip; this rarely needs changing.",
+      "tab": "advanced",
+      "group": "Timing",
+      "min": 1000,
+      "max": 60000,
+      "step": 500,
+      "unit": "ms",
+      "advanced": true
+    },
+    "Config.DEBUG": {
+      "label": "Debug output",
+      "tooltip": "Prints every update cycle and every admin check to the server console. Very noisy: use it only to find out why blips are missing, then turn it off.",
+      "tab": "advanced",
+      "group": "Diagnostics",
+      "advanced": true
+    }
+  }
+}
