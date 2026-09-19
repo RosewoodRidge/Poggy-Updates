@@ -1,0 +1,82 @@
+--[[===========================================================================
+    poggy_crafting · client/campfire.lua
+    ---------------------------------------------------------------------------
+    The placeable campfire. One per player, replaced if they place another, and
+    removed with the extinguish command.
+===========================================================================]]--
+
+PoggyCrafting = PoggyCrafting or {}
+local PC = PoggyCrafting
+local T  = PC.T
+
+local campfire = 0
+
+local function removeCampfire()
+    if campfire == 0 then return end
+    SetEntityAsMissionEntity(campfire, false, false)
+    DeleteObject(campfire)
+    campfire = 0
+end
+
+local function placeCampfire()
+    removeCampfire()
+
+    local ped = PlayerPedId()
+    PC.PlayAnimation(ped, 'campfire')
+
+    SendNUIMessage({
+        type     = 'progress',
+        label    = T('placing_fire'),
+        duration = 20000,
+        position = (Config.ProgressBar and Config.ProgressBar.position) or 'bottom',
+    })
+
+    SetTimeout(20000, function()
+        SendNUIMessage({ type = 'progressEnd' })
+        PC.StopAnimation('campfire')
+        PC.ClearTasks()
+
+        local x, y, z = table.unpack(
+            GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 2.0, -1.55))
+
+        RequestModel(Config.PlaceableCampfire, false)
+        local waited = 0
+        while not HasModelLoaded(Config.PlaceableCampfire) and waited < 5000 do
+            Wait(50)
+            waited = waited + 50
+        end
+        if not HasModelLoaded(Config.PlaceableCampfire) then return end
+
+        local prop = CreateObject(joaat(Config.PlaceableCampfire), x, y, z,
+            true, false, false, false, false)
+        if not DoesEntityExist(prop) then return end
+
+        SetEntityHeading(prop, GetEntityHeading(PlayerPedId()))
+        PlaceObjectOnGroundProperly(prop, false)
+        campfire = prop
+    end)
+end
+
+RegisterNetEvent('poggy_crafting:placeCampfire', placeCampfire)
+
+-- /campfire is registered on the server (staff only), which sends
+-- poggy_crafting:placeCampfire above.
+
+if Config.Commands.extinguish then
+    RegisterCommand(Config.Commands.extinguish, function()
+        if campfire == 0 then return end
+
+        SetEntityAsMissionEntity(campfire, false, false)
+        TaskStartScenarioInPlaceHash(PlayerPedId(),
+            joaat('WORLD_HUMAN_BUCKET_POUR_LOW'), 7000, true, 0, 0, false)
+        Poggy('notify.styled', { style = 'right', text = T('putting_out_fire'), duration = 7000 })
+
+        Wait(7000)
+        PC.ClearTasks()
+        removeCampfire()
+    end, false)
+end
+
+AddEventHandler('onResourceStop', function(resource)
+    if resource == GetCurrentResourceName() then removeCampfire() end
+end)

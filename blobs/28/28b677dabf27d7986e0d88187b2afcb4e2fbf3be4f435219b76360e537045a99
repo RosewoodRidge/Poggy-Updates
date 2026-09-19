@@ -1,0 +1,73 @@
+--[[===========================================================================
+    poggy_crafting · client/animations.lua
+    ---------------------------------------------------------------------------
+    Plays a Config.Animations entry, with its optional hand prop and subprop,
+    and cleans both up afterwards.
+===========================================================================]]--
+
+PoggyCrafting = PoggyCrafting or {}
+local PC = PoggyCrafting
+
+local mainProp, subProp
+
+local function attach(ped, model, bone, c)
+    local coords = GetEntityCoords(ped)
+    local object = CreateObject(joaat(model), coords.x, coords.y, coords.z, true, true, false, false, true)
+    AttachEntityToEntity(object, ped, GetEntityBoneIndexByName(ped, bone),
+        c.x, c.y, c.z, c.xr, c.yr, c.zr,
+        true, true, false, true, 1, true, false, false)
+    return object
+end
+
+--- Start `name`. An unknown name, or a dictionary the game does not have,
+--- simply plays nothing rather than erroring mid-craft.
+function PC.PlayAnimation(ped, name)
+    local anim = Config.Animations[name or 'craft'] or Config.Animations['craft']
+    if not anim then return end
+
+    if anim.prop then
+        mainProp = attach(ped, anim.prop.model, anim.prop.bone, anim.prop.coords)
+        if anim.prop.subprop then
+            subProp = attach(ped, anim.prop.subprop.model, anim.prop.bone, anim.prop.subprop.coords)
+        end
+    end
+
+    if anim.type == 'scenario' then
+        TaskStartScenarioInPlaceHash(ped, joaat(anim.hash), 12000, true, 0, 0, false)
+        return
+    end
+
+    if not DoesAnimDictExist(anim.dict) then return end
+    RequestAnimDict(anim.dict)
+    local waited = 0
+    while not HasAnimDictLoaded(anim.dict) and waited < 3000 do
+        Wait(50)
+        waited = waited + 50
+    end
+    if not HasAnimDictLoaded(anim.dict) then return end
+
+    TaskPlayAnim(ped, anim.dict, anim.name, 1.0, 1.0, -1, anim.flag or 27, 1.0,
+        false, 0, false, '', false)
+end
+
+function PC.StopAnimation(name)
+    local anim = Config.Animations[name or 'craft'] or Config.Animations['craft']
+    local ped  = PlayerPedId()
+
+    if anim and anim.dict then
+        StopAnimTask(ped, anim.dict, anim.name, 1.0)
+        RemoveAnimDict(anim.dict)
+    end
+
+    if mainProp then DeleteObject(mainProp); mainProp = nil end
+    if subProp  then DeleteObject(subProp);  subProp  = nil end
+end
+
+function PC.ClearTasks()
+    ClearPedTasksImmediately(PlayerPedId())
+end
+
+--- The kneel the game's own crafting uses while a menu is open.
+function PC.ForceRestScenario(enabled)
+    Citizen.InvokeNative(0xE5A3DD2FF84E1A4B, enabled)
+end

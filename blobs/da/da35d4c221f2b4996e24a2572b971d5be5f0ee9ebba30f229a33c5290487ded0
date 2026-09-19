@@ -1,0 +1,167 @@
+--[[===========================================================================
+    poggy_crafting · client/craft.lua
+    ---------------------------------------------------------------------------
+    What the player sees while something is being made: the animation and the
+    progress bar for an ordinary craft, the skillcheck rounds for a recipe that
+    asks for them, and the explosion or fire for one that goes wrong.
+
+    The server has already taken the ingredients by the time any of this runs.
+    Nothing here decides an outcome -- it reports what happened and the server
+    works out the reward.
+===========================================================================]]--
+
+PoggyCrafting = PoggyCrafting or {}
+local PC = PoggyCrafting
+local T  = PC.T
+
+PC.crafting = false
+
+--- Is poggy_skillcheck installed and running?
+local function haveSkillcheck()
+    return GetResourceState('poggy_skillcheck') == 'started'
+end
+
+-- ===========================================================================
+--  Ordinary craft: animation + progress bar
+-- ===========================================================================
+
+RegisterNetEvent('poggy_crafting:play', function(animation, duration)
+    if PC.crafting then return end
+    PC.crafting = true
+
+    duration = tonumber(duration) or Config.CraftTime
+    local ped = PlayerPedId()
+
+    -- Hide the recipe list for the duration but keep the page alive, so the
+    -- progress bar can draw and the browser comes straight back afterwards.
+    if PC.uiOpen then
+        SendNUIMessage({ type = 'busy', duration = duration })
+        SetNuiFocus(true, false)
+    end
+
+    if Config.ProgressBar and Config.ProgressBar.enabled then
+        SendNUIMessage({
+            type     = 'progress',
+            label    = T('crafting'),
+            duration = duration,
+            position = Config.ProgressBar.position or 'bottom',
+        })
+    end
+
+    PC.PlayAnimation(ped, animation)
+
+    SetTimeout(duration, function()
+        PC.StopAnimation(animation)
+        SendNUIMessage({ type = 'progressEnd' })
+        Poggy('notify.styled', { style = 'right', text = T('finished_crafting'), duration = 4000 })
+
+        if PC.uiOpen then SetNuiFocus(true, true) end
+        PC.crafting = false
+    end)
+end)
+
+-- ===========================================================================
+--  Skillcheck craft
+-- ===========================================================================
+
+RegisterNetEvent('poggy_crafting:skillcheck', function(job)
+    if PC.crafting or type(job) ~= 'table' then return end
+
+    -- Recipes only ask for this when the owner enabled it, so an absent
+    -- poggy_skillcheck is a setup mistake worth saying out loud. The materials
+    -- are already gone, so report a clean pass rather than punishing the
+    -- player for the server's missing dependency.
+    if not haveSkillcheck() then
+        Poggy('notify.styled', { style = 'right', text = T('no_skillcheck'), duration = 6000 })
+        TriggerServerEvent('poggy_crafting:skillcheckResult', job.id, job.reps, 0)
+        return
+    end
+
+    PC.crafting = true
+
+    -- The skillcheck is drawn by another resource's NUI, so this page has to be
+    -- out of the way first -- and confirmed gone, not merely told to go. The
+    -- wait is capped: a page that never answers must not strand the craft.
+    if PC.uiOpen then
+        PC.uiConfirmedClosed = false
+        SendNUIMessage({ type = 'close' })
+        PC.CloseUI(true)
+        local waited = 0
+        while not PC.uiConfirmedClosed and waited < 2000 do
+            Wait(50)
+            waited = waited + 50
+        end
+    end
+
+    local profile = (Config.Skillcheck[job.profile]) or Config.Skillcheck.Normal
+    Wait(tonumber(Config.Skillcheck.StartDelay) or 500)
+
+    PC.PlayAnimation(PlayerPedId(), job.animation)
+
+    -- One round at a time, so a player who misses halfway keeps what they
+    -- earned up to that point. A recipe with a penalty is all or nothing.
+    local options = {
+        speed       = profile.speed       or 3,
+        difficulty  = profile.difficulty  or 2,
+        repetition  = 1,
+        randomizer  = profile.randomizer  or 1,
+        shake       = profile.shake       or false,
+        shakeSpeed  = profile.shakeSpeed  or 1,
+        shakeDist   = profile.shakeDist   or 1,
+        timeBetween = profile.timeBetween or 200,
+        direction   = profile.direction   or 'rand',
+        great       = profile.great       or 25,
+    }
+
+    local hasPenalty = job.explode or job.catchFire
+    local passed, greats = 0, 0
+
+    for round = 1, job.reps do
+        local result = exports.poggy_skillcheck:StartSkillCheck(options)
+        if result and result.success then
+            passed = passed + 1
+            if result.great then greats = greats + 1 end
+            if round < job.reps then Wait(options.timeBetween) end
+        else
+            if hasPenalty then passed, greats = 0, 0 end
+            break
+        end
+    end
+
+    PC.StopAnimation(job.animation)
+    TriggerServerEvent('poggy_crafting:skillcheckResult', job.id, passed, greats)
+    PC.crafting = false
+end)
+
+-- ===========================================================================
+--  Failure penalties
+-- ===========================================================================
+
+RegisterNetEvent('poggy_crafting:explode', function()
+    local cfg = Config.CraftingExplosion or {}
+    local pos = GetEntityCoords(PlayerPedId())
+    AddExplosion(pos.x, pos.y, pos.z,
+        cfg.ExplosionType   or 25,
+        cfg.ExplosionDamage or 1000.0,
+        true,    -- audible
+        false,   -- invisible
+        cfg.ExplosionShake or 1.0)
+end)
+
+-- RDR3 puts a burning ped out after about two seconds, so keep re-lighting
+-- them until the configured duration is up.
+RegisterNetEvent('poggy_crafting:catchFire', function()
+    local duration = (Config.CraftingFire and Config.CraftingFire.FireDuration) or 10000
+
+    CreateThread(function()
+        local endsAt = GetGameTimer() + duration
+        while GetGameTimer() < endsAt do
+            local ped = PlayerPedId()
+            if IsEntityDead(ped) then return end
+            if not IsEntityOnFire(ped) then StartEntityFire(ped) end
+            Wait(500)
+        end
+        local ped = PlayerPedId()
+        if IsEntityOnFire(ped) then StopEntityFire(ped) end
+    end)
+end)

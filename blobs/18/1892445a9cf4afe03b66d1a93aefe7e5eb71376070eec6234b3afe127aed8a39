@@ -1,0 +1,138 @@
+--[[===========================================================================
+    poggy_crafting · server/shoppinglist.lua
+    ---------------------------------------------------------------------------
+    The per-character shopping list behind the browser's right-hand panel and
+    the on-screen gathering tracker.
+
+    Every query is scoped to the caller's own character id, taken from
+    poggy_core and never from the payload, so one player cannot read or edit
+    another's list by naming a different id.
+===========================================================================]]--
+
+PoggyCrafting = PoggyCrafting or {}
+local PC = PoggyCrafting
+local T  = PC.T
+
+local TABLE = 'poggy_crafting_list'
+
+--- The caller's character id, as a string so the column type is the same on
+--- every framework. nil when there is no character, which fails every call
+--- safely rather than falling back to a shared row.
+local function charId(src)
+    local ok, id = Poggy('char.id', { src = src })
+    if not ok or id == nil then return nil end
+    return tostring(id)
+end
+
+CreateThread(function()
+    if not PoggyReady() then return end
+    if not (Config.ShoppingList and Config.ShoppingList.enabled) then return end
+
+    Poggy('callback.register', {
+        name = 'poggy_crafting:list:get',
+        fn   = function(src)
+            local id = charId(src)
+            if not id then return {} end
+            return MySQL.query.await(
+                'SELECT id, item_name, item_label, quantity, checked, recipe_name, cat_color_num'
+                .. ' FROM ' .. TABLE .. ' WHERE charidentifier = ? ORDER BY id ASC',
+                { id }) or {}
+        end,
+    })
+
+    Poggy('callback.register', {
+        name = 'poggy_crafting:list:add',
+        fn   = function(src, args)
+            local id = charId(src)
+            if not id or type(args) ~= 'table' then return nil end
+
+            local itemName = tostring(args.item_name or '')
+            if itemName == '' then return nil end
+
+            local quantity = math.max(1, math.min(math.floor(tonumber(args.quantity) or 1), 9999))
+            local recipe   = tostring(args.recipe_name or '')
+            local colour   = math.max(1, math.min(math.floor(tonumber(args.cat_color_num) or 1), 12))
+            local label    = PC.ItemLabel(itemName)
+
+            local rows = MySQL.query.await(
+                'SELECT COUNT(*) AS n FROM ' .. TABLE .. ' WHERE charidentifier = ?', { id })
+            local used = (rows and rows[1] and tonumber(rows[1].n)) or 0
+            if used >= (tonumber(Config.ShoppingList.maxItems) or 60) then
+                PC.Notify(src, T('list_full'), 'error')
+                return nil
+            end
+
+            local insertId = MySQL.insert.await(
+                'INSERT INTO ' .. TABLE
+                .. ' (charidentifier, item_name, item_label, quantity, recipe_name, cat_color_num)'
+                .. ' VALUES (?, ?, ?, ?, ?, ?)',
+                { id, itemName, label, quantity, recipe, colour })
+
+            return {
+                id            = insertId or 0,
+                item_name     = itemName,
+                item_label    = label,
+                quantity      = quantity,
+                recipe_name   = recipe,
+                cat_color_num = colour,
+                checked       = 0,
+            }
+        end,
+    })
+
+    Poggy('callback.register', {
+        name = 'poggy_crafting:list:remove',
+        fn   = function(src, args)
+            local id = charId(src)
+            if not id or type(args) ~= 'table' then return false end
+            MySQL.query.await('DELETE FROM ' .. TABLE .. ' WHERE id = ? AND charidentifier = ?',
+                { tonumber(args.id) or 0, id })
+            return true
+        end,
+    })
+
+    Poggy('callback.register', {
+        name = 'poggy_crafting:list:toggle',
+        fn   = function(src, args)
+            local id = charId(src)
+            if not id or type(args) ~= 'table' then return nil end
+            local rowId = tonumber(args.id) or 0
+
+            MySQL.query.await(
+                'UPDATE ' .. TABLE .. ' SET checked = 1 - checked WHERE id = ? AND charidentifier = ?',
+                { rowId, id })
+
+            local rows = MySQL.query.await(
+                'SELECT checked FROM ' .. TABLE .. ' WHERE id = ? AND charidentifier = ?',
+                { rowId, id })
+
+            return { checked = (rows and rows[1] and rows[1].checked) or 0 }
+        end,
+    })
+
+    Poggy('callback.register', {
+        name = 'poggy_crafting:list:qty',
+        fn   = function(src, args)
+            local id = charId(src)
+            if not id or type(args) ~= 'table' then return false end
+            local quantity = math.max(1, math.min(math.floor(tonumber(args.quantity) or 1), 9999))
+            MySQL.query.await(
+                'UPDATE ' .. TABLE .. ' SET quantity = ? WHERE id = ? AND charidentifier = ?',
+                { quantity, tonumber(args.id) or 0, id })
+            return true
+        end,
+    })
+
+    -- Clears the ticked rows only: the panel's "Clear" button means "I have
+    -- these now", not "throw the list away".
+    Poggy('callback.register', {
+        name = 'poggy_crafting:list:clear',
+        fn   = function(src)
+            local id = charId(src)
+            if not id then return false end
+            MySQL.query.await(
+                'DELETE FROM ' .. TABLE .. ' WHERE charidentifier = ? AND checked = 1', { id })
+            return true
+        end,
+    })
+end)
