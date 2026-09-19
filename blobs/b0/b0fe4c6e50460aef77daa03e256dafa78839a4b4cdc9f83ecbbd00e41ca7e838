@@ -1,0 +1,369 @@
+{
+  "label": "Poggy Fishing Journal",
+  "tagline": "A field journal of every water, every fish and every personal best",
+  "category": "Roleplay",
+  "description": "An inventory item that opens an illustrated fishing journal: a map of every water, which fish live there and which are in season. It records each character's discoveries, catch counts and best weights. Needs Poggy Fishing.",
+  "readme": "README.md",
+  "help": [
+    {
+      "title": "Keeping the journal in step with Poggy Fishing",
+      "file": "docs/help/fish-list.md"
+    }
+  ],
+  "commands": [],
+  "tabs": [
+    {
+      "id": "general",
+      "label": "General",
+      "icon": "sliders"
+    },
+    {
+      "id": "fish",
+      "label": "Fish",
+      "icon": "fish"
+    },
+    {
+      "id": "appearance",
+      "label": "Appearance",
+      "icon": "palette"
+    }
+  ],
+  "settings": {
+    "JournalConfig.OpenAnim.*": {
+      "tab": "general",
+      "group": "Opening animation"
+    },
+    "JournalConfig.Map.*": {
+      "tab": "appearance",
+      "group": "Map picture"
+    },
+    "JournalConfig.Map.gameBounds.*": {
+      "group": "World area shown",
+      "advanced": true
+    },
+    "JournalConfig.SizeLabels.*": {
+      "tab": "fish",
+      "group": "Size group names"
+    },
+    "JournalConfig.TypeColours.*": {
+      "tab": "appearance",
+      "group": "Map pin colours"
+    },
+    "JournalConfig.JournalItem": {
+      "label": "Journal item",
+      "tab": "general",
+      "group": "Journal item",
+      "picker": "item",
+      "tooltip": "Inventory item that opens the journal when used. Catches are only recorded while the player carries it. sql/install.sql adds 'fishing_journal_fn' on VORP."
+    },
+    "JournalConfig.OpenAnim": {
+      "label": "Opening animation",
+      "tab": "general"
+    },
+    "JournalConfig.OpenAnim.scenario": {
+      "label": "Scenario",
+      "advanced": true,
+      "tooltip": "Scenario the character plays while reading the journal. The default is someone writing in a notebook."
+    },
+    "JournalConfig.OpenAnim.delay": {
+      "label": "Delay before the journal opens",
+      "min": 0,
+      "max": 10000,
+      "step": 100,
+      "unit": "ms",
+      "tooltip": "How long the animation plays before the journal appears. 0 opens it at once."
+    },
+    "JournalConfig.Map": {
+      "label": "Map picture",
+      "tab": "appearance",
+      "tooltip": "The map page. Only change these if you swap in your own map picture."
+    },
+    "JournalConfig.Map.imageUrl": {
+      "label": "Image file",
+      "advanced": true,
+      "tooltip": "Picture path inside ui/, e.g. img/map.jpg. The file must also be sent to players (fxmanifest files { })."
+    },
+    "JournalConfig.Map.imageWidth": {
+      "label": "Image width",
+      "advanced": true,
+      "min": 1,
+      "max": 20000,
+      "step": 1,
+      "unit": "px",
+      "tooltip": "Pixel width of the picture. Must match the file."
+    },
+    "JournalConfig.Map.imageHeight": {
+      "label": "Image height",
+      "advanced": true,
+      "min": 1,
+      "max": 20000,
+      "step": 1,
+      "unit": "px",
+      "tooltip": "Pixel height of the picture. Must match the file."
+    },
+    "JournalConfig.Map.gameBounds": {
+      "label": "World area shown",
+      "advanced": true,
+      "tooltip": "Game-world coordinates at the picture's edges, used to place the water pins. Wrong values put pins in the wrong place."
+    },
+    "JournalConfig.Map.gameBounds.minX": {
+      "label": "West edge (min X)",
+      "step": 0.01,
+      "tooltip": "World X at the left edge of the picture."
+    },
+    "JournalConfig.Map.gameBounds.maxX": {
+      "label": "East edge (max X)",
+      "step": 0.01,
+      "tooltip": "World X at the right edge of the picture."
+    },
+    "JournalConfig.Map.gameBounds.minY": {
+      "label": "South edge (min Y)",
+      "step": 0.01,
+      "tooltip": "World Y at the bottom edge of the picture."
+    },
+    "JournalConfig.Map.gameBounds.maxY": {
+      "label": "North edge (max Y)",
+      "step": 0.01,
+      "tooltip": "World Y at the top edge of the picture."
+    },
+    "JournalConfig.SizeLabels": {
+      "label": "Size group names",
+      "tab": "fish",
+      "tooltip": "Headings in the journal's sidebar and size badges, one per fish size."
+    },
+    "JournalConfig.SizeLabels.sm": {
+      "label": "Small fish",
+      "tooltip": "Heading shown for small fish."
+    },
+    "JournalConfig.SizeLabels.md": {
+      "label": "Medium fish",
+      "tooltip": "Heading shown for medium fish."
+    },
+    "JournalConfig.SizeLabels.lg": {
+      "label": "Large fish",
+      "tooltip": "Heading shown for large fish."
+    },
+    "JournalConfig.SizeLabels.xl": {
+      "label": "Extra large fish",
+      "tooltip": "Heading shown for extra large fish."
+    },
+    "JournalConfig.SizeLabels.legendary": {
+      "label": "Legendary fish",
+      "tooltip": "Heading shown for legendary fish."
+    },
+    "JournalConfig.TypeColours": {
+      "label": "Map pin colours",
+      "tab": "appearance",
+      "tooltip": "Colour of each water's pin on the map, by water type."
+    },
+    "JournalConfig.TypeColours.lake": {
+      "label": "Lakes",
+      "picker": "color",
+      "tooltip": "Pin colour for lakes, as a hex colour like #e28080."
+    },
+    "JournalConfig.TypeColours.river": {
+      "label": "Rivers",
+      "picker": "color",
+      "tooltip": "Pin colour for rivers, as a hex colour like #e28080."
+    },
+    "JournalConfig.TypeColours.swamp": {
+      "label": "Swamps",
+      "picker": "color",
+      "tooltip": "Pin colour for swamps, as a hex colour like #e28080."
+    },
+    "JournalConfig.TypeColours.creek": {
+      "label": "Creeks",
+      "picker": "color",
+      "tooltip": "Pin colour for creeks, as a hex colour like #e28080."
+    },
+    "JournalConfig.TypeColours.pond": {
+      "label": "Ponds",
+      "picker": "color",
+      "tooltip": "Pin colour for ponds, as a hex colour like #e28080."
+    },
+    "JournalConfig.TypeColours.ocean": {
+      "label": "Sea",
+      "picker": "color",
+      "tooltip": "Pin colour for sea, as a hex colour like #e28080."
+    }
+  },
+  "lists": {
+    "JournalConfig.Fish": {
+      "label": "Fish in the journal",
+      "itemLabel": "fish",
+      "tab": "fish",
+      "kind": "map",
+      "tooltip": "Every fish the journal knows. The key must be the same fish id as in Poggy Fishing's Fish list: a catch whose id is not here is not recorded. Change these when you change a fish in Poggy Fishing.",
+      "titleField": "label",
+      "subtitleField": "species",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Name"
+        },
+        {
+          "field": "size",
+          "label": "Size"
+        },
+        {
+          "field": "price",
+          "label": "Price"
+        },
+        {
+          "field": "hours",
+          "label": "Hours"
+        }
+      ],
+      "search": [
+        "label",
+        "species",
+        "item"
+      ],
+      "fields": {
+        "label": {
+          "label": "Name",
+          "tooltip": "Shown in the journal and in discovery and record messages."
+        },
+        "size": {
+          "label": "Size",
+          "options": [
+            {
+              "value": "sm",
+              "label": "Small"
+            },
+            {
+              "value": "md",
+              "label": "Medium"
+            },
+            {
+              "value": "lg",
+              "label": "Large"
+            },
+            {
+              "value": "xl",
+              "label": "Extra large"
+            },
+            {
+              "value": "legendary",
+              "label": "Legendary"
+            }
+          ],
+          "tooltip": "Which sidebar group the fish is listed under; its heading comes from Size group names on this tab.",
+          "ref": "JournalConfig.SizeLabels"
+        },
+        "price": {
+          "label": "Price shown",
+          "min": 0,
+          "max": 1000,
+          "step": 0.05,
+          "unit": "$",
+          "tooltip": "Display only: the price and catch value shown in the journal. It changes no shop price and no difficulty."
+        },
+        "weightMin": {
+          "label": "Lightest",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "lbs",
+          "tooltip": "Shown as the weight range. Also used to invent a weight if a catch arrives without one."
+        },
+        "weightMax": {
+          "label": "Heaviest",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "lbs",
+          "tooltip": "Top of the weight range shown."
+        },
+        "species": {
+          "label": "Species",
+          "options": [
+            {
+              "value": "bluegill",
+              "label": "Bluegill"
+            },
+            {
+              "value": "perch",
+              "label": "Yellow perch"
+            },
+            {
+              "value": "rock_bass",
+              "label": "Rock bass"
+            },
+            {
+              "value": "redfin_pickerel",
+              "label": "Redfin pickerel"
+            },
+            {
+              "value": "bullhead",
+              "label": "Bullhead catfish"
+            },
+            {
+              "value": "chain_pickerel",
+              "label": "Chain pickerel"
+            },
+            {
+              "value": "largemouth_bass",
+              "label": "Largemouth bass"
+            },
+            {
+              "value": "smallmouth_bass",
+              "label": "Smallmouth bass"
+            },
+            {
+              "value": "sockeye_salmon",
+              "label": "Sockeye salmon"
+            },
+            {
+              "value": "rainbow_trout",
+              "label": "Rainbow trout"
+            },
+            {
+              "value": "channel_catfish",
+              "label": "Channel catfish"
+            },
+            {
+              "value": "northern_pike",
+              "label": "Northern pike"
+            },
+            {
+              "value": "longnose_gar",
+              "label": "Longnose gar"
+            },
+            {
+              "value": "muskellunge",
+              "label": "Muskellunge"
+            },
+            {
+              "value": "lake_sturgeon",
+              "label": "Lake sturgeon"
+            },
+            {
+              "value": "steelhead_trout",
+              "label": "Steelhead trout"
+            }
+          ],
+          "tooltip": "Picks the lore page (history, habitat, fun fact). Sizes of one species share it."
+        },
+        "item": {
+          "label": "Item (icon)",
+          "picker": "item",
+          "tooltip": "Inventory item whose picture is used as the fish's icon. Display only."
+        },
+        "hours": {
+          "label": "Active hours",
+          "tooltip": "Two game hours, start and end (0 to 23), shown as when the fish bites. Display only: Poggy Fishing's own hours decide. Leave the field out for all day."
+        }
+      },
+      "template": {
+        "label": "New Fish",
+        "size": "sm",
+        "price": 0.5,
+        "weightMin": 0.1,
+        "weightMax": 2.0,
+        "species": "bluegill",
+        "item": "a_c_fishbluegil_01_sm"
+      }
+    }
+  }
+}

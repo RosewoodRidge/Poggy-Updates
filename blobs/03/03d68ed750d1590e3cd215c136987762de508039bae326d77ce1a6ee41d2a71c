@@ -1,0 +1,2289 @@
+{
+  "label": "Poggy Fishing",
+  "tagline": "Cast, tug and fight real fish across every water in the map",
+  "category": "Jobs",
+  "description": "Skillcheck rod fishing with a tug game, bait that changes what bites, time-of-day fish and random seasons. The Pro Rod adds a mouse-driven pull fight. Every catch can pay out bonus loot.",
+  "readme": "README.md",
+  "help": [
+    {
+      "title": "Tuning baits and what bites",
+      "file": "docs/help/baits-and-bites.md"
+    },
+    {
+      "title": "Making fishing easier or harder",
+      "file": "docs/help/difficulty.md"
+    },
+    {
+      "title": "Brass skin image reference",
+      "file": "docs/ui-skin-brass-prompts.md"
+    }
+  ],
+  "commands": [
+    {
+      "command": "/rerollseasons",
+      "who": "ACE: command.rerollseasons",
+      "description": "Picks a new random set of in-season fish right away and sends it to every player. Also works from the server console.",
+      "usage": "/rerollseasons",
+      "examples": [
+        "/rerollseasons",
+        "rerollseasons (server console)"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "id": "general",
+      "label": "General",
+      "icon": "sliders"
+    },
+    {
+      "id": "fish",
+      "label": "Baits & fish",
+      "icon": "fish"
+    },
+    {
+      "id": "fight",
+      "label": "The bite & fight",
+      "icon": "target"
+    },
+    {
+      "id": "tiers",
+      "label": "Difficulty tiers",
+      "icon": "chart"
+    },
+    {
+      "id": "prorod",
+      "label": "Pro Rod",
+      "icon": "bolt"
+    },
+    {
+      "id": "appearance",
+      "label": "Appearance",
+      "icon": "palette"
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced",
+      "icon": "cog"
+    }
+  ],
+  "settings": {
+    "Config.Season.*": {
+      "tab": "general",
+      "group": "Seasons"
+    },
+    "Config.UI.*": {
+      "tab": "appearance",
+      "group": "Interface"
+    },
+    "Config.SkillCheck.*": {
+      "tab": "fight",
+      "group": "Skillchecks"
+    },
+    "Config.SkillCheck.Tiers.*": {
+      "tab": "tiers",
+      "group": "Difficulty tiers"
+    },
+    "Config.SkillCheck.Tiers.easy.*": {
+      "group": "Easy fish (under $1)"
+    },
+    "Config.SkillCheck.Tiers.medium.*": {
+      "group": "Medium fish ($1 to $2.99)"
+    },
+    "Config.SkillCheck.Tiers.hard.*": {
+      "group": "Hard fish ($3 to $5.99)"
+    },
+    "Config.SkillCheck.Tiers.expert.*": {
+      "group": "Expert fish ($6 to $19.99)"
+    },
+    "Config.SkillCheck.Tiers.legendary.*": {
+      "group": "Legendary fish ($20 or more)"
+    },
+    "Config.Interest.*": {
+      "tab": "fight",
+      "group": "Tug game (normal rod)"
+    },
+    "Config.Interest.NoBait.*": {
+      "group": "Fishing with no bait",
+      "advanced": true
+    },
+    "Config.Interest.Scaling.*": {
+      "tab": "tiers",
+      "advanced": true
+    },
+    "Config.Interest.Scaling.easy.*": {
+      "group": "Easy fish (under $1)"
+    },
+    "Config.Interest.Scaling.medium.*": {
+      "group": "Medium fish ($1 to $2.99)"
+    },
+    "Config.Interest.Scaling.hard.*": {
+      "group": "Hard fish ($3 to $5.99)"
+    },
+    "Config.Interest.Scaling.expert.*": {
+      "group": "Expert fish ($6 to $19.99)"
+    },
+    "Config.Interest.Scaling.legendary.*": {
+      "group": "Legendary fish ($20 or more)"
+    },
+    "Config.ProRod.*": {
+      "tab": "prorod"
+    },
+    "Config.ProRod.SizeWeights.*": {
+      "group": "Fish size odds"
+    },
+    "Config.ProRod.DrainScaling.*": {
+      "tab": "tiers"
+    },
+    "Config.Sounds.*": {
+      "tab": "appearance",
+      "group": "Sounds"
+    },
+    "Config.Sounds.fishingMusic_1.*": {
+      "group": "Music"
+    },
+    "Config.Sounds.fishingMusic_2.*": {
+      "group": "Music"
+    },
+    "Config.Sounds.fishingMusic_3.*": {
+      "group": "Music"
+    },
+    "Config.Sounds.fishingMusic_4.*": {
+      "group": "Music"
+    },
+    "Config.Debug": {
+      "label": "Debug output",
+      "tab": "advanced",
+      "group": "Diagnostics",
+      "advanced": true,
+      "tooltip": "Prints extra lines about catches, bait and the fight to the server console and F8. Leave off on a live server."
+    },
+    "Config.DebugState": {
+      "label": "State audit output",
+      "tab": "advanced",
+      "group": "Diagnostics",
+      "advanced": true,
+      "tooltip": "Prints a line to the F8 console at every step of the fishing state machine. Only for tracking down a stuck rod; very noisy."
+    },
+    "Config.FishingRodItem": {
+      "label": "Fishing rod item",
+      "tab": "general",
+      "group": "Rods",
+      "picker": "item",
+      "tooltip": "Inventory item that equips the normal rod when used. It must exist in your item list; sql/install.sql adds 'fishingrod' on VORP."
+    },
+    "Config.ProRodItem": {
+      "label": "Pro Rod item",
+      "tab": "general",
+      "group": "Rods",
+      "picker": "item",
+      "tooltip": "Inventory item that equips the Pro Rod when used. The Pro Rod skips the tug game and adds the mouse-driven pull fight (Pro Rod tab)."
+    },
+    "Config.BaitPropDefault": {
+      "label": "Default bait prop (not used)",
+      "tab": "advanced",
+      "group": "Not used",
+      "advanced": true,
+      "tooltip": "Not read by the current version: each bait's own prop model (Baits & fish tab) is used instead. Changing it does nothing."
+    },
+    "Config.HideUndiscoveredFish": {
+      "label": "Hide fish not yet caught",
+      "tab": "general",
+      "group": "Fish discovery",
+      "tooltip": "On: the fishing HUD shows a fish of the current water only after the character has caught it there. Needs poggy_fishing_journal (it stores the discoveries). Off: every fish of the water is shown."
+    },
+    "Config.UI": {
+      "label": "Interface",
+      "tab": "appearance"
+    },
+    "Config.UI.skin": {
+      "label": "Interface skin",
+      "tooltip": "Look of the fishing HUD and bait menu. \"brass\" is riveted brass and walnut, \"default\" is the dark water theme. Any other name loads ui/skin-<name>.css, so you can add your own skin."
+    },
+    "Config.BiteTimeMin": {
+      "label": "Wait before a bite: shortest",
+      "tab": "fight",
+      "group": "Waiting for a bite",
+      "min": 1,
+      "max": 120,
+      "step": 1,
+      "unit": "seconds",
+      "tooltip": "Normal rod: the shortest random wait after the cast before the tug game starts. Whole seconds only, and never more than the longest wait."
+    },
+    "Config.BiteTimeMax": {
+      "label": "Wait before a bite: longest",
+      "tab": "fight",
+      "group": "Waiting for a bite",
+      "min": 1,
+      "max": 120,
+      "step": 1,
+      "unit": "seconds",
+      "tooltip": "Normal rod: the longest random wait after the cast. Whole seconds only, and never less than the shortest wait."
+    },
+    "Config.Season": {
+      "label": "Seasons",
+      "tab": "general"
+    },
+    "Config.Season.ActivePercent": {
+      "label": "Fish in season",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "tooltip": "Share of all fish picked at random to be in season each time the script starts or /rerollseasons runs. Out-of-season fish cannot be caught. 100 = every fish all the time; 0 = nothing bites."
+    },
+    "Config.SkillCheck": {
+      "label": "Skillchecks",
+      "tab": "fight"
+    },
+    "Config.SkillCheck.SpeedMin": {
+      "label": "Slowest needle speed",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "Lowest needle speed a skillcheck can have (1 slow to 5 very fast). A bait with bonus 2 slows a tier's needle by one, but never below this."
+    },
+    "Config.SkillCheck.SpeedMax": {
+      "label": "Fastest needle speed",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "Highest needle speed. Each miss in a row speeds the needle up, but never past this."
+    },
+    "Config.SkillCheck.MaxFails": {
+      "label": "Misses before the line breaks",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "unit": "misses",
+      "tooltip": "Normal rod: this many missed skillchecks in one fight snaps the line and loses the bait. The Pro Rod ignores it (its line snaps on tension)."
+    },
+    "Config.SkillCheck.MissSpeedBump": {
+      "label": "Speed-up per miss in a row",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "tooltip": "How much faster the needle turns for each miss in a row. A hit resets it. 0 = misses never speed it up."
+    },
+    "Config.SkillCheck.Tiers": {
+      "label": "Difficulty tiers",
+      "tooltip": "A fish's price picks its tier: under $1 easy, under $3 medium, under $6 hard, under $20 expert, $20 or more legendary.",
+      "tab": "tiers"
+    },
+    "Config.SkillCheck.Tiers.easy": {
+      "label": "Easy fish (under $1)"
+    },
+    "Config.SkillCheck.Tiers.easy.speed": {
+      "label": "Needle speed",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "Starting needle speed for this tier, 1 slow to 5 very fast."
+    },
+    "Config.SkillCheck.Tiers.easy.diff": {
+      "label": "Zone difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "Size of the success zone: 1 is large and easy, 5 is small and hard. A bait's bonus makes it easier; fishing with no bait (or a bonus-0 bait) makes it one harder."
+    },
+    "Config.SkillCheck.Tiers.easy.rounds": {
+      "label": "Rounds (debug only)",
+      "advanced": true,
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "tooltip": "Only printed in debug output. The fight really ends when the progress bar reaches 100, so 'Progress per good hit' sets its length."
+    },
+    "Config.SkillCheck.Tiers.easy.good": {
+      "label": "Progress per good hit",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "% of bar",
+      "tooltip": "How much of the progress bar a good hit fills. The fish is landed at 100, so 12 means about nine hits. The Pro Rod scales this down (Pro Rod tab)."
+    },
+    "Config.SkillCheck.Tiers.easy.great": {
+      "label": "Progress per great hit",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "% of bar",
+      "tooltip": "How much of the progress bar a great hit fills. Keep it higher than a good hit."
+    },
+    "Config.SkillCheck.Tiers.easy.miss": {
+      "label": "Progress lost per miss",
+      "min": -100,
+      "max": 0,
+      "step": 1,
+      "unit": "% of bar",
+      "tooltip": "Negative number taken off the progress bar on a miss. If the bar falls to 0 the fish escapes."
+    },
+    "Config.SkillCheck.Tiers.easy.shake": {
+      "label": "Shake",
+      "tooltip": "The skillcheck circle shakes. After a miss it always shakes, whatever this says.",
+      "advanced": true
+    },
+    "Config.SkillCheck.Tiers.easy.greatPct": {
+      "label": "Great part of the zone",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "% of zone",
+      "tooltip": "How much of the success zone counts as a great hit. 0 = no great hits."
+    },
+    "Config.SkillCheck.Tiers.easy.randomizer": {
+      "label": "Off-centre scatter",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "tooltip": "How far from the centre of the screen a check can appear (0 centred, 5 up to half the screen). Keep it at 2 or lower: higher values can put a check behind the fishing HUD.",
+      "advanced": true
+    },
+    "Config.SkillCheck.Tiers.easy.shakeSpeed": {
+      "label": "Shake speed",
+      "advanced": true,
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "How fast the circle shakes, 1 to 5. Raised to at least 3 after a miss."
+    },
+    "Config.SkillCheck.Tiers.easy.shakeDist": {
+      "label": "Shake distance",
+      "advanced": true,
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "How far the circle shakes, 1 to 5. Raised to at least 3 after a miss."
+    },
+    "Config.SkillCheck.Tiers.easy.timeBetween": {
+      "label": "Time between repeats",
+      "advanced": true,
+      "min": 100,
+      "max": 500,
+      "step": 10,
+      "unit": "ms",
+      "tooltip": "Passed to poggy_skillcheck, which only uses it when one check has several repetitions. Fishing shows one check at a time, so it has no visible effect."
+    },
+    "Config.SkillCheck.Tiers.easy.direction": {
+      "label": "Needle direction",
+      "options": [
+        {
+          "value": "cw",
+          "label": "Clockwise"
+        },
+        {
+          "value": "ccw",
+          "label": "Anticlockwise"
+        },
+        {
+          "value": "rand",
+          "label": "Random"
+        }
+      ],
+      "tooltip": "Which way the needle turns.",
+      "advanced": true
+    },
+    "Config.SkillCheck.Tiers.medium": {
+      "label": "Medium fish ($1 to $2.99)"
+    },
+    "Config.SkillCheck.Tiers.medium.speed": {
+      "label": "Needle speed",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "Starting needle speed for this tier, 1 slow to 5 very fast."
+    },
+    "Config.SkillCheck.Tiers.medium.diff": {
+      "label": "Zone difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "Size of the success zone: 1 is large and easy, 5 is small and hard. A bait's bonus makes it easier; fishing with no bait (or a bonus-0 bait) makes it one harder."
+    },
+    "Config.SkillCheck.Tiers.medium.rounds": {
+      "label": "Rounds (debug only)",
+      "advanced": true,
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "tooltip": "Only printed in debug output. The fight really ends when the progress bar reaches 100, so 'Progress per good hit' sets its length."
+    },
+    "Config.SkillCheck.Tiers.medium.good": {
+      "label": "Progress per good hit",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "% of bar",
+      "tooltip": "How much of the progress bar a good hit fills. The fish is landed at 100, so 12 means about nine hits. The Pro Rod scales this down (Pro Rod tab)."
+    },
+    "Config.SkillCheck.Tiers.medium.great": {
+      "label": "Progress per great hit",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "% of bar",
+      "tooltip": "How much of the progress bar a great hit fills. Keep it higher than a good hit."
+    },
+    "Config.SkillCheck.Tiers.medium.miss": {
+      "label": "Progress lost per miss",
+      "min": -100,
+      "max": 0,
+      "step": 1,
+      "unit": "% of bar",
+      "tooltip": "Negative number taken off the progress bar on a miss. If the bar falls to 0 the fish escapes."
+    },
+    "Config.SkillCheck.Tiers.medium.shake": {
+      "label": "Shake",
+      "tooltip": "The skillcheck circle shakes. After a miss it always shakes, whatever this says.",
+      "advanced": true
+    },
+    "Config.SkillCheck.Tiers.medium.greatPct": {
+      "label": "Great part of the zone",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "% of zone",
+      "tooltip": "How much of the success zone counts as a great hit. 0 = no great hits."
+    },
+    "Config.SkillCheck.Tiers.medium.randomizer": {
+      "label": "Off-centre scatter",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "tooltip": "How far from the centre of the screen a check can appear (0 centred, 5 up to half the screen). Keep it at 2 or lower: higher values can put a check behind the fishing HUD.",
+      "advanced": true
+    },
+    "Config.SkillCheck.Tiers.medium.shakeSpeed": {
+      "label": "Shake speed",
+      "advanced": true,
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "How fast the circle shakes, 1 to 5. Raised to at least 3 after a miss."
+    },
+    "Config.SkillCheck.Tiers.medium.shakeDist": {
+      "label": "Shake distance",
+      "advanced": true,
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "How far the circle shakes, 1 to 5. Raised to at least 3 after a miss."
+    },
+    "Config.SkillCheck.Tiers.medium.timeBetween": {
+      "label": "Time between repeats",
+      "advanced": true,
+      "min": 100,
+      "max": 500,
+      "step": 10,
+      "unit": "ms",
+      "tooltip": "Passed to poggy_skillcheck, which only uses it when one check has several repetitions. Fishing shows one check at a time, so it has no visible effect."
+    },
+    "Config.SkillCheck.Tiers.medium.direction": {
+      "label": "Needle direction",
+      "options": [
+        {
+          "value": "cw",
+          "label": "Clockwise"
+        },
+        {
+          "value": "ccw",
+          "label": "Anticlockwise"
+        },
+        {
+          "value": "rand",
+          "label": "Random"
+        }
+      ],
+      "tooltip": "Which way the needle turns.",
+      "advanced": true
+    },
+    "Config.SkillCheck.Tiers.hard": {
+      "label": "Hard fish ($3 to $5.99)"
+    },
+    "Config.SkillCheck.Tiers.hard.speed": {
+      "label": "Needle speed",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "Starting needle speed for this tier, 1 slow to 5 very fast."
+    },
+    "Config.SkillCheck.Tiers.hard.diff": {
+      "label": "Zone difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "Size of the success zone: 1 is large and easy, 5 is small and hard. A bait's bonus makes it easier; fishing with no bait (or a bonus-0 bait) makes it one harder."
+    },
+    "Config.SkillCheck.Tiers.hard.rounds": {
+      "label": "Rounds (debug only)",
+      "advanced": true,
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "tooltip": "Only printed in debug output. The fight really ends when the progress bar reaches 100, so 'Progress per good hit' sets its length."
+    },
+    "Config.SkillCheck.Tiers.hard.good": {
+      "label": "Progress per good hit",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "% of bar",
+      "tooltip": "How much of the progress bar a good hit fills. The fish is landed at 100, so 12 means about nine hits. The Pro Rod scales this down (Pro Rod tab)."
+    },
+    "Config.SkillCheck.Tiers.hard.great": {
+      "label": "Progress per great hit",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "% of bar",
+      "tooltip": "How much of the progress bar a great hit fills. Keep it higher than a good hit."
+    },
+    "Config.SkillCheck.Tiers.hard.miss": {
+      "label": "Progress lost per miss",
+      "min": -100,
+      "max": 0,
+      "step": 1,
+      "unit": "% of bar",
+      "tooltip": "Negative number taken off the progress bar on a miss. If the bar falls to 0 the fish escapes."
+    },
+    "Config.SkillCheck.Tiers.hard.shake": {
+      "label": "Shake",
+      "tooltip": "The skillcheck circle shakes. After a miss it always shakes, whatever this says.",
+      "advanced": true
+    },
+    "Config.SkillCheck.Tiers.hard.greatPct": {
+      "label": "Great part of the zone",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "% of zone",
+      "tooltip": "How much of the success zone counts as a great hit. 0 = no great hits."
+    },
+    "Config.SkillCheck.Tiers.hard.randomizer": {
+      "label": "Off-centre scatter",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "tooltip": "How far from the centre of the screen a check can appear (0 centred, 5 up to half the screen). Keep it at 2 or lower: higher values can put a check behind the fishing HUD.",
+      "advanced": true
+    },
+    "Config.SkillCheck.Tiers.hard.shakeSpeed": {
+      "label": "Shake speed",
+      "advanced": true,
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "How fast the circle shakes, 1 to 5. Raised to at least 3 after a miss."
+    },
+    "Config.SkillCheck.Tiers.hard.shakeDist": {
+      "label": "Shake distance",
+      "advanced": true,
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "How far the circle shakes, 1 to 5. Raised to at least 3 after a miss."
+    },
+    "Config.SkillCheck.Tiers.hard.timeBetween": {
+      "label": "Time between repeats",
+      "advanced": true,
+      "min": 100,
+      "max": 500,
+      "step": 10,
+      "unit": "ms",
+      "tooltip": "Passed to poggy_skillcheck, which only uses it when one check has several repetitions. Fishing shows one check at a time, so it has no visible effect."
+    },
+    "Config.SkillCheck.Tiers.hard.direction": {
+      "label": "Needle direction",
+      "options": [
+        {
+          "value": "cw",
+          "label": "Clockwise"
+        },
+        {
+          "value": "ccw",
+          "label": "Anticlockwise"
+        },
+        {
+          "value": "rand",
+          "label": "Random"
+        }
+      ],
+      "tooltip": "Which way the needle turns.",
+      "advanced": true
+    },
+    "Config.SkillCheck.Tiers.expert": {
+      "label": "Expert fish ($6 to $19.99)"
+    },
+    "Config.SkillCheck.Tiers.expert.speed": {
+      "label": "Needle speed",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "Starting needle speed for this tier, 1 slow to 5 very fast."
+    },
+    "Config.SkillCheck.Tiers.expert.diff": {
+      "label": "Zone difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "Size of the success zone: 1 is large and easy, 5 is small and hard. A bait's bonus makes it easier; fishing with no bait (or a bonus-0 bait) makes it one harder."
+    },
+    "Config.SkillCheck.Tiers.expert.rounds": {
+      "label": "Rounds (debug only)",
+      "advanced": true,
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "tooltip": "Only printed in debug output. The fight really ends when the progress bar reaches 100, so 'Progress per good hit' sets its length."
+    },
+    "Config.SkillCheck.Tiers.expert.good": {
+      "label": "Progress per good hit",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "% of bar",
+      "tooltip": "How much of the progress bar a good hit fills. The fish is landed at 100, so 12 means about nine hits. The Pro Rod scales this down (Pro Rod tab)."
+    },
+    "Config.SkillCheck.Tiers.expert.great": {
+      "label": "Progress per great hit",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "% of bar",
+      "tooltip": "How much of the progress bar a great hit fills. Keep it higher than a good hit."
+    },
+    "Config.SkillCheck.Tiers.expert.miss": {
+      "label": "Progress lost per miss",
+      "min": -100,
+      "max": 0,
+      "step": 1,
+      "unit": "% of bar",
+      "tooltip": "Negative number taken off the progress bar on a miss. If the bar falls to 0 the fish escapes."
+    },
+    "Config.SkillCheck.Tiers.expert.shake": {
+      "label": "Shake",
+      "tooltip": "The skillcheck circle shakes. After a miss it always shakes, whatever this says.",
+      "advanced": true
+    },
+    "Config.SkillCheck.Tiers.expert.greatPct": {
+      "label": "Great part of the zone",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "% of zone",
+      "tooltip": "How much of the success zone counts as a great hit. 0 = no great hits."
+    },
+    "Config.SkillCheck.Tiers.expert.randomizer": {
+      "label": "Off-centre scatter",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "tooltip": "How far from the centre of the screen a check can appear (0 centred, 5 up to half the screen). Keep it at 2 or lower: higher values can put a check behind the fishing HUD.",
+      "advanced": true
+    },
+    "Config.SkillCheck.Tiers.expert.shakeSpeed": {
+      "label": "Shake speed",
+      "advanced": true,
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "How fast the circle shakes, 1 to 5. Raised to at least 3 after a miss."
+    },
+    "Config.SkillCheck.Tiers.expert.shakeDist": {
+      "label": "Shake distance",
+      "advanced": true,
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "How far the circle shakes, 1 to 5. Raised to at least 3 after a miss."
+    },
+    "Config.SkillCheck.Tiers.expert.timeBetween": {
+      "label": "Time between repeats",
+      "advanced": true,
+      "min": 100,
+      "max": 500,
+      "step": 10,
+      "unit": "ms",
+      "tooltip": "Passed to poggy_skillcheck, which only uses it when one check has several repetitions. Fishing shows one check at a time, so it has no visible effect."
+    },
+    "Config.SkillCheck.Tiers.expert.direction": {
+      "label": "Needle direction",
+      "options": [
+        {
+          "value": "cw",
+          "label": "Clockwise"
+        },
+        {
+          "value": "ccw",
+          "label": "Anticlockwise"
+        },
+        {
+          "value": "rand",
+          "label": "Random"
+        }
+      ],
+      "tooltip": "Which way the needle turns.",
+      "advanced": true
+    },
+    "Config.SkillCheck.Tiers.legendary": {
+      "label": "Legendary fish ($20 or more)"
+    },
+    "Config.SkillCheck.Tiers.legendary.speed": {
+      "label": "Needle speed",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "Starting needle speed for this tier, 1 slow to 5 very fast."
+    },
+    "Config.SkillCheck.Tiers.legendary.diff": {
+      "label": "Zone difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "Size of the success zone: 1 is large and easy, 5 is small and hard. A bait's bonus makes it easier; fishing with no bait (or a bonus-0 bait) makes it one harder."
+    },
+    "Config.SkillCheck.Tiers.legendary.rounds": {
+      "label": "Rounds (debug only)",
+      "advanced": true,
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "tooltip": "Only printed in debug output. The fight really ends when the progress bar reaches 100, so 'Progress per good hit' sets its length."
+    },
+    "Config.SkillCheck.Tiers.legendary.good": {
+      "label": "Progress per good hit",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "% of bar",
+      "tooltip": "How much of the progress bar a good hit fills. The fish is landed at 100, so 12 means about nine hits. The Pro Rod scales this down (Pro Rod tab)."
+    },
+    "Config.SkillCheck.Tiers.legendary.great": {
+      "label": "Progress per great hit",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "% of bar",
+      "tooltip": "How much of the progress bar a great hit fills. Keep it higher than a good hit."
+    },
+    "Config.SkillCheck.Tiers.legendary.miss": {
+      "label": "Progress lost per miss",
+      "min": -100,
+      "max": 0,
+      "step": 1,
+      "unit": "% of bar",
+      "tooltip": "Negative number taken off the progress bar on a miss. If the bar falls to 0 the fish escapes."
+    },
+    "Config.SkillCheck.Tiers.legendary.shake": {
+      "label": "Shake",
+      "tooltip": "The skillcheck circle shakes. After a miss it always shakes, whatever this says.",
+      "advanced": true
+    },
+    "Config.SkillCheck.Tiers.legendary.greatPct": {
+      "label": "Great part of the zone",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "% of zone",
+      "tooltip": "How much of the success zone counts as a great hit. 0 = no great hits."
+    },
+    "Config.SkillCheck.Tiers.legendary.randomizer": {
+      "label": "Off-centre scatter",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "tooltip": "How far from the centre of the screen a check can appear (0 centred, 5 up to half the screen). Keep it at 2 or lower: higher values can put a check behind the fishing HUD.",
+      "advanced": true
+    },
+    "Config.SkillCheck.Tiers.legendary.shakeSpeed": {
+      "label": "Shake speed",
+      "advanced": true,
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "How fast the circle shakes, 1 to 5. Raised to at least 3 after a miss."
+    },
+    "Config.SkillCheck.Tiers.legendary.shakeDist": {
+      "label": "Shake distance",
+      "advanced": true,
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "tooltip": "How far the circle shakes, 1 to 5. Raised to at least 3 after a miss."
+    },
+    "Config.SkillCheck.Tiers.legendary.timeBetween": {
+      "label": "Time between repeats",
+      "advanced": true,
+      "min": 100,
+      "max": 500,
+      "step": 10,
+      "unit": "ms",
+      "tooltip": "Passed to poggy_skillcheck, which only uses it when one check has several repetitions. Fishing shows one check at a time, so it has no visible effect."
+    },
+    "Config.SkillCheck.Tiers.legendary.direction": {
+      "label": "Needle direction",
+      "options": [
+        {
+          "value": "cw",
+          "label": "Clockwise"
+        },
+        {
+          "value": "ccw",
+          "label": "Anticlockwise"
+        },
+        {
+          "value": "rand",
+          "label": "Random"
+        }
+      ],
+      "tooltip": "Which way the needle turns.",
+      "advanced": true
+    },
+    "Config.Interest": {
+      "label": "Tug game (normal rod)",
+      "tab": "fight",
+      "tooltip": "Normal rod only. The player taps E to raise the fish's interest (blue bar); each tap also adds line tension (red bar). Interest 100 hooks the fish; tension 100 snaps the line."
+    },
+    "Config.Interest.InitialInterest": {
+      "label": "Starting interest",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "tooltip": "Interest the fish has when the tug game begins. Higher = fewer taps needed."
+    },
+    "Config.Interest.GracePeriod": {
+      "label": "Grace period",
+      "min": 0,
+      "max": 30000,
+      "step": 250,
+      "unit": "ms",
+      "tooltip": "How long interest may sit at zero before the boredom timer starts. Scaled per tier below."
+    },
+    "Config.Interest.GainPerPress": {
+      "label": "Interest per tap",
+      "min": 0,
+      "max": 50,
+      "step": 0.1,
+      "unit": "%",
+      "tooltip": "Interest added by each E tap before bait bonuses. Scaled per tier below."
+    },
+    "Config.Interest.BaitBonus": {
+      "label": "Bait bonus per tap",
+      "min": 0,
+      "max": 50,
+      "step": 0.1,
+      "unit": "%",
+      "tooltip": "Extra interest per tap when any bait is on the hook."
+    },
+    "Config.Interest.RightBaitBonus": {
+      "label": "Right-bait bonus per tap",
+      "min": 0,
+      "max": 50,
+      "step": 0.1,
+      "unit": "%",
+      "tooltip": "Further interest per tap when the bait targets at least one fish that lives in this water."
+    },
+    "Config.Interest.InterestDecay": {
+      "label": "Interest lost per second",
+      "min": 0,
+      "max": 50,
+      "step": 0.1,
+      "unit": "% per second",
+      "tooltip": "How fast interest drains while the player is not tapping. Scaled per tier below."
+    },
+    "Config.Interest.TensionPerPress": {
+      "label": "Tension per tap",
+      "min": 0,
+      "max": 50,
+      "step": 0.1,
+      "unit": "%",
+      "tooltip": "Line tension added by each tap. Tension 100 snaps the line and loses the bait. Scaled per tier below."
+    },
+    "Config.Interest.TensionDecay": {
+      "label": "Tension lost per second",
+      "min": 0,
+      "max": 50,
+      "step": 0.1,
+      "unit": "% per second",
+      "tooltip": "How fast tension eases while the player is not tapping. Scaled per tier below."
+    },
+    "Config.Interest.PressCooldown": {
+      "label": "Tap cooldown",
+      "min": 0,
+      "max": 2000,
+      "step": 10,
+      "unit": "ms",
+      "tooltip": "Taps faster than this are ignored, so mashing E does not help."
+    },
+    "Config.Interest.BoreTimeout": {
+      "label": "Boredom timeout",
+      "min": 500,
+      "max": 60000,
+      "step": 250,
+      "unit": "ms",
+      "tooltip": "After the grace period, if interest stays at zero this long the fish swims off (the bait may be lost, by its lose chance). Scaled per tier below."
+    },
+    "Config.Interest.NoBait": {
+      "label": "Fishing with no bait",
+      "advanced": true,
+      "tooltip": "Multipliers applied on top of the tier scaling when nothing is on the hook. 1 = no change."
+    },
+    "Config.Interest.NoBait.interestGain": {
+      "label": "Interest per tap ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Multiplies interest per tap. Below 1 = harder."
+    },
+    "Config.Interest.NoBait.interestDecay": {
+      "label": "Interest loss ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Multiplies interest lost per second. Above 1 = harder."
+    },
+    "Config.Interest.NoBait.tensionGain": {
+      "label": "Tension per tap ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Multiplies tension added per tap. Above 1 = harder."
+    },
+    "Config.Interest.NoBait.tensionDecay": {
+      "label": "Tension loss ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Multiplies tension eased per second. Above 1 = easier."
+    },
+    "Config.Interest.NoBait.boreTimeout": {
+      "label": "Boredom timeout ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Multiplies the boredom timeout. Below 1 = the fish leaves sooner."
+    },
+    "Config.Interest.NoBait.gracePeriod": {
+      "label": "Grace period ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Multiplies the grace period. Below 1 = shorter."
+    },
+    "Config.Interest.NoBait.TensionBonus": {
+      "label": "No-bait tension bonus",
+      "tooltip": "Risk and reward with no bait: taps give more interest while the line is tense, rising from 1× at the low mark to the full multiplier at the high mark."
+    },
+    "Config.Interest.NoBait.TensionBonus.minTension": {
+      "label": "Tension bonus starts at",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "tooltip": "Risk and reward with no bait: taps give more interest while the line is tense, rising from 1× at this tension to the full multiplier at the high mark. Below this tension there is no bonus."
+    },
+    "Config.Interest.NoBait.TensionBonus.maxTension": {
+      "label": "Full bonus at tension",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "tooltip": "At or above this tension the full multiplier applies. Must be higher than the start mark."
+    },
+    "Config.Interest.NoBait.TensionBonus.bonusMult": {
+      "label": "Tension bonus: full multiplier",
+      "min": 1,
+      "max": 10,
+      "step": 0.1,
+      "unit": "×",
+      "tooltip": "Interest per tap is multiplied by up to this much at high tension."
+    },
+    "Config.Interest.Scaling": {
+      "label": "Tug game per tier",
+      "advanced": true,
+      "tooltip": "Normal rod tug game multipliers per difficulty tier. 1 = the base values on The bite & fight tab.",
+      "tab": "tiers"
+    },
+    "Config.Interest.Scaling.easy": {
+      "label": "Tug game: Easy fish (under $1)",
+      "tooltip": "Applies to fish priced under $1."
+    },
+    "Config.Interest.Scaling.easy.interestGain": {
+      "label": "Tug game: interest per tap ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = more taps needed."
+    },
+    "Config.Interest.Scaling.easy.interestDecay": {
+      "label": "Tug game: interest loss ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Above 1 = interest drains faster."
+    },
+    "Config.Interest.Scaling.easy.tensionGain": {
+      "label": "Tug game: tension per tap ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Above 1 = the line snaps sooner."
+    },
+    "Config.Interest.Scaling.easy.tensionDecay": {
+      "label": "Tug game: tension loss ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = tension eases slower."
+    },
+    "Config.Interest.Scaling.easy.boreTimeout": {
+      "label": "Tug game: boredom timeout ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = the fish gives up sooner."
+    },
+    "Config.Interest.Scaling.easy.gracePeriod": {
+      "label": "Tug game: grace period ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = shorter grace period."
+    },
+    "Config.Interest.Scaling.medium": {
+      "label": "Tug game: Medium fish ($1 to $2.99)",
+      "tooltip": "Applies to fish priced $1 to $2.99."
+    },
+    "Config.Interest.Scaling.medium.interestGain": {
+      "label": "Tug game: interest per tap ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = more taps needed."
+    },
+    "Config.Interest.Scaling.medium.interestDecay": {
+      "label": "Tug game: interest loss ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Above 1 = interest drains faster."
+    },
+    "Config.Interest.Scaling.medium.tensionGain": {
+      "label": "Tug game: tension per tap ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Above 1 = the line snaps sooner."
+    },
+    "Config.Interest.Scaling.medium.tensionDecay": {
+      "label": "Tug game: tension loss ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = tension eases slower."
+    },
+    "Config.Interest.Scaling.medium.boreTimeout": {
+      "label": "Tug game: boredom timeout ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = the fish gives up sooner."
+    },
+    "Config.Interest.Scaling.medium.gracePeriod": {
+      "label": "Tug game: grace period ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = shorter grace period."
+    },
+    "Config.Interest.Scaling.hard": {
+      "label": "Tug game: Hard fish ($3 to $5.99)",
+      "tooltip": "Applies to fish priced $3 to $5.99."
+    },
+    "Config.Interest.Scaling.hard.interestGain": {
+      "label": "Tug game: interest per tap ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = more taps needed."
+    },
+    "Config.Interest.Scaling.hard.interestDecay": {
+      "label": "Tug game: interest loss ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Above 1 = interest drains faster."
+    },
+    "Config.Interest.Scaling.hard.tensionGain": {
+      "label": "Tug game: tension per tap ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Above 1 = the line snaps sooner."
+    },
+    "Config.Interest.Scaling.hard.tensionDecay": {
+      "label": "Tug game: tension loss ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = tension eases slower."
+    },
+    "Config.Interest.Scaling.hard.boreTimeout": {
+      "label": "Tug game: boredom timeout ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = the fish gives up sooner."
+    },
+    "Config.Interest.Scaling.hard.gracePeriod": {
+      "label": "Tug game: grace period ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = shorter grace period."
+    },
+    "Config.Interest.Scaling.expert": {
+      "label": "Tug game: Expert fish ($6 to $19.99)",
+      "tooltip": "Applies to fish priced $6 to $19.99."
+    },
+    "Config.Interest.Scaling.expert.interestGain": {
+      "label": "Tug game: interest per tap ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = more taps needed."
+    },
+    "Config.Interest.Scaling.expert.interestDecay": {
+      "label": "Tug game: interest loss ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Above 1 = interest drains faster."
+    },
+    "Config.Interest.Scaling.expert.tensionGain": {
+      "label": "Tug game: tension per tap ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Above 1 = the line snaps sooner."
+    },
+    "Config.Interest.Scaling.expert.tensionDecay": {
+      "label": "Tug game: tension loss ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = tension eases slower."
+    },
+    "Config.Interest.Scaling.expert.boreTimeout": {
+      "label": "Tug game: boredom timeout ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = the fish gives up sooner."
+    },
+    "Config.Interest.Scaling.expert.gracePeriod": {
+      "label": "Tug game: grace period ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = shorter grace period."
+    },
+    "Config.Interest.Scaling.legendary": {
+      "label": "Tug game: Legendary fish ($20 or more)",
+      "tooltip": "Applies to fish priced $20 or more."
+    },
+    "Config.Interest.Scaling.legendary.interestGain": {
+      "label": "Tug game: interest per tap ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = more taps needed."
+    },
+    "Config.Interest.Scaling.legendary.interestDecay": {
+      "label": "Tug game: interest loss ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Above 1 = interest drains faster."
+    },
+    "Config.Interest.Scaling.legendary.tensionGain": {
+      "label": "Tug game: tension per tap ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Above 1 = the line snaps sooner."
+    },
+    "Config.Interest.Scaling.legendary.tensionDecay": {
+      "label": "Tug game: tension loss ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = tension eases slower."
+    },
+    "Config.Interest.Scaling.legendary.boreTimeout": {
+      "label": "Tug game: boredom timeout ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = the fish gives up sooner."
+    },
+    "Config.Interest.Scaling.legendary.gracePeriod": {
+      "label": "Tug game: grace period ×",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Below 1 = shorter grace period."
+    },
+    "Config.ProRod": {
+      "label": "Pro Rod",
+      "tab": "prorod",
+      "tooltip": "The Pro Rod has no tug game: a fish bites after a random wait. In the fight the player also counters the fish's pull with the mouse while managing line tension."
+    },
+    "Config.ProRod.GoodMult": {
+      "label": "Good hit progress ×",
+      "group": "Skillchecks",
+      "min": 0,
+      "max": 2,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Multiplies the tier's progress per good hit. 0.65 = 65% of normal."
+    },
+    "Config.ProRod.GreatMult": {
+      "label": "Great hit progress ×",
+      "group": "Skillchecks",
+      "min": 0,
+      "max": 2,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Multiplies the tier's progress per great hit."
+    },
+    "Config.ProRod.MissMult": {
+      "label": "Miss penalty ×",
+      "group": "Skillchecks",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Multiplies the progress lost per miss. 1.5 = misses hurt 50% more."
+    },
+    "Config.ProRod.SizeWeights": {
+      "label": "Fish size odds",
+      "tooltip": "Multiplied onto the bait's size weights, so the Pro Rod hooks bigger fish more often. 1 = no change."
+    },
+    "Config.ProRod.SizeWeights.sm": {
+      "label": "Small fish ×",
+      "min": 0,
+      "max": 10,
+      "step": 0.1,
+      "unit": "×",
+      "tooltip": "Chance multiplier for small fish on the Pro Rod. 0 = never on the Pro Rod."
+    },
+    "Config.ProRod.SizeWeights.md": {
+      "label": "Medium fish ×",
+      "min": 0,
+      "max": 10,
+      "step": 0.1,
+      "unit": "×",
+      "tooltip": "Chance multiplier for medium fish on the Pro Rod. 0 = never on the Pro Rod."
+    },
+    "Config.ProRod.SizeWeights.lg": {
+      "label": "Large fish ×",
+      "min": 0,
+      "max": 10,
+      "step": 0.1,
+      "unit": "×",
+      "tooltip": "Chance multiplier for large fish on the Pro Rod. 0 = never on the Pro Rod."
+    },
+    "Config.ProRod.SizeWeights.xl": {
+      "label": "Extra large fish ×",
+      "min": 0,
+      "max": 10,
+      "step": 0.1,
+      "unit": "×",
+      "tooltip": "Chance multiplier for extra large fish on the Pro Rod. 0 = never on the Pro Rod."
+    },
+    "Config.ProRod.SizeWeights.legendary": {
+      "label": "Legendary fish ×",
+      "min": 0,
+      "max": 10,
+      "step": 0.1,
+      "unit": "×",
+      "tooltip": "Chance multiplier for legendary fish on the Pro Rod. 0 = never on the Pro Rod."
+    },
+    "Config.ProRod.BiteTimeMin": {
+      "label": "Wait before a bite: shortest",
+      "group": "Waiting for a bite",
+      "min": 0,
+      "max": 120,
+      "step": 0.5,
+      "unit": "seconds",
+      "tooltip": "Shortest random wait after the cast before a fish bites."
+    },
+    "Config.ProRod.BiteTimeMax": {
+      "label": "Wait before a bite: longest",
+      "group": "Waiting for a bite",
+      "min": 0,
+      "max": 120,
+      "step": 0.5,
+      "unit": "seconds",
+      "tooltip": "Longest random wait. Keep it at or above the shortest."
+    },
+    "Config.ProRod.DrainRate": {
+      "label": "Progress drain",
+      "group": "Line drain",
+      "min": 0,
+      "max": 10,
+      "step": 0.05,
+      "unit": "% per second",
+      "tooltip": "The fish constantly pulls line back, draining the progress bar. Scaled by tier and by how well the player counters. After the first check, progress 0 = the fish escapes."
+    },
+    "Config.ProRod.DrainOnMiss": {
+      "label": "Extra drain on a miss",
+      "group": "Line drain",
+      "min": 0,
+      "max": 50,
+      "step": 0.5,
+      "unit": "% of bar",
+      "tooltip": "Progress taken at once on a missed skillcheck, on top of the tier's miss penalty."
+    },
+    "Config.ProRod.DrainScaling": {
+      "label": "Pro Rod drain per tier",
+      "tooltip": "Multiplies the Pro Rod's progress drain by the fish's difficulty tier.",
+      "tab": "tiers"
+    },
+    "Config.ProRod.DrainScaling.easy": {
+      "label": "Pro Rod drain ×",
+      "group": "Easy fish (under $1)",
+      "min": 0,
+      "max": 10,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Pro Rod only: multiplies the progress drain (Pro Rod tab) for fish in this tier. Higher = the fish pulls line back faster and escapes more easily."
+    },
+    "Config.ProRod.DrainScaling.medium": {
+      "label": "Pro Rod drain ×",
+      "group": "Medium fish ($1 to $2.99)",
+      "min": 0,
+      "max": 10,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Pro Rod only: multiplies the progress drain (Pro Rod tab) for fish in this tier. Higher = the fish pulls line back faster and escapes more easily."
+    },
+    "Config.ProRod.DrainScaling.hard": {
+      "label": "Pro Rod drain ×",
+      "group": "Hard fish ($3 to $5.99)",
+      "min": 0,
+      "max": 10,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Pro Rod only: multiplies the progress drain (Pro Rod tab) for fish in this tier. Higher = the fish pulls line back faster and escapes more easily."
+    },
+    "Config.ProRod.DrainScaling.expert": {
+      "label": "Pro Rod drain ×",
+      "group": "Expert fish ($6 to $19.99)",
+      "min": 0,
+      "max": 10,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Pro Rod only: multiplies the progress drain (Pro Rod tab) for fish in this tier. Higher = the fish pulls line back faster and escapes more easily."
+    },
+    "Config.ProRod.DrainScaling.legendary": {
+      "label": "Pro Rod drain ×",
+      "group": "Legendary fish ($20 or more)",
+      "min": 0,
+      "max": 10,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Pro Rod only: multiplies the progress drain (Pro Rod tab) for fish in this tier. Higher = the fish pulls line back faster and escapes more easily."
+    },
+    "Config.ProRod.PullSwitchMin": {
+      "label": "Pull change: soonest",
+      "group": "Fish pull",
+      "min": 0.5,
+      "max": 30,
+      "step": 0.5,
+      "unit": "seconds",
+      "tooltip": "Shortest time before the fish changes pull direction."
+    },
+    "Config.ProRod.PullSwitchMax": {
+      "label": "Pull change: latest",
+      "group": "Fish pull",
+      "min": 0.5,
+      "max": 30,
+      "step": 0.5,
+      "unit": "seconds",
+      "tooltip": "Longest time before the fish changes pull direction. Keep it at or above the soonest."
+    },
+    "Config.ProRod.PullDirections": {
+      "label": "Pull directions",
+      "group": "Fish pull",
+      "advanced": true,
+      "tooltip": "Directions the fish can pull, picked at random each change. Only \"left\", \"right\" and \"forward\" are understood; list one twice to make it more common."
+    },
+    "Config.ProRod.MouseSensitivity": {
+      "label": "Mouse sensitivity",
+      "group": "Mouse control",
+      "min": 10,
+      "max": 1000,
+      "step": 5,
+      "tooltip": "How far the pull needle moves for a mouse movement. Higher = twitchier."
+    },
+    "Config.ProRod.PullReturnForce": {
+      "label": "Return force",
+      "group": "Mouse control",
+      "min": 0,
+      "max": 300,
+      "step": 1,
+      "unit": "units/second",
+      "tooltip": "While the fish pulls left or right, the needle drifts back to centre this fast, so the player must keep holding it out. The needle runs from -100 to 100."
+    },
+    "Config.ProRod.NeedleCurve": {
+      "label": "Needle perspective curve",
+      "group": "Mouse control",
+      "advanced": true,
+      "min": 0.1,
+      "max": 3,
+      "step": 0.05,
+      "tooltip": "Visual only. Below 1 squeezes the edges of the gauge for a sense of depth; 1 = straight."
+    },
+    "Config.ProRod.EdgeSensitivity": {
+      "label": "Sensitivity at the edges",
+      "group": "Mouse control",
+      "advanced": true,
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "tooltip": "Share of the mouse sensitivity left at full deflection, so the edges are harder to reach. 1 = the same everywhere."
+    },
+    "Config.ProRod.PullThreshold": {
+      "label": "Lean threshold",
+      "group": "Mouse control",
+      "advanced": true,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "tooltip": "Animation only: past this needle position the character leans left or right."
+    },
+    "Config.ProRod.CorrectThreshold": {
+      "label": "Green highlight threshold",
+      "group": "Mouse control",
+      "advanced": true,
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "The gauge turns green when the player is this close to the right position (0 perfect, 1 fully wrong). Drain and tension scale smoothly regardless."
+    },
+    "Config.ProRod.CorrectDrainMult": {
+      "label": "Drain × when countering well",
+      "group": "Line drain",
+      "min": 0,
+      "max": 2,
+      "step": 0.01,
+      "unit": "×",
+      "tooltip": "Drain multiplier when the needle is exactly where the fish pulls. 0.12 = 88% less drain."
+    },
+    "Config.ProRod.WrongDrainMult": {
+      "label": "Drain × when fully wrong",
+      "group": "Line drain",
+      "min": 0,
+      "max": 5,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Drain multiplier when the needle is as far from the pull as it can be. In between, drain blends smoothly."
+    },
+    "Config.ProRod.TensionWrongRate": {
+      "label": "Tension gain when wrong",
+      "group": "Line tension",
+      "min": 0,
+      "max": 100,
+      "step": 0.5,
+      "unit": "per second",
+      "tooltip": "Tension added per second when fully wrong, less the closer the player is."
+    },
+    "Config.ProRod.TensionCorrectDecay": {
+      "label": "Tension ease when right",
+      "group": "Line tension",
+      "min": 0,
+      "max": 100,
+      "step": 0.1,
+      "unit": "per second",
+      "tooltip": "Tension eased per second when the player counters perfectly."
+    },
+    "Config.ProRod.TensionOnMiss": {
+      "label": "Tension spike on a miss",
+      "group": "Line tension",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "tooltip": "Tension added at once on a missed skillcheck."
+    },
+    "Config.ProRod.TensionReliefOnHit": {
+      "label": "Tension relief on a hit",
+      "group": "Line tension",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "tooltip": "Tension removed on a successful skillcheck."
+    },
+    "Config.ProRod.TensionSnap": {
+      "label": "Snap point",
+      "group": "Line tension",
+      "advanced": true,
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "tooltip": "Tension at which the line snaps and the bait is lost. Leave at 100: the tension meter tops out there."
+    },
+    "Config.ProRod.SplashInterval": {
+      "label": "Splash every",
+      "group": "Splash effects",
+      "advanced": true,
+      "min": 100,
+      "max": 10000,
+      "step": 100,
+      "unit": "ms",
+      "tooltip": "Time between the fish's splashes during the pull fight."
+    },
+    "Config.ProRod.SplashLayers": {
+      "label": "Splash layers",
+      "group": "Splash effects",
+      "advanced": true,
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "tooltip": "Stacked particle layers per splash. More = bigger splash, more cost."
+    },
+    "Config.ProRod.SplashScaleBase": {
+      "label": "Splash size",
+      "group": "Splash effects",
+      "advanced": true,
+      "min": 0.1,
+      "max": 3,
+      "step": 0.1,
+      "tooltip": "Size of each ambient splash."
+    },
+    "Config.ProRod.ForwardPushForce": {
+      "label": "Forward push",
+      "group": "Fish pull",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "units/second",
+      "tooltip": "While the fish pulls forward it shoves the needle steadily to one side and the player must hold centre. Keep it below the return force."
+    },
+    "Config.ProRod.ForwardJerkMin": {
+      "label": "Forward jerk: soonest",
+      "group": "Fish pull",
+      "min": 0.1,
+      "max": 10,
+      "step": 0.1,
+      "unit": "seconds",
+      "tooltip": "Shortest time between random jerks during a forward pull."
+    },
+    "Config.ProRod.ForwardJerkMax": {
+      "label": "Forward jerk: latest",
+      "group": "Fish pull",
+      "min": 0.1,
+      "max": 10,
+      "step": 0.1,
+      "unit": "seconds",
+      "tooltip": "Longest time between random jerks. Keep it at or above the soonest."
+    },
+    "Config.ProRod.ForwardJerkForce": {
+      "label": "Forward jerk size",
+      "group": "Fish pull",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "tooltip": "How far each jerk glides the needle (the needle runs from -100 to 100)."
+    },
+    "Config.ProRod.StartProgress": {
+      "label": "Starting progress",
+      "group": "Line drain",
+      "min": 0,
+      "max": 99,
+      "step": 1,
+      "unit": "% of bar",
+      "tooltip": "Progress the fight starts at. The fish cannot escape before the first skillcheck ends, so 0 is safe."
+    },
+    "Config.ProRod.LootDropExtraRoll": {
+      "label": "Roll loot twice",
+      "group": "Loot and bait",
+      "tooltip": "On: every fish kept with the Pro Rod rolls the bonus loot table (Baits & fish tab) twice."
+    },
+    "Config.ProRod.BaitLoseChanceMult": {
+      "label": "Bait loss ×",
+      "group": "Loot and bait",
+      "min": 0,
+      "max": 2,
+      "step": 0.05,
+      "unit": "×",
+      "tooltip": "Multiplies each bait's chance to be lost when a fish gets away. 0.5 = half. A snapped line always loses the bait."
+    },
+    "Config.Sounds": {
+      "label": "Sound effects",
+      "tab": "appearance",
+      "tooltip": "Sounds played by the fishing HUD. The names are used by the script, so change the file and volume, not the names."
+    },
+    "Config.Sounds.cast": {
+      "label": "Cast"
+    },
+    "Config.Sounds.cast.file": {
+      "label": "Cast file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.cast.volume": {
+      "label": "Cast volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "0 silent to 1 full volume."
+    },
+    "Config.Sounds.splash": {
+      "label": "Line lands"
+    },
+    "Config.Sounds.splash.file": {
+      "label": "Line lands file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.splash.volume": {
+      "label": "Line lands volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "0 silent to 1 full volume."
+    },
+    "Config.Sounds.bite": {
+      "label": "Bite"
+    },
+    "Config.Sounds.bite.file": {
+      "label": "Bite file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.bite.volume": {
+      "label": "Bite volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "0 silent to 1 full volume."
+    },
+    "Config.Sounds.tug": {
+      "label": "Tug / pull change"
+    },
+    "Config.Sounds.tug.file": {
+      "label": "Tug / pull change file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.tug.volume": {
+      "label": "Tug / pull change volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "0 silent to 1 full volume."
+    },
+    "Config.Sounds.reel": {
+      "label": "Reel"
+    },
+    "Config.Sounds.reel.file": {
+      "label": "Reel file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.reel.volume": {
+      "label": "Reel volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "0 silent to 1 full volume."
+    },
+    "Config.Sounds.caught": {
+      "label": "Fish caught"
+    },
+    "Config.Sounds.caught.file": {
+      "label": "Fish caught file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.caught.volume": {
+      "label": "Fish caught volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "0 silent to 1 full volume."
+    },
+    "Config.Sounds.escaped": {
+      "label": "Fish escaped"
+    },
+    "Config.Sounds.escaped.file": {
+      "label": "Fish escaped file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.escaped.volume": {
+      "label": "Fish escaped volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "0 silent to 1 full volume."
+    },
+    "Config.Sounds.lineSnap": {
+      "label": "Line snaps"
+    },
+    "Config.Sounds.lineSnap.file": {
+      "label": "Line snaps file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.lineSnap.volume": {
+      "label": "Line snaps volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "0 silent to 1 full volume."
+    },
+    "Config.Sounds.scared": {
+      "label": "Fish scared off"
+    },
+    "Config.Sounds.scared.file": {
+      "label": "Fish scared off file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.scared.volume": {
+      "label": "Fish scared off volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "0 silent to 1 full volume."
+    },
+    "Config.Sounds.equipRod": {
+      "label": "Rod equipped"
+    },
+    "Config.Sounds.equipRod.file": {
+      "label": "Rod equipped file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.equipRod.volume": {
+      "label": "Rod equipped volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "0 silent to 1 full volume."
+    },
+    "Config.Sounds.stowRod": {
+      "label": "Rod stowed"
+    },
+    "Config.Sounds.stowRod.file": {
+      "label": "Rod stowed file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.stowRod.volume": {
+      "label": "Rod stowed volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "0 silent to 1 full volume."
+    },
+    "Config.Sounds.baitSelect": {
+      "label": "Bait selected"
+    },
+    "Config.Sounds.baitSelect.file": {
+      "label": "Bait selected file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.baitSelect.volume": {
+      "label": "Bait selected volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "0 silent to 1 full volume."
+    },
+    "Config.Sounds.fishSplash": {
+      "label": "Fish splash"
+    },
+    "Config.Sounds.fishSplash.file": {
+      "label": "Fish splash file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.fishSplash.volume": {
+      "label": "Fish splash volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "0 silent to 1 full volume."
+    },
+    "Config.Sounds.keepFish": {
+      "label": "Fish kept"
+    },
+    "Config.Sounds.keepFish.file": {
+      "label": "Fish kept file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.keepFish.volume": {
+      "label": "Fish kept volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "0 silent to 1 full volume."
+    },
+    "Config.Sounds.throwBack": {
+      "label": "Fish thrown back"
+    },
+    "Config.Sounds.throwBack.file": {
+      "label": "Fish thrown back file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.throwBack.volume": {
+      "label": "Fish thrown back volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "0 silent to 1 full volume."
+    },
+    "Config.Sounds.fishingMusic_1": {
+      "label": "Peaceful Waters"
+    },
+    "Config.Sounds.fishingMusic_1.file": {
+      "label": "Peaceful Waters file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.fishingMusic_1.volume": {
+      "label": "Peaceful Waters volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "Volume of this music track, 0 silent to 1 full volume."
+    },
+    "Config.Sounds.fishingMusic_1.loop": {
+      "label": "Peaceful Waters loops",
+      "advanced": true,
+      "tooltip": "Repeat the track until the player changes it or stows the rod."
+    },
+    "Config.Sounds.fishingMusic_2": {
+      "label": "Serene Lakes"
+    },
+    "Config.Sounds.fishingMusic_2.file": {
+      "label": "Serene Lakes file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.fishingMusic_2.volume": {
+      "label": "Serene Lakes volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "Volume of this music track, 0 silent to 1 full volume."
+    },
+    "Config.Sounds.fishingMusic_2.loop": {
+      "label": "Serene Lakes loops",
+      "advanced": true,
+      "tooltip": "Repeat the track until the player changes it or stows the rod."
+    },
+    "Config.Sounds.fishingMusic_3": {
+      "label": "Circle of Stones"
+    },
+    "Config.Sounds.fishingMusic_3.file": {
+      "label": "Circle of Stones file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.fishingMusic_3.volume": {
+      "label": "Circle of Stones volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "Volume of this music track, 0 silent to 1 full volume."
+    },
+    "Config.Sounds.fishingMusic_3.loop": {
+      "label": "Circle of Stones loops",
+      "advanced": true,
+      "tooltip": "Repeat the track until the player changes it or stows the rod."
+    },
+    "Config.Sounds.fishingMusic_4": {
+      "label": "Mountain Banjo"
+    },
+    "Config.Sounds.fishingMusic_4.file": {
+      "label": "Mountain Banjo file",
+      "advanced": true,
+      "tooltip": "mp3 path inside ui/, e.g. sfx/cast.mp3. Only files in ui/sfx/ are sent to players."
+    },
+    "Config.Sounds.fishingMusic_4.volume": {
+      "label": "Mountain Banjo volume",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "tooltip": "Volume of this music track, 0 silent to 1 full volume."
+    },
+    "Config.Sounds.fishingMusic_4.loop": {
+      "label": "Mountain Banjo loops",
+      "advanced": true,
+      "tooltip": "Repeat the track until the player changes it or stows the rod."
+    }
+  },
+  "lists": {
+    "Config.Baits": {
+      "label": "Baits and lures",
+      "itemLabel": "bait",
+      "tab": "fish",
+      "kind": "map",
+      "tooltip": "Every bait or lure a player can put on the hook with the G menu. Any bait item here becomes usable automatically. The key is the bait's id.",
+      "titleField": "label",
+      "subtitleField": "item",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Name"
+        },
+        {
+          "field": "item",
+          "label": "Item"
+        },
+        {
+          "field": "bonus",
+          "label": "Bonus"
+        },
+        {
+          "field": "loseChance",
+          "label": "Lose %"
+        }
+      ],
+      "search": [
+        "label",
+        "item"
+      ],
+      "fields": {
+        "label": {
+          "label": "Name",
+          "tooltip": "Shown in the bait menu and messages."
+        },
+        "item": {
+          "label": "Item",
+          "picker": "item",
+          "tooltip": "Inventory item used up as this bait. It must exist in your item list."
+        },
+        "prop": {
+          "label": "Prop model",
+          "advanced": true,
+          "tooltip": "Object model shown on the end of the line."
+        },
+        "bonus": {
+          "label": "Skillcheck bonus",
+          "min": 0,
+          "max": 2,
+          "step": 1,
+          "tooltip": "Makes the success zone this many levels larger. 0 counts like no bait (zone one level smaller). 2 also slows the needle by one."
+        },
+        "targetFish": {
+          "label": "Target fish",
+          "ref": "Config.Fish",
+          "tooltip": "Fish ids from the Fish list that this bait attracts: three times as likely to bite, and (normal rod) extra interest per tug when one lives in the water. Empty = no preference."
+        },
+        "loseChance": {
+          "label": "Lose chance",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "tooltip": "Chance the bait is lost when a fish gets away. A snapped line always loses it."
+        },
+        "sizeWeights": {
+          "label": "Size weights",
+          "tooltip": "How likely each fish size is to bite on this bait. A size left out counts as 1, so set legendary = 0 to keep legendary fish off this bait."
+        },
+        "sizeWeights.sm": {
+          "label": "Small",
+          "min": 0,
+          "max": 20,
+          "step": 0.1
+        },
+        "sizeWeights.md": {
+          "label": "Medium",
+          "min": 0,
+          "max": 20,
+          "step": 0.1
+        },
+        "sizeWeights.lg": {
+          "label": "Large",
+          "min": 0,
+          "max": 20,
+          "step": 0.1
+        },
+        "sizeWeights.xl": {
+          "label": "Extra large",
+          "min": 0,
+          "max": 20,
+          "step": 0.1
+        },
+        "sizeWeights.legendary": {
+          "label": "Legendary",
+          "min": 0,
+          "max": 20,
+          "step": 0.1
+        }
+      },
+      "template": {
+        "label": "New Bait",
+        "item": "bait_worm",
+        "prop": "p_baitWorm01x",
+        "bonus": 1,
+        "targetFish": [],
+        "loseChance": 50,
+        "sizeWeights": {
+          "sm": 3,
+          "md": 3,
+          "lg": 1,
+          "xl": 0.5,
+          "legendary": 0
+        }
+      }
+    },
+    "Config.Fish": {
+      "label": "Fish",
+      "itemLabel": "fish",
+      "tab": "fish",
+      "kind": "map",
+      "tooltip": "Every fish that can be caught. Which waters each fish lives in is built into the script, so edit existing fish here; a new fish or a renamed id will not appear in any water, and deleting one a water uses breaks that water.",
+      "titleField": "label",
+      "subtitleField": "item",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Name"
+        },
+        {
+          "field": "price",
+          "label": "Price"
+        },
+        {
+          "field": "size",
+          "label": "Size"
+        },
+        {
+          "field": "hours",
+          "label": "Hours"
+        }
+      ],
+      "search": [
+        "label",
+        "item",
+        "model"
+      ],
+      "fields": {
+        "label": {
+          "label": "Name",
+          "tooltip": "Shown on the HUD, in messages and in the journal."
+        },
+        "item": {
+          "label": "Item",
+          "picker": "item",
+          "tooltip": "Inventory item given when the fish is kept."
+        },
+        "model": {
+          "label": "Fish model",
+          "advanced": true,
+          "tooltip": "Ped model held up in the player's hands after the catch."
+        },
+        "price": {
+          "label": "Price",
+          "min": 0,
+          "max": 1000,
+          "step": 0.05,
+          "unit": "$",
+          "tooltip": "Also sets the difficulty tier: under $1 easy, under $3 medium, under $6 hard, under $20 expert, $20 or more legendary."
+        },
+        "size": {
+          "label": "Size",
+          "options": [
+            {
+              "value": "sm",
+              "label": "Small"
+            },
+            {
+              "value": "md",
+              "label": "Medium"
+            },
+            {
+              "value": "lg",
+              "label": "Large"
+            },
+            {
+              "value": "xl",
+              "label": "Extra large"
+            },
+            {
+              "value": "legendary",
+              "label": "Legendary"
+            }
+          ],
+          "tooltip": "Picks the bait size weight used for the bite odds and the unhook animation."
+        },
+        "weightMin": {
+          "label": "Lightest",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "lbs",
+          "tooltip": "Lightest random weight a caught fish can have."
+        },
+        "weightMax": {
+          "label": "Heaviest",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "lbs",
+          "tooltip": "Heaviest random weight. Keep it at or above the lightest."
+        },
+        "hours": {
+          "label": "Active hours",
+          "tooltip": "Two game hours, start and end (0 to 23), when the fish bites. {20, 6} wraps midnight: 8 PM to 6 AM. A fish without this field bites all day; never leave it empty."
+        }
+      },
+      "template": {
+        "label": "New Fish",
+        "item": "a_c_fishbluegil_01_sm",
+        "model": "A_C_FISHBLUEGIL_01_SM",
+        "price": 0.5,
+        "size": "sm",
+        "weightMin": 0.1,
+        "weightMax": 2.0
+      }
+    },
+    "Config.LootDrops": {
+      "label": "Bonus loot",
+      "itemLabel": "loot drop",
+      "tab": "fish",
+      "kind": "list",
+      "tooltip": "Every kept fish gives exactly one bonus item from this table (two with the Pro Rod), picked by weight.",
+      "titleField": "label",
+      "subtitleField": "item",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Name"
+        },
+        {
+          "field": "item",
+          "label": "Item"
+        },
+        {
+          "field": "chance",
+          "label": "Weight"
+        }
+      ],
+      "search": [
+        "label",
+        "item"
+      ],
+      "fields": {
+        "item": {
+          "label": "Item",
+          "picker": "item",
+          "tooltip": "Inventory item given."
+        },
+        "label": {
+          "label": "Name",
+          "tooltip": "Shown in the 'you found' message. Keep it matching the item."
+        },
+        "chance": {
+          "label": "Weight",
+          "min": 0,
+          "max": 1000,
+          "step": 0.1,
+          "tooltip": "Relative weight, not a percentage: an entry's odds are its weight divided by the total of all weights."
+        }
+      },
+      "template": {
+        "item": "whitepearl",
+        "label": "White Pearl",
+        "chance": 1.0
+      }
+    },
+    "Config.MusicTracks": {
+      "label": "Music tracks",
+      "itemLabel": "track",
+      "tab": "appearance",
+      "kind": "list",
+      "tooltip": "Tracks the player cycles with D while fishing. Keep the first entry as Off (no id). The second track plays when a rod is equipped.",
+      "titleField": "label",
+      "subtitleField": "id",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Name"
+        },
+        {
+          "field": "id",
+          "label": "Sound id"
+        }
+      ],
+      "search": [
+        "label",
+        "id"
+      ],
+      "fields": {
+        "id": {
+          "label": "Sound id",
+          "ref": "Config.Sounds",
+          "tooltip": "Name of the sound under Sounds or Music (e.g. fishingMusic_1) that this track plays. Leave empty for Off."
+        },
+        "label": {
+          "label": "Name",
+          "tooltip": "Shown on the HUD as now playing."
+        }
+      },
+      "template": {
+        "id": "fishingMusic_1",
+        "label": "New Track"
+      }
+    }
+  }
+}
