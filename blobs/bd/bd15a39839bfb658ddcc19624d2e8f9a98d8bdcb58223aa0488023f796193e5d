@@ -1,0 +1,409 @@
+{
+  "label": "Tickets",
+  "tagline": "Players ask for help, staff claim it: tickets, help calls, warn, kick, ban and Discord",
+  "category": "Admin",
+  "description": "A ticket window for players (a key or /ticket) and a large staff panel. Tickets are tracked live, routed to the right staff by kind, claimed by one person, answered in a conversation or in person with a one-press teleport, and posted to Discord as one message that is edited as the ticket moves. Staff are hired in the panel. Bans use poggy_core's account bans.",
+  "readme": "README.md",
+  "help": [
+    {
+      "title": "For players: sending a ticket",
+      "file": "docs/help/players.md"
+    },
+    {
+      "title": "For staff: the panel",
+      "file": "docs/help/staff.md"
+    },
+    {
+      "title": "Setting up: staff, routing and Discord",
+      "file": "docs/help/setup.md"
+    }
+  ],
+  "commands": [
+    {
+      "command": "/ticket",
+      "configPath": "Config.Command",
+      "who": "Everyone",
+      "description": "Opens the ticket form: send a ticket, call for help, or read and answer your own tickets. The Open key (Page Up by default) does the same.",
+      "usage": "/ticket",
+      "examples": [
+        "/ticket"
+      ]
+    },
+    {
+      "command": "/tickets",
+      "configPath": "Config.StaffCommand",
+      "who": "Staff (admins, mods, helpers, developers)",
+      "description": "Opens the staff panel. Staff are the people added on the panel's Staff tab, plus anyone your framework counts as an admin. The Staff panel key (Page Down by default) does the same.",
+      "usage": "/tickets",
+      "examples": [
+        "/tickets"
+      ]
+    },
+    {
+      "command": "/mod",
+      "configPath": "Config.ModCommand",
+      "who": "Staff who may warn, kick or ban (mods and admins)",
+      "description": "Opens the Players menu: everyone online, each with their record (warnings, bans, tickets) and Warn, Kick and Ban. No ticket needed. Add a server id to open it on that player. Search a name and press Enter to act on someone who has left. Mods can warn and kick; only admins can ban. Every action needs a reason and is in the audit trail.",
+      "usage": "/mod [server id]",
+      "examples": [
+        "/mod",
+        "/mod 12"
+      ]
+    },
+    {
+      "command": "/invis",
+      "configPath": "Config.InvisCommand",
+      "who": "Staff (admins, mods, helpers, developers)",
+      "description": "Turns your invisibility on or off. While invisible you cannot be hurt. It is also turned on when you teleport from a ticket and off when you press Return. It never survives a relog. Every use is in the audit trail.",
+      "usage": "/invis",
+      "examples": [
+        "/invis"
+      ]
+    },
+    {
+      "command": "/staffduty",
+      "configPath": "Config.DutyCommand",
+      "who": "Staff (admins, mods, helpers, developers)",
+      "description": "Goes off duty, or back on. Off duty you get no sounds, pop-ups or badge, and you do not count as staff online; the panel still opens. You are always back on duty after you log in again.",
+      "usage": "/staffduty",
+      "examples": [
+        "/staffduty"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "id": "players",
+      "label": "Players: warn, kick, ban",
+      "icon": "shield"
+    },
+    {
+      "id": "general",
+      "label": "Opening & keys",
+      "icon": "sliders"
+    },
+    {
+      "id": "form",
+      "label": "The ticket form",
+      "icon": "chat"
+    },
+    {
+      "id": "kinds",
+      "label": "Kinds & routing",
+      "icon": "box"
+    },
+    {
+      "id": "staff",
+      "label": "Staff",
+      "icon": "shield"
+    },
+    {
+      "id": "discord",
+      "label": "Discord",
+      "icon": "download"
+    }
+  ],
+  "panels": [
+    {
+      "id": "players",
+      "label": "Players online",
+      "tab": "players",
+      "export": "HubPanel",
+      "itemLabel": "player",
+      "tooltip": "Everyone online, with Warn, Kick and Ban on each row, and a button that opens the full Players menu. Your ticket role decides which buttons you get."
+    }
+  ],
+  "settings": {
+    "Config.Language": {
+      "label": "Language",
+      "tooltip": "The language of every message and window. Add a language by copying the \"en\" block in translations.lua.",
+      "tab": "general",
+      "group": "Language",
+      "options": [
+        {
+          "value": "en",
+          "label": "English"
+        }
+      ]
+    },
+    "Config.Command": {
+      "label": "Ticket command",
+      "tooltip": "The chat command players type to open the ticket form, without the slash. Needs a restart of the script.",
+      "tab": "general",
+      "group": "Players"
+    },
+    "Config.OpenKey": {
+      "label": "Open key",
+      "tooltip": "The key that opens the ticket form. The default is Page Up. Players cannot rebind it, so pick a key nothing else uses. 0 turns the key off; the command always works.",
+      "tab": "general",
+      "group": "Players",
+      "picker": "key"
+    },
+    "Config.StaffCommand": {
+      "label": "Staff panel command",
+      "tooltip": "The chat command staff type to open the staff panel, without the slash.",
+      "tab": "general",
+      "group": "Staff"
+    },
+    "Config.StaffKey": {
+      "label": "Staff panel key",
+      "tooltip": "The key that opens the staff panel, for staff only. The default is Page Down. 0 turns the key off.",
+      "tab": "general",
+      "group": "Staff",
+      "picker": "key"
+    },
+    "Config.ModCommand": {
+      "label": "Players menu command",
+      "tooltip": "The chat command that opens the Players menu (warn, kick, ban with no ticket), without the slash. /ban is usually taken by other resources, so this is a different word.",
+      "tab": "general",
+      "group": "Staff"
+    },
+    "Config.InvisCommand": {
+      "label": "Invisibility command",
+      "tooltip": "The chat command staff type to turn their invisibility on or off.",
+      "tab": "general",
+      "group": "Staff"
+    },
+    "Config.DutyCommand": {
+      "label": "Duty command",
+      "tooltip": "The chat command staff type to go off duty or back on.",
+      "tab": "general",
+      "group": "Staff"
+    },
+    "Config.PlayerList": {
+      "label": "Reported player list",
+      "tooltip": "Who a player can pick as the player they are reporting. Nearby is the safest on a roleplay server: showing everyone's name to everyone is a metagaming tool.",
+      "tab": "form",
+      "group": "Reported player",
+      "options": [
+        {
+          "value": "nearby",
+          "label": "Nearby players, with names"
+        },
+        {
+          "value": "all",
+          "label": "Everyone online, with names"
+        },
+        {
+          "value": "ids",
+          "label": "Everyone online, server ids only"
+        }
+      ]
+    },
+    "Config.NearbyRadius": {
+      "label": "Nearby distance",
+      "tooltip": "How close a player must be to show in the nearby list.",
+      "tab": "form",
+      "group": "Reported player",
+      "min": 10,
+      "max": 500,
+      "step": 10,
+      "unit": "m"
+    },
+    "Config.TicketCooldownMinutes": {
+      "label": "Wait between tickets",
+      "tooltip": "Minutes a player must wait before sending another ticket. 0 means no wait.",
+      "tab": "form",
+      "group": "Limits",
+      "min": 0,
+      "max": 120,
+      "unit": "min"
+    },
+    "Config.MaxOpenTickets": {
+      "label": "Open tickets per player",
+      "tooltip": "How many open tickets one player may have at once.",
+      "tab": "form",
+      "group": "Limits",
+      "min": 1,
+      "max": 10
+    },
+    "Config.TellWhenNoStaff": {
+      "label": "Say when no staff are on",
+      "tooltip": "After sending, tell the player when no on-duty staff who handle that kind of ticket are online. The ticket is saved either way. Turn off if you would rather not reveal it.",
+      "tab": "form",
+      "group": "Limits"
+    },
+    "Config.HelpCooldownMinutes": {
+      "label": "Wait between help calls",
+      "tooltip": "Minutes a player must wait before pressing 'I need help right now' again.",
+      "tab": "form",
+      "group": "Help calls",
+      "min": 0,
+      "max": 60,
+      "unit": "min"
+    },
+    "Config.HelpExpireMinutes": {
+      "label": "Help call runs out after",
+      "tooltip": "Minutes before a help call nobody marked done disappears from the panel.",
+      "tab": "form",
+      "group": "Help calls",
+      "min": 1,
+      "max": 60,
+      "unit": "min"
+    },
+    "Config.HelpRoles": {
+      "label": "Who hears help calls",
+      "tooltip": "The staff roles told about help calls: mod, helper, developer. Admins always are.",
+      "tab": "form",
+      "group": "Help calls"
+    },
+    "Config.StaleClaimMinutes": {
+      "label": "Free a claimed ticket after",
+      "tooltip": "When the staff member who claimed a ticket logs off, the ticket shows 'staff offline' and frees itself after this many minutes.",
+      "tab": "staff",
+      "group": "Claims",
+      "min": 1,
+      "max": 240,
+      "unit": "min"
+    },
+    "Config.ShowBadge": {
+      "label": "Open-ticket badge",
+      "tooltip": "Show on-duty staff a small count of waiting tickets at the top right of the screen.",
+      "tab": "staff",
+      "group": "Panel"
+    },
+    "Config.SoundVolume": {
+      "label": "Sound volume",
+      "tooltip": "How loud the notification sound is, for players and staff. 0 is silent, 1 is full.",
+      "tab": "staff",
+      "group": "Panel",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    "Config.PurgeClosedAfterDays": {
+      "label": "Delete closed tickets after",
+      "tooltip": "Days a closed ticket is kept. 0 keeps them forever. Old tickets are removed when the script starts.",
+      "tab": "staff",
+      "group": "Panel",
+      "min": 0,
+      "max": 3650,
+      "unit": "days"
+    },
+    "Config.Teleport.Invisible": {
+      "label": "Arrive invisible",
+      "tooltip": "Staff who teleport from a ticket arrive invisible and unable to be hurt, until they press Return or type /invis.",
+      "tab": "staff",
+      "group": "Teleport"
+    },
+    "Config.Teleport.Behind": {
+      "label": "Arrive behind the player",
+      "tooltip": "How many metres behind the player staff arrive, so they never land on top of them.",
+      "tab": "staff",
+      "group": "Teleport",
+      "min": 0,
+      "max": 20,
+      "step": 0.5,
+      "unit": "m"
+    },
+    "Config.Discord.Webhook": {
+      "label": "Webhook",
+      "tooltip": "The Discord channel's webhook address. Each ticket is one post, edited as it is claimed and closed, never deleted. Leave as it is for no Discord posts.",
+      "tab": "discord",
+      "group": "Discord",
+      "picker": "webhook"
+    },
+    "Config.Discord.Name": {
+      "label": "Post as",
+      "tooltip": "The name the posts are made under.",
+      "tab": "discord",
+      "group": "Discord"
+    },
+    "Config.Discord.CategoryWebhooks": {
+      "label": "Webhook per kind",
+      "tooltip": "A different channel for one kind of ticket: the key is the kind's id (bug, cheater, ...), the value its webhook. Kinds not listed use the main webhook.",
+      "tab": "discord",
+      "group": "Discord"
+    }
+  },
+  "lists": {
+    "Config.Categories": {
+      "label": "Kinds of ticket",
+      "itemLabel": "kind",
+      "tab": "kinds",
+      "kind": "list",
+      "titleField": "label",
+      "subtitleField": "id",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Label"
+        },
+        {
+          "field": "id",
+          "label": "Id"
+        },
+        {
+          "field": "priority",
+          "label": "Starts as"
+        },
+        {
+          "field": "reportsPlayer",
+          "label": "Asks which player"
+        },
+        {
+          "field": "wantsClip",
+          "label": "Asks for a clip"
+        }
+      ],
+      "search": [
+        "label",
+        "id"
+      ],
+      "fields": {
+        "id": {
+          "label": "Id",
+          "tooltip": "A short name used in the database, the routing table and the per-kind webhooks. Never change it once tickets of this kind exist."
+        },
+        "label": {
+          "label": "Label",
+          "tooltip": "What players and staff read."
+        },
+        "priority": {
+          "label": "Starting priority",
+          "tooltip": "The priority picked for the player when they choose this kind. They can change it before sending; after that only staff can.",
+          "options": [
+            {
+              "value": "urgent",
+              "label": "Urgent"
+            },
+            {
+              "value": "high",
+              "label": "High"
+            },
+            {
+              "value": "medium",
+              "label": "Medium"
+            },
+            {
+              "value": "low",
+              "label": "Low"
+            }
+          ]
+        },
+        "reportsPlayer": {
+          "label": "Asks which player",
+          "tooltip": "On: the form asks which player the ticket is about, and staff get Warn, Kick and Ban on it."
+        },
+        "wantsClip": {
+          "label": "Asks for a video link",
+          "tooltip": "On: the form asks for a video link and encourages one. It is never required, and never opened in game."
+        }
+      },
+      "template": {
+        "id": "new_kind",
+        "label": "New kind",
+        "priority": "medium",
+        "reportsPlayer": false,
+        "wantsClip": false
+      }
+    },
+    "Config.Routing": {
+      "label": "Who sees which kind",
+      "itemLabel": "route",
+      "tab": "kinds",
+      "kind": "map",
+      "tooltip": "The key is a kind's id. The value is the staff roles that see it: mod, helper, developer. Admins always see everything. A kind with no row is seen by admins only."
+    }
+  }
+}
