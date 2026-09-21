@@ -1,0 +1,1315 @@
+{
+  "label": "Poggy Crafting",
+  "tagline": "A recipe browser with chains, a shopping list and skillchecks that bite",
+  "category": "Jobs",
+  "description": "Benches, campfires and world props open a recipe browser that shows every recipe's full chain and where each ingredient comes from. Players keep a shopping list and an on-screen gathering tracker. Recipes can be job-locked, place-locked, cost money or ask for skillchecks that can explode in your hands.",
+  "readme": "README.md",
+  "itemCheck": true,
+  "diagnostics": "HubDiagnostics",
+  "itemIcons": {
+    "resourcePath": "Config.IconResource",
+    "pathPath": "Config.IconPath"
+  },
+  "help": [
+    {
+      "title": "Writing a recipe",
+      "file": "docs/help/writing-a-recipe.md"
+    },
+    {
+      "title": "Adding a bench",
+      "file": "docs/help/adding-a-bench.md"
+    },
+    {
+      "title": "Skillcheck recipes",
+      "file": "docs/help/skillchecks.md"
+    },
+    {
+      "title": "Hidden recipes",
+      "file": "docs/help/hidden-recipes.md"
+    },
+    {
+      "title": "Locking crafting to a job or a place",
+      "file": "docs/help/locking-crafting.md"
+    }
+  ],
+  "commands": [
+    {
+      "command": "/craft",
+      "configPath": "Config.Commands.craft",
+      "who": "Everyone",
+      "description": "Opens the recipe browser anywhere. Recipes that need a bench or prop are still out of reach.",
+      "usage": "/craft",
+      "examples": [
+        "/craft"
+      ]
+    },
+    {
+      "command": "/campfire",
+      "configPath": "Config.Commands.campfire",
+      "who": "Staff (admins)",
+      "description": "Places a campfire without using the item. Off by default (false). Staff only: the server checks the player is an admin.",
+      "usage": "/campfire",
+      "examples": [
+        "/campfire"
+      ]
+    },
+    {
+      "command": "/extinguish",
+      "configPath": "Config.Commands.extinguish",
+      "who": "Everyone",
+      "description": "Puts out the campfire you placed.",
+      "usage": "/extinguish",
+      "examples": [
+        "/extinguish"
+      ]
+    },
+    {
+      "command": "/gt",
+      "configPath": "Config.Commands.tracker",
+      "who": "Everyone",
+      "description": "Gives the mouse to the gathering tracker so you can drag it somewhere else.",
+      "usage": "/gt",
+      "examples": [
+        "/gt"
+      ]
+    },
+    {
+      "command": "/gthide",
+      "configPath": "Config.Commands.trackerHide",
+      "who": "Everyone",
+      "description": "Hides or shows the gathering tracker.",
+      "usage": "/gthide",
+      "examples": [
+        "/gthide"
+      ]
+    },
+    {
+      "command": "poggycrafting_icons",
+      "who": "Server console",
+      "description": "Runs the hidden-recipe check again and prints how many recipes are hidden and why. Only matters with Hide recipes with no item icon on.",
+      "usage": "poggycrafting_icons",
+      "examples": [
+        "poggycrafting_icons"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "id": "general",
+      "label": "General",
+      "icon": "sliders"
+    },
+    {
+      "id": "locations",
+      "label": "Locations",
+      "icon": "map"
+    },
+    {
+      "id": "recipes",
+      "label": "Recipes",
+      "icon": "book"
+    },
+    {
+      "id": "skill",
+      "label": "Skillchecks",
+      "icon": "target"
+    },
+    {
+      "id": "text",
+      "label": "Text & language",
+      "icon": "language"
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced",
+      "icon": "wrench"
+    }
+  ],
+  "settings": {
+    "Config.Debug": {
+      "label": "Debug output",
+      "tooltip": "Prints extra lines to the server console. Leave off on a live server.",
+      "tab": "advanced",
+      "group": "Diagnostics"
+    },
+    "Config.Webhook": {
+      "label": "Crafting log webhook",
+      "tooltip": "Discord webhook for the crafting log. Blank = no log. Only https://discord.com/api/webhooks/ URLs are used.",
+      "tab": "general",
+      "group": "Discord log",
+      "picker": "webhook",
+      "placeholder": "https://discord.com/api/webhooks/..."
+    },
+    "Config.WebhookAvatar": {
+      "label": "Webhook avatar",
+      "tooltip": "Image URL used as the webhook's avatar. Blank uses Discord's default.",
+      "tab": "general",
+      "group": "Discord log",
+      "advanced": true
+    },
+    "Config.WebhookLogCrafts": {
+      "label": "Log every craft",
+      "tooltip": "On = every finished craft is posted to the webhook; this is the only thing it logs. Busy servers may want this off.",
+      "tab": "general",
+      "group": "Discord log"
+    },
+    "Config.Commands": {
+      "label": "Commands",
+      "tooltip": "The chat command names, without the slash. Set one to false to remove that command.",
+      "tab": "general"
+    },
+    "Config.Commands.craft": {
+      "label": "Recipe browser command",
+      "tooltip": "Opens the recipe browser anywhere. Recipes and categories that need a bench stay out of reach. false removes it.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.Commands.campfire": {
+      "label": "Free campfire command",
+      "tooltip": "Places a campfire without using the item. For testing: anyone can use it, so leave it false on a live server.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.Commands.extinguish": {
+      "label": "Extinguish command",
+      "tooltip": "Puts out the campfire the player placed. false removes it.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.Commands.tracker": {
+      "label": "Move tracker command",
+      "tooltip": "Gives the mouse to the gathering tracker so it can be dragged. false removes it.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.Commands.trackerHide": {
+      "label": "Hide tracker command",
+      "tooltip": "Hides or shows the gathering tracker. false removes it.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.PromptControl": {
+      "label": "Open key",
+      "tooltip": "The control that opens a bench or campfire, as a RedM control hash. 0x760A9C6F is G. Look hashes up; a wrong one binds a different control.",
+      "tab": "advanced",
+      "group": "Controls"
+    },
+    "Config.Styles": {
+      "label": "Browser style (not used)",
+      "tooltip": "Reserved settings. The current browser does not read them, so changing them has no effect.",
+      "tab": "advanced"
+    },
+    "Config.Styles.fontSize": {
+      "label": "Font size (not used)",
+      "tooltip": "Reserved. The current browser does not read this setting.",
+      "tab": "advanced",
+      "group": "Browser style (not used)",
+      "advanced": true,
+      "options": [
+        {
+          "value": "s",
+          "label": "Small"
+        },
+        {
+          "value": "m",
+          "label": "Medium"
+        },
+        {
+          "value": "l",
+          "label": "Large"
+        }
+      ]
+    },
+    "Config.Styles.descriptionsidebar": {
+      "label": "Description panel (not used)",
+      "tooltip": "Reserved. The current browser does not read this setting.",
+      "tab": "advanced",
+      "group": "Browser style (not used)",
+      "advanced": true
+    },
+    "Config.ShoppingList": {
+      "label": "Shopping list",
+      "tooltip": "The per-character shopping list and the on-screen gathering tracker it feeds.",
+      "tab": "general"
+    },
+    "Config.ShoppingList.enabled": {
+      "label": "Shopping list on",
+      "tooltip": "Off hides the list and the tracker, and the script never touches its database table.",
+      "tab": "general",
+      "group": "Shopping list"
+    },
+    "Config.ShoppingList.maxItems": {
+      "label": "Items per character",
+      "tooltip": "How many lines one character's list may hold, across all recipes.",
+      "tab": "general",
+      "group": "Shopping list",
+      "min": 1,
+      "max": 500,
+      "step": 1,
+      "unit": "items"
+    },
+    "Config.ItemLabelOverrides": {
+      "label": "Item label overrides",
+      "tooltip": "Item name = label shown in the browser, for items with no label or an unreadable one (raw fish model names). Cosmetic only.",
+      "tab": "recipes",
+      "group": "Item names in the browser"
+    },
+    "Config.HideRecipesWithoutIcons": {
+      "label": "Hide recipes with no item icon",
+      "tooltip": "On = at start the server checks every item each recipe uses and hides (and blocks) the recipes whose items have no icon, so the browser never shows placeholders. The Recipes list here marks each hidden recipe with the reason and the exact icon file to add. Add the icon and restart the server to bring it back.",
+      "tab": "recipes",
+      "group": "Hidden recipes"
+    },
+    "Config.HideBrokenChains": {
+      "label": "Also hide recipes that can no longer be made",
+      "tooltip": "With the setting above on: hides a recipe when every recipe that made one of its ingredients is hidden. Raw materials (anything no recipe makes) never cause this.",
+      "tab": "recipes",
+      "group": "Hidden recipes"
+    },
+    "Config.Distances": {
+      "label": "Reach",
+      "tooltip": "How close a player must be to open the browser.",
+      "tab": "locations"
+    },
+    "Config.Distances.campfire": {
+      "label": "Prop and campfire reach",
+      "tooltip": "Distance to a campfire, oven or other crafting prop.",
+      "tab": "locations",
+      "group": "Reach",
+      "min": 0.25,
+      "max": 5,
+      "step": 0.25,
+      "unit": "metres"
+    },
+    "Config.Distances.locations": {
+      "label": "Bench reach",
+      "tooltip": "Distance to a bench from the Benches list.",
+      "tab": "locations",
+      "group": "Reach",
+      "min": 0.25,
+      "max": 5,
+      "step": 0.25,
+      "unit": "metres"
+    },
+    "Config.CraftingPropsEnabled": {
+      "label": "Craft at world props",
+      "tooltip": "On = walking up to a campfire, oven or any prop in the Crafting props list opens the browser. The prop scan is the costliest thing the script does; turn it off if you only use benches.",
+      "tab": "locations",
+      "group": "Campfires and props"
+    },
+    "Config.CampfireJobLock": {
+      "label": "Prop job lock",
+      "tooltip": "Jobs allowed to craft at props and campfires. Anyone, or only the jobs listed.",
+      "tab": "locations",
+      "group": "Campfires and props",
+      "any": { "value": 0, "label": "Anyone", "listLabel": "Only these jobs" },
+      "picker": "job"
+    },
+    "Config.CampfireItem": {
+      "label": "Campfire item",
+      "tooltip": "The usable item that places a campfire; one is used up. false = no placeable campfire.",
+      "tab": "locations",
+      "group": "Campfires and props",
+      "picker": "item"
+    },
+    "Config.PlaceableCampfire": {
+      "label": "Campfire prop",
+      "tooltip": "The prop model the campfire item places. Keep it in the Crafting props list so players can craft at it.",
+      "tab": "locations",
+      "group": "Campfires and props",
+      "advanced": true
+    },
+    "Config.KneelingAnimation": {
+      "label": "Kneel while browsing",
+      "tooltip": "The player kneels while the browser is open, the way the game's own crafting does.",
+      "tab": "locations",
+      "group": "Campfires and props"
+    },
+    "Config.CraftTime": {
+      "label": "Craft time",
+      "tooltip": "How long an ordinary craft takes. A recipe's own Craft time overrides it.",
+      "tab": "recipes",
+      "group": "Every recipe",
+      "min": 500,
+      "max": 120000,
+      "step": 500,
+      "unit": "ms"
+    },
+    "Config.ProgressBar": {
+      "label": "Progress bar",
+      "tooltip": "The bar shown while an ordinary craft runs, drawn by this script.",
+      "tab": "recipes"
+    },
+    "Config.ProgressBar.enabled": {
+      "label": "Show progress bar",
+      "tooltip": "Off = the craft still takes its time, with no bar.",
+      "tab": "recipes",
+      "group": "Progress bar"
+    },
+    "Config.ProgressBar.position": {
+      "label": "Bar position",
+      "tooltip": "Where on screen the bar appears.",
+      "tab": "recipes",
+      "group": "Progress bar",
+      "options": [
+        {
+          "value": "bottom",
+          "label": "Bottom"
+        },
+        {
+          "value": "top",
+          "label": "Top"
+        }
+      ]
+    },
+    "Config.Skillcheck": {
+      "label": "Skillchecks",
+      "tooltip": "Timed rounds that recipes can ask for instead of the progress bar. Needs poggy_skillcheck. Materials are taken before the rounds, so a miss costs them.",
+      "tab": "skill"
+    },
+    "Config.Skillcheck.enabled": {
+      "label": "Skillchecks on",
+      "tooltip": "Off = every skillcheck recipe uses the progress bar instead, and job-locked recipes with a job skillcheck are refused to players without the job.",
+      "tab": "skill",
+      "group": "Skillchecks"
+    },
+    "Config.Skillcheck.RepsPerExtra": {
+      "label": "Extra round every",
+      "tooltip": "One extra round for every this many items crafted at once. 0 = batches are no harder.",
+      "tab": "skill",
+      "group": "Skillchecks",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "items"
+    },
+    "Config.Skillcheck.GreatBonusPct": {
+      "label": "Great-hit bonus",
+      "tooltip": "Reward bonus for each hit in the bright band, as a fraction. 0.25 = +25% per great hit.",
+      "tab": "skill",
+      "group": "Skillchecks",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    "Config.Skillcheck.StartDelay": {
+      "label": "Start delay",
+      "tooltip": "Pause between the browser closing and the first round.",
+      "tab": "skill",
+      "group": "Skillchecks",
+      "min": 0,
+      "max": 5000,
+      "step": 100,
+      "unit": "ms",
+      "advanced": true
+    },
+    "Config.Skillcheck.Normal": {
+      "label": "Normal difficulty",
+      "tooltip": "Used by recipes with a plain skillcheck.",
+      "tab": "skill"
+    },
+    "Config.Skillcheck.Normal.speed": {
+      "label": "Needle speed",
+      "tooltip": "How fast the needle moves, 1 (slow) to 5 (fast).",
+      "tab": "skill",
+      "group": "Normal difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    "Config.Skillcheck.Normal.difficulty": {
+      "label": "Band size",
+      "tooltip": "How small the success band is, 1 (wide) to 5 (tiny).",
+      "tab": "skill",
+      "group": "Normal difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    "Config.Skillcheck.Normal.great": {
+      "label": "Great band",
+      "tooltip": "Size of the bright bonus band, as a percentage of the success band.",
+      "tab": "skill",
+      "group": "Normal difficulty",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Skillcheck.Normal.randomizer": {
+      "label": "Band movement",
+      "tooltip": "How far the band moves between rounds. 0 = it stays put.",
+      "tab": "skill",
+      "group": "Normal difficulty",
+      "min": 0,
+      "max": 5,
+      "step": 1
+    },
+    "Config.Skillcheck.Normal.shake": {
+      "label": "Shake",
+      "tooltip": "On = the dial shakes, making it harder to read.",
+      "tab": "skill",
+      "group": "Normal difficulty"
+    },
+    "Config.Skillcheck.Normal.shakeSpeed": {
+      "label": "Shake speed",
+      "tooltip": "How fast the dial shakes, when shake is on.",
+      "tab": "skill",
+      "group": "Normal difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    "Config.Skillcheck.Normal.shakeDist": {
+      "label": "Shake distance",
+      "tooltip": "How far the dial shakes, when shake is on.",
+      "tab": "skill",
+      "group": "Normal difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    "Config.Skillcheck.Normal.timeBetween": {
+      "label": "Pause between rounds",
+      "tooltip": "Gap between one round and the next.",
+      "tab": "skill",
+      "group": "Normal difficulty",
+      "min": 0,
+      "max": 3000,
+      "step": 50,
+      "unit": "ms"
+    },
+    "Config.Skillcheck.Normal.direction": {
+      "label": "Needle direction",
+      "tooltip": "Which way the needle turns.",
+      "tab": "skill",
+      "group": "Normal difficulty",
+      "options": [
+        {
+          "value": "rand",
+          "label": "Random"
+        },
+        {
+          "value": "cw",
+          "label": "Clockwise"
+        },
+        {
+          "value": "ccw",
+          "label": "Anticlockwise"
+        }
+      ]
+    },
+    "Config.Skillcheck.JobBypass": {
+      "label": "Untrained difficulty",
+      "tooltip": "Used when a player without the recipe's job crafts it through a job skillcheck.",
+      "tab": "skill"
+    },
+    "Config.Skillcheck.JobBypass.speed": {
+      "label": "Needle speed",
+      "tooltip": "How fast the needle moves, 1 (slow) to 5 (fast).",
+      "tab": "skill",
+      "group": "Untrained difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    "Config.Skillcheck.JobBypass.difficulty": {
+      "label": "Band size",
+      "tooltip": "How small the success band is, 1 (wide) to 5 (tiny).",
+      "tab": "skill",
+      "group": "Untrained difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    "Config.Skillcheck.JobBypass.great": {
+      "label": "Great band",
+      "tooltip": "Size of the bright bonus band, as a percentage of the success band.",
+      "tab": "skill",
+      "group": "Untrained difficulty",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Skillcheck.JobBypass.randomizer": {
+      "label": "Band movement",
+      "tooltip": "How far the band moves between rounds. 0 = it stays put.",
+      "tab": "skill",
+      "group": "Untrained difficulty",
+      "min": 0,
+      "max": 5,
+      "step": 1
+    },
+    "Config.Skillcheck.JobBypass.shake": {
+      "label": "Shake",
+      "tooltip": "On = the dial shakes, making it harder to read.",
+      "tab": "skill",
+      "group": "Untrained difficulty"
+    },
+    "Config.Skillcheck.JobBypass.shakeSpeed": {
+      "label": "Shake speed",
+      "tooltip": "How fast the dial shakes, when shake is on.",
+      "tab": "skill",
+      "group": "Untrained difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    "Config.Skillcheck.JobBypass.shakeDist": {
+      "label": "Shake distance",
+      "tooltip": "How far the dial shakes, when shake is on.",
+      "tab": "skill",
+      "group": "Untrained difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    "Config.Skillcheck.JobBypass.timeBetween": {
+      "label": "Pause between rounds",
+      "tooltip": "Gap between one round and the next.",
+      "tab": "skill",
+      "group": "Untrained difficulty",
+      "min": 0,
+      "max": 3000,
+      "step": 50,
+      "unit": "ms"
+    },
+    "Config.Skillcheck.JobBypass.direction": {
+      "label": "Needle direction",
+      "tooltip": "Which way the needle turns.",
+      "tab": "skill",
+      "group": "Untrained difficulty",
+      "options": [
+        {
+          "value": "rand",
+          "label": "Random"
+        },
+        {
+          "value": "cw",
+          "label": "Clockwise"
+        },
+        {
+          "value": "ccw",
+          "label": "Anticlockwise"
+        }
+      ]
+    },
+    "Config.Skillcheck.Hard": {
+      "label": "Hard difficulty",
+      "tooltip": "Used by recipes marked as hard: explosives, volatile chemistry.",
+      "tab": "skill"
+    },
+    "Config.Skillcheck.Hard.speed": {
+      "label": "Needle speed",
+      "tooltip": "How fast the needle moves, 1 (slow) to 5 (fast).",
+      "tab": "skill",
+      "group": "Hard difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    "Config.Skillcheck.Hard.difficulty": {
+      "label": "Band size",
+      "tooltip": "How small the success band is, 1 (wide) to 5 (tiny).",
+      "tab": "skill",
+      "group": "Hard difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    "Config.Skillcheck.Hard.great": {
+      "label": "Great band",
+      "tooltip": "Size of the bright bonus band, as a percentage of the success band.",
+      "tab": "skill",
+      "group": "Hard difficulty",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Skillcheck.Hard.randomizer": {
+      "label": "Band movement",
+      "tooltip": "How far the band moves between rounds. 0 = it stays put.",
+      "tab": "skill",
+      "group": "Hard difficulty",
+      "min": 0,
+      "max": 5,
+      "step": 1
+    },
+    "Config.Skillcheck.Hard.shake": {
+      "label": "Shake",
+      "tooltip": "On = the dial shakes, making it harder to read.",
+      "tab": "skill",
+      "group": "Hard difficulty"
+    },
+    "Config.Skillcheck.Hard.shakeSpeed": {
+      "label": "Shake speed",
+      "tooltip": "How fast the dial shakes, when shake is on.",
+      "tab": "skill",
+      "group": "Hard difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    "Config.Skillcheck.Hard.shakeDist": {
+      "label": "Shake distance",
+      "tooltip": "How far the dial shakes, when shake is on.",
+      "tab": "skill",
+      "group": "Hard difficulty",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    "Config.Skillcheck.Hard.timeBetween": {
+      "label": "Pause between rounds",
+      "tooltip": "Gap between one round and the next.",
+      "tab": "skill",
+      "group": "Hard difficulty",
+      "min": 0,
+      "max": 3000,
+      "step": 50,
+      "unit": "ms"
+    },
+    "Config.Skillcheck.Hard.direction": {
+      "label": "Needle direction",
+      "tooltip": "Which way the needle turns.",
+      "tab": "skill",
+      "group": "Hard difficulty",
+      "options": [
+        {
+          "value": "rand",
+          "label": "Random"
+        },
+        {
+          "value": "cw",
+          "label": "Clockwise"
+        },
+        {
+          "value": "ccw",
+          "label": "Anticlockwise"
+        }
+      ]
+    },
+    "Config.CraftingExplosion": {
+      "label": "Explosion on failure",
+      "tooltip": "What happens when a recipe with Explode on failure misses a round.",
+      "tab": "skill"
+    },
+    "Config.CraftingExplosion.ExplosionType": {
+      "label": "Explosion type",
+      "tooltip": "RedM explosion type id. 25 = dynamite.",
+      "tab": "skill",
+      "group": "Explosion on failure",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "advanced": true
+    },
+    "Config.CraftingExplosion.ExplosionDamage": {
+      "label": "Damage",
+      "tooltip": "Damage scale of the explosion. 1000 is usually fatal.",
+      "tab": "skill",
+      "group": "Explosion on failure",
+      "min": 0,
+      "max": 10000,
+      "step": 50
+    },
+    "Config.CraftingExplosion.ExplosionShake": {
+      "label": "Camera shake",
+      "tooltip": "How hard the camera shakes. 0 = none.",
+      "tab": "skill",
+      "group": "Explosion on failure",
+      "min": 0,
+      "max": 10,
+      "step": 0.1
+    },
+    "Config.CraftingFire": {
+      "label": "Fire on failure",
+      "tooltip": "What happens when a recipe with Catch fire on failure misses a round.",
+      "tab": "skill"
+    },
+    "Config.CraftingFire.FireDuration": {
+      "label": "Burn time",
+      "tooltip": "How long the crafter keeps burning. The game puts a ped out after about 2 seconds, so the script re-lights them until this runs out.",
+      "tab": "skill",
+      "group": "Fire on failure",
+      "min": 1000,
+      "max": 60000,
+      "step": 500,
+      "unit": "ms"
+    },
+    "PoggyCrafting.Locale.*": {
+      "tab": "text",
+      "group": "Messages and browser text",
+      "tooltip": "Text players see. Keep every %s marker: each is filled in with a value (an amount, an item) in order."
+    },
+    "PoggyCrafting.Locale": {
+      "label": "Messages and browser text",
+      "tooltip": "Every string a player can see, including the recipe browser.",
+      "tab": "text"
+    },
+    "PoggyCrafting.Locale.ui_list_empty_hint": {
+      "tooltip": "Shown in an empty shopping list. <br/> is a line break; keep it or the text runs on.",
+      "tab": "text",
+      "group": "Messages and browser text"
+    }
+  },
+  "lists": {
+    "Config.Locations": {
+      "label": "Benches",
+      "itemLabel": "bench",
+      "tab": "locations",
+      "kind": "list",
+      "titleField": "name",
+      "subtitleField": "id",
+      "columns": [
+        {
+          "field": "name",
+          "label": "Name"
+        },
+        {
+          "field": "id",
+          "label": "ID"
+        },
+        {
+          "field": "Categories",
+          "label": "Categories"
+        },
+        {
+          "field": "Job",
+          "label": "Jobs"
+        }
+      ],
+      "search": [
+        "name",
+        "id"
+      ],
+      "fields": {
+        "id": {
+          "label": "ID",
+          "tooltip": "Unique id that recipes and categories use in their Location list. Never reuse one; renaming it breaks those links."
+        },
+        "name": {
+          "label": "Name",
+          "tooltip": "Shown on the prompt and the map blip."
+        },
+        "x": {
+          "label": "X",
+          "tooltip": "Bench position, east-west.",
+          "step": 0.01
+        },
+        "y": {
+          "label": "Y",
+          "tooltip": "Bench position, north-south.",
+          "step": 0.01
+        },
+        "z": {
+          "label": "Z",
+          "tooltip": "Bench position, height.",
+          "step": 0.01
+        },
+        "Categories": {
+          "label": "Categories",
+          "tooltip": "Every category, or only the ones listed (from Recipes → Categories). A recipe whose category this bench does not offer is greyed out here.",
+          "any": { "value": 0, "label": "Every category", "listLabel": "Only these", "emptyNote": "Empty list: this bench offers no recipes at all until you add a category." },
+          "suggest": [
+            { "from": "Config.Categories", "field": "ident", "label": "text", "group": "Category", "icon": "link" }
+          ],
+          "suggestNote": "Not the ident of a category. Check the spelling, or add it under Recipes → Categories."
+        },
+        "Job": {
+          "label": "Jobs",
+          "tooltip": "Who sees this bench's prompt. Anyone, or only the jobs listed.",
+          "any": { "value": 0, "label": "Anyone", "listLabel": "Only these jobs" }
+        },
+        "Job[]": {
+          "picker": "job"
+        },
+        "Blip": {
+          "label": "Map blip",
+          "tooltip": "Leave out for no blip."
+        },
+        "Blip.enable": {
+          "label": "Show blip",
+          "tooltip": "Show this bench on the map."
+        },
+        "Blip.Hash": {
+          "label": "Blip sprite",
+          "tooltip": "RedM blip sprite name, e.g. blip_shop_blacksmith."
+        },
+        "Blip.scale": {
+          "label": "Blip size",
+          "tooltip": "Blip scale. Default 0.2.",
+          "min": 0.05,
+          "max": 2,
+          "step": 0.05
+        },
+        "Categories[]": {
+          "ref": "Config.Categories",
+          "refField": "ident"
+        }
+      },
+      "template": {
+        "id": "new_bench",
+        "name": "Workbench",
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "Categories": 0,
+        "Job": 0
+      }
+    },
+    "Config.CraftingProps": {
+      "label": "Crafting props",
+      "itemLabel": "prop group",
+      "tab": "locations",
+      "kind": "list",
+      "titleField": "title",
+      "columns": [
+        {
+          "field": "title",
+          "label": "Title"
+        },
+        {
+          "field": "prop",
+          "label": "Models"
+        }
+      ],
+      "search": [
+        "title"
+      ],
+      "fields": {
+        "title": {
+          "label": "Title",
+          "tooltip": "Prompt text. Lower-cased, it is also the location id recipes match on: Location = { 'campfire' }."
+        },
+        "prop": {
+          "label": "Prop models",
+          "tooltip": "World prop models that count as this place. Standing next to any of them opens the browser."
+        }
+      },
+      "template": {
+        "title": "New Prop",
+        "prop": []
+      }
+    },
+    "Config.Crafting": {
+      "label": "Recipes",
+      "itemLabel": "recipe",
+      "tab": "recipes",
+      "kind": "list",
+      "titleField": "Text",
+      "subtitleField": "Category",
+      "columns": [
+        {
+          "field": "Text",
+          "label": "Recipe"
+        },
+        {
+          "field": "Category",
+          "label": "Category"
+        },
+        {
+          "field": "Job",
+          "label": "Jobs"
+        },
+        {
+          "field": "Location",
+          "label": "Where"
+        }
+      ],
+      "search": [
+        "Text",
+        "SubText",
+        "Category",
+        "Items[].name",
+        "Reward[].name"
+      ],
+      "fields": {
+        "Text": {
+          "label": "Name",
+          "tooltip": "The recipe's identity: it must be unique. Renaming it orphans shopping-list entries, so treat it as an id."
+        },
+        "SubText": {
+          "label": "Subtitle",
+          "tooltip": "A short line under the name in the browser."
+        },
+        "Desc": {
+          "label": "Description",
+          "tooltip": "The long description in the browser.",
+          "picker": "multiline"
+        },
+        "Items": {
+          "label": "Ingredients",
+          "tooltip": "What one craft uses up."
+        },
+        "Items[]": {
+          "template": { "name": "", "count": 1 }
+        },
+        "Items[].name": {
+          "label": "Item",
+          "tooltip": "Inventory item name.",
+          "picker": "item"
+        },
+        "Items[].count": {
+          "label": "Amount",
+          "tooltip": "How many per craft.",
+          "min": 1,
+          "step": 1
+        },
+        "Items[].take": {
+          "label": "Used up",
+          "tooltip": "Off = the item is needed but kept, like a tool: one is enough however many are crafted at a time. Default on."
+        },
+        "Items[].canUseDecay": {
+          "label": "Minimum condition",
+          "tooltip": "Only accept the item at or above this condition, 0-100. VORP only; elsewhere the check passes.",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        },
+        "Items[].AltNames": {
+          "label": "Alternatives",
+          "tooltip": "Other items that can fill this slot, e.g. any fish."
+        },
+        "Items[].AltNames[]": {
+          "picker": "item"
+        },
+        "Reward": {
+          "label": "Rewards",
+          "tooltip": "What one craft gives. In currency mode, an entry with no item is money: negative = the player pays."
+        },
+        "Reward[]": {
+          "template": { "name": "", "count": 1 }
+        },
+        "Reward[].name": {
+          "label": "Item",
+          "tooltip": "Item or weapon name. Leave empty in currency mode for money.",
+          "picker": "item"
+        },
+        "Reward[].count": {
+          "label": "Amount",
+          "tooltip": "How many per craft. For money, dollars (negative = a cost).",
+          "step": 1
+        },
+        "AltRewards": {
+          "label": "Rewards by alternative",
+          "tooltip": "Alternative item name = a full reward list that replaces the default when that alternative was used.",
+          "advanced": true
+        },
+        "Type": {
+          "label": "Reward kind",
+          "tooltip": "Weapon rewards are created as real weapons with a serial.",
+          "options": [
+            {
+              "value": "item",
+              "label": "Item"
+            },
+            {
+              "value": "weapon",
+              "label": "Weapon"
+            }
+          ]
+        },
+        "Category": {
+          "label": "Category",
+          "tooltip": "Which category it is listed under: one of the Categories on this tab.",
+          "ref": "Config.Categories",
+          "refField": "ident"
+        },
+        "Job": {
+          "label": "Jobs",
+          "tooltip": "Who can craft it. Anyone, or only the jobs listed. A player without the job can still try it if the recipe has a job skillcheck.",
+          "any": { "value": 0, "label": "Anyone", "listLabel": "Only these jobs" }
+        },
+        "Job[]": {
+          "picker": "job"
+        },
+        "Location": {
+          "label": "Where",
+          "tooltip": "Anywhere, or only at the places listed: bench IDs from Locations → Benches, and prop titles in lower case, e.g. campfire, oven, forge.",
+          "any": { "value": 0, "label": "Anywhere", "listLabel": "Only at these places", "emptyNote": "Empty list: this can be crafted nowhere until you add a place." },
+          "suggest": [
+            { "from": "Config.Locations", "field": "id", "label": "name", "group": "Bench", "icon": "map" },
+            { "from": "Config.CraftingProps", "field": "title", "lower": true, "group": "Prop", "icon": "link" }
+          ],
+          "suggestNote": "Not a bench ID or a prop title. Check the spelling, or add the bench under Locations."
+        },
+        "Animation": {
+          "label": "Animation",
+          "tooltip": "One of the Animations (Advanced tab). Left empty, 'craft' is used.",
+          "ref": "Config.Animations"
+        },
+        "CraftTime": {
+          "label": "Craft time",
+          "tooltip": "Overrides the general craft time for this recipe.",
+          "min": 500,
+          "max": 120000,
+          "step": 500,
+          "unit": "ms"
+        },
+        "UseCurrencyMode": {
+          "label": "Currency mode",
+          "tooltip": "On = reward entries with no item are money paid (positive) or charged (negative)."
+        },
+        "CurrencyType": {
+          "label": "Currency",
+          "tooltip": "Which money currency mode uses.",
+          "options": [
+            {
+              "value": 0,
+              "label": "Cash"
+            },
+            {
+              "value": 1,
+              "label": "Gold"
+            },
+            {
+              "value": 2,
+              "label": "Role tokens"
+            }
+          ]
+        },
+        "skillcheck": {
+          "label": "Skillcheck rounds",
+          "tooltip": "Rounds instead of the progress bar. Partial passes give a share of the reward. 0 or empty = none.",
+          "min": 0,
+          "max": 20,
+          "step": 1
+        },
+        "jobSkillcheck": {
+          "label": "Untrained rounds",
+          "tooltip": "A player without the job may still craft it on this many untrained-difficulty rounds. Players with the job craft normally.",
+          "min": 0,
+          "max": 20,
+          "step": 1
+        },
+        "useHardSkillcheck": {
+          "label": "Hard skillcheck",
+          "tooltip": "Use the Hard difficulty for this recipe's skillcheck rounds."
+        },
+        "explodeOnFail": {
+          "label": "Explode on failure",
+          "tooltip": "A missed round sets off an explosion on the crafter, and the craft gives nothing."
+        },
+        "catchFireOnFail": {
+          "label": "Catch fire on failure",
+          "tooltip": "A missed round sets the crafter alight, and the craft gives nothing."
+        },
+        "AltRewards[][].name": {
+          "picker": "item",
+          "label": "Reward item",
+          "tooltip": "The item given instead when this alternative ingredient was used."
+        }
+      },
+      "template": {
+        "Text": "New Recipe",
+        "SubText": "",
+        "Desc": "",
+        "Items": [
+          {
+            "name": "item_name",
+            "count": 1
+          }
+        ],
+        "Reward": [
+          {
+            "name": "item_name",
+            "count": 1
+          }
+        ],
+        "Type": "item",
+        "Category": "supplies",
+        "Job": 0,
+        "Location": 0
+      }
+    },
+    "Config.Categories": {
+      "label": "Categories",
+      "itemLabel": "category",
+      "tab": "recipes",
+      "kind": "list",
+      "titleField": "text",
+      "subtitleField": "ident",
+      "columns": [
+        {
+          "field": "text",
+          "label": "Name"
+        },
+        {
+          "field": "ident",
+          "label": "Ident"
+        },
+        {
+          "field": "Location",
+          "label": "Where"
+        },
+        {
+          "field": "Job",
+          "label": "Jobs"
+        }
+      ],
+      "search": [
+        "text",
+        "ident"
+      ],
+      "fields": {
+        "ident": {
+          "label": "Ident",
+          "tooltip": "The id recipes use in their Category. Must match exactly."
+        },
+        "text": {
+          "label": "Name",
+          "tooltip": "What the player reads in the browser."
+        },
+        "Location": {
+          "label": "Where",
+          "tooltip": "Anywhere, or only at the places listed: bench IDs from Locations → Benches, and prop titles in lower case, e.g. campfire. Every recipe in the category follows this.",
+          "any": { "value": 0, "label": "Anywhere", "listLabel": "Only at these places", "emptyNote": "Empty list: nothing in this category can be crafted until you add a place." },
+          "suggest": [
+            { "from": "Config.Locations", "field": "id", "label": "name", "group": "Bench", "icon": "map" },
+            { "from": "Config.CraftingProps", "field": "title", "lower": true, "group": "Prop", "icon": "link" }
+          ],
+          "suggestNote": "Not a bench ID or a prop title. Check the spelling, or add the bench under Locations."
+        },
+        "Job": {
+          "label": "Jobs",
+          "tooltip": "Who can craft in this category. Anyone, or only the jobs listed. A locked category still shows, greyed out.",
+          "any": { "value": 0, "label": "Anyone", "listLabel": "Only these jobs" }
+        },
+        "Job[]": {
+          "picker": "job"
+        }
+      },
+      "template": {
+        "ident": "new_category",
+        "text": "New Category",
+        "Location": 0,
+        "Job": 0
+      }
+    },
+    "Config.ItemSources": {
+      "label": "Where items come from",
+      "itemLabel": "item source",
+      "tab": "recipes",
+      "kind": "map",
+      "titleField": "source",
+      "subtitleField": "description",
+      "columns": [
+        {
+          "field": "source",
+          "label": "Badge"
+        },
+        {
+          "field": "description",
+          "label": "Description"
+        }
+      ],
+      "search": [
+        "source",
+        "description"
+      ],
+      "fields": {
+        "source": {
+          "label": "Badge",
+          "tooltip": "Short badge such as Hunting or Store. Reuse the same wording: the colour comes from the text."
+        },
+        "description": {
+          "label": "Description",
+          "tooltip": "One line saying where to go and what to do."
+        }
+      },
+      "template": {
+        "source": "Store",
+        "description": "Sold at general stores"
+      }
+    },
+    "Config.Animations": {
+      "label": "Animations",
+      "itemLabel": "animation",
+      "tab": "advanced",
+      "kind": "map",
+      "titleField": "name",
+      "subtitleField": "dict",
+      "columns": [
+        {
+          "field": "dict",
+          "label": "Dictionary"
+        },
+        {
+          "field": "name",
+          "label": "Clip"
+        },
+        {
+          "field": "flag",
+          "label": "Flag"
+        }
+      ],
+      "search": [
+        "dict",
+        "name"
+      ],
+      "fields": {
+        "dict": {
+          "label": "Dictionary",
+          "tooltip": "Animation dictionary. One the game does not have plays nothing."
+        },
+        "name": {
+          "label": "Clip",
+          "tooltip": "Animation clip in that dictionary."
+        },
+        "flag": {
+          "label": "Flag",
+          "tooltip": "27 plays once, 17 loops. Looping suits long crafts.",
+          "step": 1
+        },
+        "type": {
+          "label": "Kind",
+          "tooltip": "Standard animation, or a scenario (then set the scenario hash).",
+          "options": [
+            {
+              "value": "standard",
+              "label": "Animation"
+            },
+            {
+              "value": "scenario",
+              "label": "Scenario"
+            }
+          ]
+        },
+        "hash": {
+          "label": "Scenario",
+          "tooltip": "Scenario name, when kind is scenario."
+        },
+        "prop": {
+          "label": "Hand prop",
+          "tooltip": "Optional object held while crafting."
+        },
+        "prop.model": {
+          "label": "Prop model",
+          "tooltip": "Object model in the hand."
+        },
+        "prop.bone": {
+          "label": "Bone",
+          "tooltip": "Bone it attaches to, e.g. SKEL_R_Finger13."
+        },
+        "prop.coords": {
+          "label": "Prop offset",
+          "tooltip": "Position (x, y, z) and rotation (xr, yr, zr) relative to the bone."
+        },
+        "prop.subprop": {
+          "label": "Second prop",
+          "tooltip": "Optional second object on the same bone, e.g. meat on a knife."
+        }
+      },
+      "template": {
+        "dict": "mech_inventory@crafting@fallbacks",
+        "name": "full_craft_and_stow",
+        "flag": 27,
+        "type": "standard"
+      }
+    }
+  }
+}
