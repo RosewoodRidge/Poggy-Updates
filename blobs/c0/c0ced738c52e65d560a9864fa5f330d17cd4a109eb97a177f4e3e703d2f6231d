@@ -1,0 +1,613 @@
+{
+  "label": "Poggy Emotes",
+  "tagline": "330 emotes, a search box, favourites and a live preview character",
+  "category": "Roleplay",
+  "description": "A searchable emote menu with over 330 animations, scenarios and prop emotes. Players star the ones they use, see their recent picks first, and watch a stand-in character act each one out before they commit to it.",
+  "readme": "README.md",
+  "help": [
+    {
+      "title": "Adding your own emotes",
+      "file": "docs/help/adding-emotes.md"
+    },
+    {
+      "title": "Hiding emotes you do not want",
+      "file": "docs/help/hiding-emotes.md"
+    },
+    {
+      "title": "Moving from another emote script",
+      "file": "docs/help/upgrading.md"
+    }
+  ],
+  "commands": [
+    {
+      "command": "/emotes",
+      "configPath": "Config.MenuCommand",
+      "who": "Everyone",
+      "description": "Opens the emote menu. Typing it again closes it.",
+      "usage": "/emotes",
+      "examples": [
+        "/emotes"
+      ]
+    },
+    {
+      "command": "/e",
+      "configPath": "Config.PlayCommand",
+      "who": "Everyone",
+      "description": "Plays one emote straight away. On its own, with no name after it, it opens the menu.",
+      "usage": "/e <emote name>",
+      "examples": [
+        "/e wave",
+        "/e sitground1",
+        "/e"
+      ]
+    },
+    {
+      "command": "/ec",
+      "configPath": "Config.CancelCommand",
+      "who": "Everyone",
+      "description": "Stops the emote that is playing and puts away any prop the player is holding.",
+      "usage": "/ec",
+      "examples": [
+        "/ec"
+      ]
+    },
+    {
+      "command": "/ragdoll",
+      "configPath": "Config.Ragdoll.Command",
+      "who": "Everyone",
+      "description": "Drops the character limp on the ground. Typing it again, or pressing the ragdoll key, lets them get up.",
+      "usage": "/ragdoll",
+      "examples": [
+        "/ragdoll"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "id": "general",
+      "label": "General",
+      "icon": "sliders"
+    },
+    {
+      "id": "behaviour",
+      "label": "Behaviour",
+      "icon": "play"
+    },
+    {
+      "id": "ragdoll",
+      "label": "Ragdoll",
+      "icon": "user"
+    },
+    {
+      "id": "menu",
+      "label": "Menu",
+      "icon": "list"
+    },
+    {
+      "id": "preview",
+      "label": "Preview",
+      "icon": "user"
+    },
+    {
+      "id": "emotes",
+      "label": "Emotes",
+      "icon": "star"
+    },
+    {
+      "id": "text",
+      "label": "Text",
+      "icon": "type"
+    }
+  ],
+  "settings": {
+    "Config.Language": {
+      "label": "Language",
+      "tooltip": "Which set of words from translations.lua the script uses. Add your own language there first, then pick it here.",
+      "tab": "general",
+      "options": [
+        {
+          "value": "en",
+          "label": "English"
+        }
+      ]
+    },
+    "Config.MenuCommand": {
+      "label": "Menu command",
+      "tooltip": "The word players type after a slash to open the menu. Do not include the slash.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.PlayCommand": {
+      "label": "Play command",
+      "tooltip": "The word players type after a slash to play one emote by name, as in /e wave. Do not include the slash.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.CancelCommand": {
+      "label": "Stop command",
+      "tooltip": "The word players type after a slash to stop an emote and put away any prop. Do not include the slash.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.ChatSuggestions": {
+      "label": "Suggest emotes in chat",
+      "tooltip": "Adds every emote name to the chat autocomplete, so typing /e offers the list. Turn it off if your chat resource struggles with a few hundred suggestions.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "Config.Keys.OpenMenuKey": {
+      "label": "Open menu key",
+      "tooltip": "The keyboard key that opens and closes the emote menu. It is read straight from the keyboard, so keys the game has no control for, like End, still work. RedM has no rebinding screen, so this is the key for everyone. Choose Off to leave only the command.",
+      "tab": "general",
+      "group": "Keys",
+      "options": [
+        {
+          "value": "",
+          "label": "Off"
+        },
+        {
+          "value": "END",
+          "label": "End"
+        },
+        {
+          "value": "HOME",
+          "label": "Home"
+        },
+        {
+          "value": "INSERT",
+          "label": "Insert"
+        },
+        {
+          "value": "DELETE",
+          "label": "Delete"
+        },
+        {
+          "value": "PAGEUP",
+          "label": "Page Up"
+        },
+        {
+          "value": "PAGEDOWN",
+          "label": "Page Down"
+        },
+        {
+          "value": "F1",
+          "label": "F1"
+        },
+        {
+          "value": "F2",
+          "label": "F2"
+        },
+        {
+          "value": "F3",
+          "label": "F3"
+        },
+        {
+          "value": "F4",
+          "label": "F4"
+        },
+        {
+          "value": "F5",
+          "label": "F5"
+        },
+        {
+          "value": "F6",
+          "label": "F6"
+        },
+        {
+          "value": "F7",
+          "label": "F7"
+        },
+        {
+          "value": "F8",
+          "label": "F8"
+        },
+        {
+          "value": "F9",
+          "label": "F9"
+        },
+        {
+          "value": "F10",
+          "label": "F10"
+        },
+        {
+          "value": "F11",
+          "label": "F11"
+        },
+        {
+          "value": "F12",
+          "label": "F12"
+        }
+      ]
+    },
+    "Config.Keys.OpenMenuControl": {
+      "label": "Open menu control",
+      "tooltip": "A game control that also opens the menu, for instance for controller players. 0 turns it off. Most servers leave this alone and use the key above.",
+      "tab": "general",
+      "group": "Keys",
+      "picker": "key",
+      "advanced": true
+    },
+    "Config.Keys.Cancel": {
+      "label": "Stop emote key",
+      "tooltip": "The key that stops an emote and puts away any prop. Works at any time, including while riding. Default is Backspace.",
+      "tab": "general",
+      "group": "Keys",
+      "picker": "key"
+    },
+    "Config.Behaviour.CancelOnMove": {
+      "label": "Stop when the player moves",
+      "tooltip": "Ends the emote as soon as the player walks off. On is what most roleplay servers want: it stops characters sliding about mid-animation. Off makes emotes hold until they are cancelled.",
+      "tab": "behaviour"
+    },
+    "Config.Behaviour.CancelOnAim": {
+      "label": "Stop when a weapon comes out",
+      "tooltip": "Ends the emote the moment the player aims. Leave this on, or a player can shoot while playing a dance.",
+      "tab": "behaviour"
+    },
+    "Config.Behaviour.HolsterWeapons": {
+      "label": "Put weapons away first",
+      "tooltip": "Holsters whatever the player is carrying before the emote starts. Off keeps the weapon in hand, which makes many animations look wrong.",
+      "tab": "behaviour"
+    },
+    "Config.Behaviour.AllowWhileMounted": {
+      "label": "Allow while riding",
+      "tooltip": "Lets emotes play on horseback or in a wagon. Off by default: almost every animation is built for standing and looks broken mounted. Stopping an emote always works either way.",
+      "tab": "behaviour"
+    },
+    "Config.Behaviour.AllowWhileSwimming": {
+      "label": "Allow in water",
+      "tooltip": "Lets emotes play while swimming. Strongly advised off: an animation in water usually sinks the character or freezes them on the surface.",
+      "tab": "behaviour"
+    },
+    "Config.Menu.RecentCount": {
+      "label": "Emotes remembered",
+      "tooltip": "How many recently played emotes each character keeps in the Recent category. 0 turns Recent off. Above about 30 the category stops being useful.",
+      "tab": "menu",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "emotes"
+    },
+    "Config.Menu.Favourites": {
+      "label": "Allow favourites",
+      "tooltip": "Lets players star emotes. Favourites are saved per character in the database and survive a reconnect.",
+      "tab": "menu"
+    },
+    "Config.Menu.StayOpenAfterPlay": {
+      "label": "Keep the menu open (starting value)",
+      "tooltip": "Where the Keep menu open switch at the bottom of the menu starts for a new player. Each player can flip it themselves and their choice is remembered, so this only matters the first time.",
+      "tab": "menu"
+    },
+    "Config.Menu.FilterByGender": {
+      "label": "Match emotes to the character",
+      "tooltip": "Hides emotes built for the other gender, which are the ones most likely to look wrong. Off shows every emote to everyone.",
+      "tab": "menu"
+    },
+    "Config.Menu.CategoryOrder": {
+      "label": "Categories",
+      "tooltip": "Which categories appear down the left of the menu, and in what order. Remove one to hide it and every emote in it. 'favourites' and 'recent' are built by the script.",
+      "tab": "menu"
+    },
+    "Config.Preview.Enabled": {
+      "label": "Show the preview character",
+      "tooltip": "A stand-in character stands beside the player and acts out whatever emote is highlighted. Only that player sees it. Turn it off to save a little performance.",
+      "tab": "preview"
+    },
+    "Config.Preview.Model": {
+      "label": "Preview character model",
+      "tooltip": "The character model used for the preview. Any valid ped model works.",
+      "tab": "preview"
+    },
+    "Config.Preview.Alpha": {
+      "label": "How solid it looks",
+      "tooltip": "0 is invisible and 255 is fully solid. Around 200 reads as a ghost without disappearing against bright ground.",
+      "tab": "preview",
+      "min": 0,
+      "max": 255,
+      "step": 5
+    },
+    "Config.Preview.OffsetRight": {
+      "label": "Distance to the side",
+      "tooltip": "How far across the screen the preview stands, in metres from the player.",
+      "tab": "preview",
+      "group": "Position",
+      "min": -5,
+      "max": 5,
+      "step": 0.25,
+      "unit": "metres"
+    },
+    "Config.Preview.OffsetForward": {
+      "label": "Distance from the camera",
+      "tooltip": "How far away the preview stands, in metres. Smaller is closer, so it looks bigger on screen.",
+      "tab": "preview",
+      "group": "Position",
+      "min": -5,
+      "max": 5,
+      "step": 0.25,
+      "unit": "metres"
+    },
+    "Config.Preview.OffsetHeight": {
+      "label": "Height",
+      "tooltip": "Lifts or drops the preview, in metres. 0 stands it on the ground beside the player.",
+      "tab": "preview",
+      "group": "Position",
+      "min": -3,
+      "max": 3,
+      "step": 0.1,
+      "unit": "metres"
+    },
+    "Config.Preview.LightEnabled": {
+      "label": "Light the preview",
+      "tooltip": "Shines a soft light on the preview so it can still be seen at night and indoors.",
+      "tab": "preview",
+      "group": "Light"
+    },
+    "Config.Preview.LightColour": {
+      "label": "Light colour",
+      "tooltip": "The light's colour as red, green and blue, each from 0 to 255. 250, 250, 250 is a soft white.",
+      "tab": "preview",
+      "group": "Light"
+    },
+    "Config.Preview.LightRange": {
+      "label": "Light range",
+      "tooltip": "How far the light reaches, in metres. Large values spill onto the world around the preview.",
+      "tab": "preview",
+      "group": "Light",
+      "min": 0.5,
+      "max": 20,
+      "step": 0.5,
+      "unit": "metres"
+    },
+    "Config.Preview.LightIntensity": {
+      "label": "Light brightness",
+      "tooltip": "How bright the light is. Above about 25 the character washes out to a white silhouette.",
+      "tab": "preview",
+      "group": "Light",
+      "min": 0,
+      "max": 50,
+      "step": 1
+    },
+    "Config.HiddenEmotes": {
+      "label": "Hidden emotes",
+      "tooltip": "Emote names you do not want on your server. A hidden emote is gone from the menu and from /e. Use the name in brackets in the menu, not the label.",
+      "tab": "emotes"
+    },
+    "Config.Language.*": {
+      "tab": "general"
+    },
+    "Translations.*": {
+      "tab": "text"
+    },
+    "Config.Ragdoll.Enabled": {
+      "label": "Allow ragdoll",
+      "tooltip": "Turns the ragdoll key and command on. Off removes both.",
+      "tab": "ragdoll"
+    },
+    "Config.Ragdoll.Key": {
+      "label": "Ragdoll key",
+      "tooltip": "The key that drops the character and lets them up again. Default is Z. It is a game control, so it does nothing while the chat box is open. 0 turns the key off and leaves the command.",
+      "tab": "ragdoll",
+      "picker": "key"
+    },
+    "Config.Ragdoll.Command": {
+      "label": "Ragdoll command",
+      "tooltip": "The word players type after a slash to do the same as the key. Leave it empty to turn the command off.",
+      "tab": "ragdoll"
+    },
+    "Config.Ragdoll.MinSeconds": {
+      "label": "Least time down",
+      "tooltip": "The least time a player stays down, in seconds. Pressing the key again sooner than this does nothing. 0 lets them bounce straight back up.",
+      "tab": "ragdoll",
+      "min": 0,
+      "max": 30,
+      "step": 0.5,
+      "unit": "seconds"
+    },
+    "Config.Ragdoll.Cooldown": {
+      "label": "Wait before dropping again",
+      "tooltip": "Seconds a player must wait after getting up before they can drop again. It stops the key being hammered to dodge a lasso or a fist fight. 0 means no wait.",
+      "tab": "ragdoll",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "seconds"
+    },
+    "Config.Ragdoll.MaxSeconds": {
+      "label": "Longest time down",
+      "tooltip": "The longest a player can stay down before the script stands them up, in seconds. 0 means as long as they like.",
+      "tab": "ragdoll",
+      "min": 0,
+      "max": 600,
+      "step": 5,
+      "unit": "seconds"
+    },
+    "Config.Ragdoll.AllowWhileMounted": {
+      "label": "Allow while riding",
+      "tooltip": "Lets players drop while on a horse or in a wagon, which throws them off. Off by default.",
+      "tab": "ragdoll"
+    }
+  },
+  "lists": {
+    "Config.CustomEmotes": {
+      "label": "Your own emotes",
+      "itemLabel": "emote",
+      "tab": "emotes",
+      "kind": "list",
+      "titleField": "label",
+      "subtitleField": "name",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Shown as"
+        },
+        {
+          "field": "name",
+          "label": "Typed as"
+        },
+        {
+          "field": "category",
+          "label": "Category"
+        },
+        {
+          "field": "kind",
+          "label": "Type"
+        }
+      ],
+      "search": [
+        "label",
+        "name",
+        "category"
+      ],
+      "fields": {
+        "name": {
+          "label": "Typed as",
+          "tooltip": "What the player types after /e. Lower case, no spaces. Using the name of an emote that ships with the script replaces that one."
+        },
+        "label": {
+          "label": "Shown as",
+          "tooltip": "The name players see in the menu."
+        },
+        "category": {
+          "label": "Category",
+          "tooltip": "Which category it appears under. It must also be listed in Categories on the Menu tab, or it will not be shown."
+        },
+        "gender": {
+          "label": "Who sees it",
+          "tooltip": "'any' shows it to everyone. 'male' or 'female' shows it only to matching characters, and only while Match emotes to the character is on.",
+          "options": [
+            {
+              "value": "any",
+              "label": "Everyone"
+            },
+            {
+              "value": "male",
+              "label": "Male characters"
+            },
+            {
+              "value": "female",
+              "label": "Female characters"
+            }
+          ]
+        },
+        "kind": {
+          "label": "Type",
+          "tooltip": "'scenario' is a world scenario the game plays. 'kit' is one of the game's own built-in emotes. 'anim' is an animation dictionary, and is the only type that can hold a prop.",
+          "options": [
+            {
+              "value": "scenario",
+              "label": "Scenario"
+            },
+            {
+              "value": "kit",
+              "label": "Built-in emote"
+            },
+            {
+              "value": "anim",
+              "label": "Animation"
+            }
+          ]
+        },
+        "scenario": {
+          "label": "Scenario name",
+          "tooltip": "For scenario emotes only, e.g. WORLD_HUMAN_DRINKING."
+        },
+        "hash": {
+          "label": "Emote hash",
+          "tooltip": "For built-in emotes only. The number that identifies the emote."
+        },
+        "dict": {
+          "label": "Animation dictionary",
+          "tooltip": "For animation emotes only. The dictionary the animation lives in."
+        },
+        "anim": {
+          "label": "Animation name",
+          "tooltip": "For animation emotes only. The animation inside that dictionary."
+        },
+        "speed": {
+          "label": "Blend in",
+          "tooltip": "How quickly the animation fades in. 2 is gentle, 8 is snappy.",
+          "min": 0,
+          "max": 20,
+          "step": 0.5
+        },
+        "speedX": {
+          "label": "Blend out",
+          "tooltip": "How quickly the animation fades out when it ends.",
+          "min": -20,
+          "max": 20,
+          "step": 0.5
+        },
+        "duration": {
+          "label": "How long",
+          "tooltip": "How long it plays, in milliseconds. -1 holds it until the player stops it.",
+          "min": -1,
+          "max": 600000,
+          "step": 100
+        },
+        "flags": {
+          "label": "Flags",
+          "tooltip": "Animation flags added together. 1 loops, 2 holds the last frame, 49 plays on the upper body only so the player can still walk.",
+          "min": 0,
+          "max": 255,
+          "step": 1
+        },
+        "prop.model": {
+          "label": "Prop model",
+          "tooltip": "The item held during the emote, e.g. p_torch01x. Leave the whole prop group empty for an emote with no prop."
+        },
+        "prop.bone": {
+          "label": "Bone",
+          "tooltip": "The bone the prop attaches to. 22798 is the right hand and 34606 is the left."
+        },
+        "prop.x": {
+          "label": "Offset X",
+          "tooltip": "How far the prop sits from the bone, side to side.",
+          "step": 0.01
+        },
+        "prop.y": {
+          "label": "Offset Y",
+          "tooltip": "How far the prop sits from the bone, forward and back.",
+          "step": 0.01
+        },
+        "prop.z": {
+          "label": "Offset Z",
+          "tooltip": "How far the prop sits from the bone, up and down.",
+          "step": 0.01
+        },
+        "prop.rx": {
+          "label": "Rotation X",
+          "tooltip": "Prop rotation in degrees.",
+          "min": -180,
+          "max": 180,
+          "step": 1
+        },
+        "prop.ry": {
+          "label": "Rotation Y",
+          "tooltip": "Prop rotation in degrees.",
+          "min": -180,
+          "max": 180,
+          "step": 1
+        },
+        "prop.rz": {
+          "label": "Rotation Z",
+          "tooltip": "Prop rotation in degrees.",
+          "min": -180,
+          "max": 180,
+          "step": 1
+        },
+        "gameProp": {
+          "label": "The game gives a prop",
+          "tooltip": "Turn on for a scenario or built-in emote where the game itself puts something in the character's hand, like a guitar. It only makes the emote show under the menu's Props filter."
+        }
+      },
+      "template": {
+        "name": "myemote",
+        "label": "My Emote",
+        "category": "gestures",
+        "gender": "any",
+        "kind": "scenario",
+        "scenario": "WORLD_HUMAN_SMOKE_MALE_A"
+      }
+    }
+  }
+}

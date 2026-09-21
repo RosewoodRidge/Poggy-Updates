@@ -1,0 +1,466 @@
+/* ================================================================
+   poggy_emotes - the emote menu
+   Web 3.0 / glassmorphism / RDR2 amber, to match the other Poggy UIs.
+   Everything is local: no fonts or images are fetched from the internet.
+   ================================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold:            #c9a84c;
+  --gold-light:      #e4c572;
+  --gold-dim:        #7a6230;
+  --bg-panel:        rgba(14, 11, 7, 0.94);
+  --bg-section:      rgba(255, 255, 255, 0.03);
+  --bg-hover:        rgba(201, 168, 76, 0.10);
+  --bg-input:        rgba(255, 255, 255, 0.06);
+  --border:          rgba(201, 168, 76, 0.14);
+  --border-strong:   rgba(201, 168, 76, 0.35);
+  --text:            #e8dfc8;
+  --text-muted:      #7a7260;
+  --text-dim:        #4a4438;
+  --red:             #c94c4c;
+  --btn-text:        #1a1208;
+  --radius:          10px;
+  --radius-sm:       6px;
+  --transition:      0.16s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --serif: 'Georgia', 'Times New Roman', serif;
+  --sans:  'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text);
+  user-select: none;
+}
+
+.hidden { display: none !important; }
+
+/* ── Root ─────────────────────────────────────────────────────── */
+
+#root {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  /* Pinned to the top: a short list must not slide the whole menu down the
+     screen, or the search box is somewhere new every time. */
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: 11vh;
+  padding-left: 4vw;
+  /* The preview character stands to the right, so the panel keeps left. */
+  pointer-events: none;
+}
+
+/* ── Panel ────────────────────────────────────────────────────── */
+
+.panel {
+  pointer-events: all;
+  width: 470px;
+  max-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+  animation: rise 0.18s ease-out;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ───────────────────────────────────────────────────── */
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 14px 12px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(201, 168, 76, 0.07), transparent);
+}
+
+.header-mark { color: var(--gold); font-size: 13px; }
+
+.header-title {
+  flex: 1;
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--gold-light);
+}
+
+.header-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+
+.header-close {
+  width: 24px;
+  height: 24px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.header-close:hover {
+  background: rgba(201, 76, 76, 0.14);
+  border-color: rgba(201, 76, 76, 0.4);
+  color: var(--red);
+}
+
+/* ── Search ───────────────────────────────────────────────────── */
+
+.search-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.search-icon {
+  position: absolute;
+  left: 24px;
+  color: var(--text-dim);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+#search {
+  flex: 1;
+  padding: 8px 30px 8px 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  outline: none;
+  transition: var(--transition);
+  user-select: text;
+}
+
+#search::placeholder { color: var(--text-dim); }
+
+#search:focus {
+  border-color: var(--border-strong);
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.search-clear {
+  position: absolute;
+  right: 116px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.search-clear:hover { background: var(--bg-hover); color: var(--gold); }
+
+.filter {
+  flex-shrink: 0;
+  width: 86px;
+  padding: 8px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.filter:hover { background: var(--bg-hover); color: var(--text); }
+
+.filter.on {
+  background: rgba(201, 168, 76, 0.16);
+  border-color: var(--border-strong);
+  color: var(--gold-light);
+  font-weight: 600;
+}
+
+/* ── Body ─────────────────────────────────────────────────────── */
+
+.panel-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* ── Categories ───────────────────────────────────────────────── */
+
+.categories {
+  width: 134px;
+  flex-shrink: 0;
+  padding: 8px 6px;
+  border-right: 1px solid var(--border);
+  background: var(--bg-section);
+  overflow-y: auto;
+}
+
+.cat {
+  display: block;
+  width: 100%;
+  padding: 7px 9px;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 11.5px;
+  text-align: left;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.cat:hover { background: var(--bg-hover); color: var(--text); }
+
+.cat.active {
+  background: rgba(201, 168, 76, 0.16);
+  border-color: var(--border-strong);
+  color: var(--gold-light);
+  font-weight: 600;
+}
+
+/* ── List ─────────────────────────────────────────────────────── */
+
+.list-pane {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  overflow-y: auto;
+}
+
+.emote-list { list-style: none; padding: 6px; }
+
+.emote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px 5px 8px;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.emote:hover { background: var(--bg-hover); }
+
+/* The keyboard cursor. Kept distinct from hover so arrow keys and the mouse
+   never disagree about which row is about to play. */
+.emote.cursor {
+  background: rgba(201, 168, 76, 0.16);
+  border-color: var(--border-strong);
+}
+
+/* The preview button. In front of the name, where a play button is looked for. */
+.watch {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  padding-left: 2px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: rgba(201, 168, 76, 0.08);
+  color: var(--gold);
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.watch:hover, .watch.on {
+  background: var(--gold);
+  border-color: var(--gold-light);
+  color: var(--btn-text);
+  transform: scale(1.1);
+}
+
+.emote.playing .emote-label { color: var(--gold-light); }
+
+/* The name wins the space. The /e name beside it is the one that gives way. */
+.emote-label {
+  flex: 1 0 auto;
+  max-width: 100%;
+  min-width: 0;
+  font-size: 12.5px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emote-label mark {
+  background: rgba(201, 168, 76, 0.3);
+  color: var(--gold-light);
+  border-radius: 2px;
+}
+
+.emote-cmd {
+  font-size: 10.5px;
+  color: var(--text-dim);
+  font-family: 'Consolas', 'Courier New', monospace;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emote:hover .emote-cmd, .emote.cursor .emote-cmd { color: var(--text-muted); }
+
+.tag {
+  flex-shrink: 0;
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* With the Props filter on every row is a prop emote, so the tag says nothing. */
+.props-only .tag-prop { display: none; }
+
+.tag-prop { border-color: rgba(201, 168, 76, 0.3); color: var(--gold-dim); }
+
+.star {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.star:hover { background: var(--bg-hover); color: var(--gold); transform: scale(1.15); }
+.star.on { color: var(--gold); }
+
+.empty {
+  padding: 28px 18px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* ── Footer ───────────────────────────────────────────────────── */
+
+.panel-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-section);
+}
+
+.hint {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.btn-stop {
+  padding: 6px 13px;
+  border: 1px solid rgba(201, 76, 76, 0.4);
+  border-radius: var(--radius-sm);
+  background: rgba(201, 76, 76, 0.12);
+  color: #e8a0a0;
+  font-family: var(--sans);
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-stop:hover { background: rgba(201, 76, 76, 0.24); color: #f3c3c3; }
+
+/* The keep-open switch. */
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.switch input { position: absolute; opacity: 0; pointer-events: none; }
+
+.switch-track {
+  position: relative;
+  width: 30px;
+  height: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-input);
+  transition: var(--transition);
+}
+
+.switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: var(--transition);
+}
+
+.switch input:checked + .switch-track { background: rgba(201, 168, 76, 0.3); border-color: var(--gold); }
+.switch input:checked + .switch-track .switch-knob { left: 16px; background: var(--gold-light); }
+
+.switch-text { font-size: 11.5px; color: var(--text-muted); }
+.switch:hover .switch-text, .switch input:checked ~ .switch-text { color: var(--text); }
+
+/* ── Scrollbars ───────────────────────────────────────────────── */
+
+::-webkit-scrollbar { width: 7px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(201, 168, 76, 0.22);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(201, 168, 76, 0.4); }
