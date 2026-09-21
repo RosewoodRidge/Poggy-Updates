@@ -1,0 +1,584 @@
+{
+  "label": "Tickets",
+  "tagline": "Players ask for help, staff claim it: tickets, your own staff roles, staff chat, warn, kick, ban and Discord",
+  "category": "Admin",
+  "description": "A ticket window for players (a key or /ticket) and a large staff panel. Tickets are tracked live, routed to the right staff by kind, claimed by one person, answered in a conversation or in person with a one-press teleport, and posted to Discord as one message that is edited as the ticket moves. Staff roles are yours to make: name them, and tick what each may do, which tickets it sees and whose staff chat it reads. Staff chat is never saved. A ticket can be escalated to another role, carry internal notes, have its answer marked and, if staff choose, be shared with every player with the names hidden. Bans use poggy_core's account bans.",
+  "readme": "README.md",
+  "help": [
+    {
+      "title": "For players: sending a ticket",
+      "file": "docs/help/players.md"
+    },
+    {
+      "title": "For staff: the panel",
+      "file": "docs/help/staff.md"
+    },
+    {
+      "title": "Setting up: staff, routing and Discord",
+      "file": "docs/help/setup.md"
+    },
+    {
+      "title": "Roles, staff chat and ready-made replies",
+      "file": "docs/help/roles.md"
+    },
+    {
+      "title": "Tickets on the website, and ban appeals",
+      "file": "docs/help/web.md"
+    }
+  ],
+  "commands": [
+    {
+      "command": "/ticket",
+      "configPath": "Config.Command",
+      "who": "Everyone",
+      "description": "Opens the ticket form: send a ticket, call for help, or read and answer your own tickets. The Open key (Page Up by default) does the same.",
+      "usage": "/ticket",
+      "examples": [
+        "/ticket"
+      ]
+    },
+    {
+      "command": "/tickets",
+      "configPath": "Config.StaffCommand",
+      "who": "Staff (anyone with a ticket role)",
+      "description": "Opens the staff panel. Staff are the people added on the panel's Staff tab, plus anyone your framework counts as an admin. The Staff panel key (Home by default) does the same.",
+      "usage": "/tickets",
+      "examples": [
+        "/tickets"
+      ]
+    },
+    {
+      "command": "/mod",
+      "configPath": "Config.ModCommand",
+      "who": "Staff whose role may warn, kick or ban",
+      "description": "Opens the Players menu: everyone online, each with their record (warnings, bans, tickets) and Warn, Kick and Ban. No ticket needed. Add a server id to open it on that player. Search a name and press Enter to act on someone who has left. Which of the three you get is up to your role. Every action needs a reason and is in the audit trail.",
+      "usage": "/mod [server id]",
+      "examples": [
+        "/mod",
+        "/mod 12"
+      ]
+    },
+    {
+      "command": "/invis",
+      "configPath": "Config.InvisCommand",
+      "who": "Staff (anyone with a ticket role)",
+      "description": "Turns your invisibility on or off. While invisible you cannot be hurt. It is also turned on when you teleport from a ticket and off when you press Return. It never survives a relog. Every use is in the audit trail.",
+      "usage": "/invis",
+      "examples": [
+        "/invis"
+      ]
+    },
+    {
+      "command": "/staffduty",
+      "configPath": "Config.DutyCommand",
+      "who": "Staff (anyone with a ticket role)",
+      "description": "Goes off duty, or back on. Off duty you get no sounds, pop-ups or badge, and you do not count as staff online; the panel still opens. You are always back on duty after you log in again.",
+      "usage": "/staffduty",
+      "examples": [
+        "/staffduty"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "id": "players",
+      "label": "Players: warn, kick, ban",
+      "icon": "shield"
+    },
+    {
+      "id": "general",
+      "label": "Opening & keys",
+      "icon": "sliders"
+    },
+    {
+      "id": "form",
+      "label": "The ticket form",
+      "icon": "chat"
+    },
+    {
+      "id": "kinds",
+      "label": "Kinds & routing",
+      "icon": "box"
+    },
+    {
+      "id": "staff",
+      "label": "Staff",
+      "icon": "shield"
+    },
+    {
+      "id": "roles",
+      "label": "Roles, chat & replies",
+      "icon": "shield"
+    },
+    {
+      "id": "answers",
+      "label": "Solved questions",
+      "icon": "chat"
+    },
+    {
+      "id": "web",
+      "label": "Web panel",
+      "icon": "download"
+    },
+    {
+      "id": "discord",
+      "label": "Discord",
+      "icon": "download"
+    }
+  ],
+  "panels": [
+    {
+      "id": "players",
+      "label": "Players online",
+      "tab": "players",
+      "export": "HubPanel",
+      "itemLabel": "player",
+      "tooltip": "Everyone online, with Warn, Kick and Ban on each row, and a button that opens the full Players menu. Your ticket role decides which buttons you get."
+    },
+    {
+      "id": "roles",
+      "label": "Staff roles",
+      "tab": "roles",
+      "export": "HubPanel",
+      "itemLabel": "role",
+      "tooltip": "Your staff roles: make your own, name and colour them, and click one to tick what it may do, which kinds of ticket it sees and whose staff chat it reads. Admin is locked so nobody can be locked out. Needs the ticket power 'Roles, chat rooms and replies'. Changes apply at once."
+    },
+    {
+      "id": "chats",
+      "label": "Staff chat rooms",
+      "tab": "roles",
+      "export": "HubPanel",
+      "itemLabel": "room",
+      "tooltip": "Extra staff chat rooms, for any mix of roles, each with an optional Discord webhook. Every role also has a room of its own. Messages are never saved: they are gone at the next restart."
+    },
+    {
+      "id": "web",
+      "label": "Your community ID and status",
+      "tab": "web",
+      "export": "HubPanel",
+      "itemLabel": "line",
+      "tooltip": "Your community's one ID for rosewoodridge.xyz/tickets. It is made for you the first time the website is switched on, and nobody types it in here: everyone sees it in game, at the top of /ticket and /tickets. Also shows when the server last synced and how many people are linked."
+    },
+    {
+      "id": "replies",
+      "label": "Ready-made replies",
+      "tab": "roles",
+      "export": "HubPanel",
+      "itemLabel": "reply",
+      "tooltip": "Replies staff pick instead of typing them again. A reply is offered first when the player wrote one of its keywords. {player}, {staff} and {id} are filled in."
+    }
+  ],
+  "settings": {
+    "Config.Language": {
+      "label": "Language",
+      "tooltip": "The language of every message and window. Add a language by copying the \"en\" block in translations.lua.",
+      "tab": "general",
+      "group": "Language",
+      "options": [
+        {
+          "value": "en",
+          "label": "English"
+        }
+      ]
+    },
+    "Config.Command": {
+      "label": "Ticket command",
+      "tooltip": "The chat command players type to open the ticket form, without the slash. Needs a restart of the script.",
+      "tab": "general",
+      "group": "Players"
+    },
+    "Config.OpenKey": {
+      "label": "Open key",
+      "tooltip": "The key that opens the ticket form. The default is Page Up. Players cannot rebind it, so pick a key nothing else uses. 0 turns the key off; the command always works.",
+      "tab": "general",
+      "group": "Players",
+      "picker": "key"
+    },
+    "Config.StaffCommand": {
+      "label": "Staff panel command",
+      "tooltip": "The chat command staff type to open the staff panel, without the slash.",
+      "tab": "general",
+      "group": "Staff"
+    },
+    "Config.StaffKey": {
+      "label": "Staff panel key",
+      "tooltip": "The key that opens the staff panel, for staff only. The default is Home (it was Page Down until 1.1.0: vorp_admin uses that key). 0 turns the key off.",
+      "tab": "general",
+      "group": "Staff",
+      "picker": "key"
+    },
+    "Config.ModCommand": {
+      "label": "Players menu command",
+      "tooltip": "The chat command that opens the Players menu (warn, kick, ban with no ticket), without the slash. /ban is usually taken by other resources, so this is a different word.",
+      "tab": "general",
+      "group": "Staff"
+    },
+    "Config.InvisCommand": {
+      "label": "Invisibility command",
+      "tooltip": "The chat command staff type to turn their invisibility on or off.",
+      "tab": "general",
+      "group": "Staff"
+    },
+    "Config.DutyCommand": {
+      "label": "Duty command",
+      "tooltip": "The chat command staff type to go off duty or back on.",
+      "tab": "general",
+      "group": "Staff"
+    },
+    "Config.PlayerList": {
+      "label": "Reported player list",
+      "tooltip": "Who a player can pick as the player they are reporting. Nearby is the safest on a roleplay server: showing everyone's name to everyone is a metagaming tool.",
+      "tab": "form",
+      "group": "Reported player",
+      "options": [
+        {
+          "value": "nearby",
+          "label": "Nearby players, with names"
+        },
+        {
+          "value": "all",
+          "label": "Everyone online, with names"
+        },
+        {
+          "value": "ids",
+          "label": "Everyone online, server ids only"
+        }
+      ]
+    },
+    "Config.NearbyRadius": {
+      "label": "Nearby distance",
+      "tooltip": "How close a player must be to show in the nearby list.",
+      "tab": "form",
+      "group": "Reported player",
+      "min": 10,
+      "max": 500,
+      "step": 10,
+      "unit": "m"
+    },
+    "Config.TicketCooldownMinutes": {
+      "label": "Wait between tickets",
+      "tooltip": "Minutes a player must wait before sending another ticket. 0 means no wait.",
+      "tab": "form",
+      "group": "Limits",
+      "min": 0,
+      "max": 120,
+      "unit": "min"
+    },
+    "Config.MaxOpenTickets": {
+      "label": "Open tickets per player",
+      "tooltip": "How many open tickets one player may have at once.",
+      "tab": "form",
+      "group": "Limits",
+      "min": 1,
+      "max": 10
+    },
+    "Config.TellWhenNoStaff": {
+      "label": "Say when no staff are on",
+      "tooltip": "After sending, tell the player when no on-duty staff who handle that kind of ticket are online. The ticket is saved either way. Turn off if you would rather not reveal it.",
+      "tab": "form",
+      "group": "Limits"
+    },
+    "Config.HelpCooldownMinutes": {
+      "label": "Wait between help calls",
+      "tooltip": "Minutes a player must wait before pressing 'I need help right now' again.",
+      "tab": "form",
+      "group": "Help calls",
+      "min": 0,
+      "max": 60,
+      "unit": "min"
+    },
+    "Config.HelpExpireMinutes": {
+      "label": "Help call runs out after",
+      "tooltip": "Minutes before a help call nobody marked done disappears from the panel.",
+      "tab": "form",
+      "group": "Help calls",
+      "min": 1,
+      "max": 60,
+      "unit": "min"
+    },
+    "Config.HelpRoles": {
+      "label": "Who hears help calls (old)",
+      "tooltip": "Only read once, the first time 1.1.0 starts, so your choice carries over. After that it is a tick on each role: Roles, chat & replies, Staff roles, 'Help requests'. Changing this does nothing.",
+      "tab": "form",
+      "group": "Help calls"
+    },
+    "Config.ShowExpectedWait": {
+      "label": "Show the usual wait",
+      "tooltip": "On the form, tell players how long their kind of ticket usually waits before staff pick it up, worked out from your own tickets. Nothing shows until a kind has a few tickets to go on.",
+      "tab": "form",
+      "group": "Limits"
+    },
+    "Config.NudgeAfterHours": {
+      "label": "Ask 'still need help?' after",
+      "tooltip": "Hours after staff last wrote, with no answer from the player, before the player is asked whether they still need help. A player who is waiting on staff is never asked. 0 turns it off.",
+      "tab": "form",
+      "group": "Quiet tickets",
+      "min": 0,
+      "max": 720,
+      "unit": "hours"
+    },
+    "Config.AutoCloseAfterHours": {
+      "label": "Then close after",
+      "tooltip": "Hours after that question, still with no answer, before the ticket closes itself as 'No response'. 0 never closes a ticket for you.",
+      "tab": "form",
+      "group": "Quiet tickets",
+      "min": 0,
+      "max": 720,
+      "unit": "hours"
+    },
+    "Config.PublicAnswers": {
+      "label": "Solved questions",
+      "tooltip": "Staff can mark the answer in a ticket and, once it is closed, share it with every player with the names hidden. Nothing is shared until staff say so, and a ticket about a player can never be shared. Off removes the players' Solved questions tab and the Make public button.",
+      "tab": "answers",
+      "group": "Solved questions"
+    },
+    "Config.SuggestAnswers": {
+      "label": "Suggest answers while typing",
+      "tooltip": "While a player types a ticket, show up to three shared answers that look like their problem, so a question already answered never becomes a ticket.",
+      "tab": "answers",
+      "group": "Solved questions"
+    },
+    "Config.PublicKinds": {
+      "label": "Kinds that may be shared",
+      "tooltip": "The ids of the kinds of ticket that may be made public. A kind that asks which player it is about can never be shared, whatever is listed here.",
+      "tab": "answers",
+      "group": "Solved questions"
+    },
+    "Config.Web.Enabled": {
+      "label": "Web panel",
+      "tooltip": "Tickets in a browser at rosewoodridge.xyz/tickets, signed in with Cfx.re: players read, answer and write their OWN tickets under each character, and anyone with a ticket role gets the staff desk as well. READ FIRST: your server cannot talk to a website directly, so copies of your OPEN tickets (names, what players wrote, the conversations, internal notes) are sent to a relay run by Rosewood Ridge, and kept while a ticket is open and for 7 days after it closes. For each person who uses the website it also keeps their Cfx.re account id, name and character names. Turning this off tells the relay to forget your community at once. Warn, kick and ban stay in game, and every web action is checked again by this server. Needs a restart of the script.",
+      "tab": "web",
+      "group": "Web panel"
+    },
+    "Config.Web.Api": {
+      "label": "Relay address",
+      "tooltip": "Where the relay is. Do not change it.",
+      "tab": "web",
+      "group": "Web panel"
+    },
+    "Config.Web.Moderation": {
+      "label": "Warn, kick and ban from the website",
+      "tooltip": "Staff may WARN, KICK and BAN from the website, on the player a ticket reports. Off, those three stay in game. Each one still needs the role power, is checked again by this server, and is audited as 'Name (web)'. A ban from the website is always a local ban: the shared ban network is fed from in game. Keep 'Confirm each browser' on if you turn this on. Needs a restart of the script.",
+      "tab": "web",
+      "group": "Web panel"
+    },
+    "Config.Web.VerifyDevices": {
+      "label": "Confirm each browser",
+      "tooltip": "A Cfx.re sign-in is not enough for the STAFF desk: each browser must be confirmed once with a link code from /tickets, Website. A stolen Cfx.re login is then useless without also being in your game. Staff can sign out all their browsers from the same tab. Players' own tickets are not affected. Needs a restart of the script.",
+      "tab": "web",
+      "group": "Web panel"
+    },
+    "Config.Web.LinkDays": {
+      "label": "Staff must log in every",
+      "tooltip": "STAFF only. Someone with a ticket role keeps the staff desk on the website for this many days after their last login here, so someone who left cannot keep it. A player's own tickets do not run out.",
+      "tab": "web",
+      "group": "Web panel",
+      "min": 1,
+      "max": 365,
+      "unit": "days"
+    },
+    "Config.Web.Appeals": {
+      "label": "Take ban appeals from the website",
+      "tooltip": "Banned players can appeal to you at rosewoodridge.xyz/appeal. Each appeal arrives as a ticket of the kind 'Ban appeal', seen by every role that may lift bans, and the conversation happens in the ticket. This also lists your community BY NAME on that page. Needs the web panel on.",
+      "tab": "web",
+      "group": "Ban appeals"
+    },
+    "Config.Web.PublicName": {
+      "label": "Name players see",
+      "tooltip": "The name shown to players picking who to appeal to. Empty uses your server's name.",
+      "tab": "web",
+      "group": "Ban appeals"
+    },
+    "Config.Web.AppealNote": {
+      "label": "A line above your appeal box",
+      "tooltip": "For example your rules on appeals, or how long to wait before appealing.",
+      "tab": "web",
+      "group": "Ban appeals"
+    },
+    "Config.StaffFullscreen": {
+      "label": "Open the panel full screen",
+      "tooltip": "How the staff panel starts. Each staff member can switch it with the button in the panel, and their own choice is remembered on their computer.",
+      "tab": "staff",
+      "group": "Panel"
+    },
+    "Config.ChatPopups": {
+      "label": "Staff chat pop-ups",
+      "tooltip": "Show on-duty staff a small pop-up for a new staff chat message in a room they are not looking at.",
+      "tab": "staff",
+      "group": "Panel"
+    },
+    "Config.WarningDecayDays": {
+      "label": "Warnings stop counting after",
+      "tooltip": "Days before a warning stops counting toward the ladder below. It stays on the player's record for good. 0 means warnings always count.",
+      "tab": "staff",
+      "group": "Moderation",
+      "min": 0,
+      "max": 3650,
+      "unit": "days"
+    },
+    "Config.Ladder": {
+      "label": "The ladder",
+      "tooltip": "What to suggest for a player's 1st, 2nd, 3rd... offence: warn, kick, or ban: and a length (ban:1d, ban:3d, ban:7d, ban:30d, ban:perm). It counts warnings that still count and every ban. It is only a suggestion on the player's record: staff always decide. The last row is used for anything beyond it; an empty list turns it off.",
+      "tab": "staff",
+      "group": "Moderation"
+    },
+    "Config.StaleClaimMinutes": {
+      "label": "Free a claimed ticket after",
+      "tooltip": "When the staff member who claimed a ticket logs off, the ticket shows 'staff offline' and frees itself after this many minutes.",
+      "tab": "staff",
+      "group": "Claims",
+      "min": 1,
+      "max": 240,
+      "unit": "min"
+    },
+    "Config.ShowBadge": {
+      "label": "Open-ticket badge",
+      "tooltip": "Show on-duty staff a small count of waiting tickets at the top right of the screen.",
+      "tab": "staff",
+      "group": "Panel"
+    },
+    "Config.SoundVolume": {
+      "label": "Sound volume",
+      "tooltip": "How loud the notification sound is, for players and staff. 0 is silent, 1 is full.",
+      "tab": "staff",
+      "group": "Panel",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    "Config.PurgeClosedAfterDays": {
+      "label": "Delete closed tickets after",
+      "tooltip": "Days a closed ticket is kept. 0 keeps them forever. Old tickets are removed when the script starts. To remove ONE ticket, staff archive it; truly deleting an archived ticket needs the server.cfg permission poggy_tickets.delete.",
+      "tab": "staff",
+      "group": "Panel",
+      "min": 0,
+      "max": 3650,
+      "unit": "days"
+    },
+    "Config.Teleport.Invisible": {
+      "label": "Arrive invisible",
+      "tooltip": "Staff who teleport from a ticket arrive invisible and unable to be hurt, until they press Return or type /invis.",
+      "tab": "staff",
+      "group": "Teleport"
+    },
+    "Config.Teleport.Behind": {
+      "label": "Arrive behind the player",
+      "tooltip": "How many metres behind the player staff arrive, so they never land on top of them.",
+      "tab": "staff",
+      "group": "Teleport",
+      "min": 0,
+      "max": 20,
+      "step": 0.5,
+      "unit": "m"
+    },
+    "Config.Discord.Webhook": {
+      "label": "Webhook",
+      "tooltip": "The Discord channel's webhook address. Each ticket is one post, edited as it is claimed and closed, never deleted. Leave as it is for no Discord posts.",
+      "tab": "discord",
+      "group": "Discord",
+      "picker": "webhook"
+    },
+    "Config.Discord.Name": {
+      "label": "Post as",
+      "tooltip": "The name the posts are made under.",
+      "tab": "discord",
+      "group": "Discord"
+    },
+    "Config.Discord.CategoryWebhooks": {
+      "label": "Webhook per kind",
+      "tooltip": "A different channel for one kind of ticket: the key is the kind's id (bug, cheater, ...), the value its webhook. Kinds not listed use the main webhook.",
+      "tab": "discord",
+      "group": "Discord"
+    }
+  },
+  "lists": {
+    "Config.Categories": {
+      "label": "Kinds of ticket",
+      "itemLabel": "kind",
+      "tab": "kinds",
+      "kind": "list",
+      "titleField": "label",
+      "subtitleField": "id",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Label"
+        },
+        {
+          "field": "id",
+          "label": "Id"
+        },
+        {
+          "field": "priority",
+          "label": "Starts as"
+        },
+        {
+          "field": "reportsPlayer",
+          "label": "Asks which player"
+        },
+        {
+          "field": "wantsClip",
+          "label": "Asks for a clip"
+        }
+      ],
+      "search": [
+        "label",
+        "id"
+      ],
+      "fields": {
+        "id": {
+          "label": "Id",
+          "tooltip": "A short name used in the database, the routing table and the per-kind webhooks. Never change it once tickets of this kind exist."
+        },
+        "label": {
+          "label": "Label",
+          "tooltip": "What players and staff read."
+        },
+        "priority": {
+          "label": "Starting priority",
+          "tooltip": "The priority picked for the player when they choose this kind. They can change it before sending; after that only staff can.",
+          "options": [
+            {
+              "value": "urgent",
+              "label": "Urgent"
+            },
+            {
+              "value": "high",
+              "label": "High"
+            },
+            {
+              "value": "medium",
+              "label": "Medium"
+            },
+            {
+              "value": "low",
+              "label": "Low"
+            }
+          ]
+        },
+        "reportsPlayer": {
+          "label": "Asks which player",
+          "tooltip": "On: the form asks which player the ticket is about, and staff get Warn, Kick and Ban on it."
+        },
+        "wantsClip": {
+          "label": "Asks for a video link",
+          "tooltip": "On: the form asks for a video link and encourages one. It is never required, and never opened in game."
+        }
+      },
+      "template": {
+        "id": "new_kind",
+        "label": "New kind",
+        "priority": "medium",
+        "reportsPlayer": false,
+        "wantsClip": false
+      }
+    },
+    "Config.Routing": {
+      "label": "Who sees which kind (old)",
+      "itemLabel": "route",
+      "tab": "kinds",
+      "kind": "map",
+      "tooltip": "Only read once, the first time 1.1.0 starts, so your routing carries over. After that each role says which kinds it sees: Roles, chat & replies, Staff roles, click a role. Changing this does nothing."
+    }
+  }
+}
