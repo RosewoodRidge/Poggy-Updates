@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnimTool</title>
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/timeline.css">
+<script src="https://cfx-nui-poggy_core/ui/hub/theme.js"></script>
+</head>
+<body>
+<div id="app" class="hidden">
+
+    <!-- ═══ TOP BAR ═══════════════════════════════════════════════════ -->
+    <header id="topbar">
+        <div class="tb-left">
+            <span class="logo">ANIM<b>TOOL</b></span>
+            <span id="statusText" class="tb-status"></span>
+        </div>
+        <div class="tb-center">
+            <div class="project-bar">
+                <span id="dirtyDot" class="dirty-dot" title="Unsaved changes"></span>
+                <input id="projectName" type="text" placeholder="Untitled project" autocomplete="off" spellcheck="false" maxlength="48">
+                <button id="saveProjectBtn" class="btn btn-accent" title="Save project (Ctrl+S)">Save</button>
+                <button id="loadProjectBtn" class="btn btn-ghost" title="Open a saved project">Open ▾</button>
+                <button id="newProjectBtn" class="btn btn-ghost" title="New project">New</button>
+                <button id="importBtn" class="btn btn-ghost" title="Import a project from JSON">Import</button>
+            </div>
+            <div id="projectListDropdown" class="dropdown hidden"><div id="projectListItems"></div></div>
+        </div>
+        <div class="tb-right">
+            <button id="undoBtn" class="btn btn-ghost icon" title="Undo (Ctrl+Z)">↶</button>
+            <button id="redoBtn" class="btn btn-ghost icon" title="Redo (Ctrl+Y)">↷</button>
+            <button id="helpBtn" class="btn btn-ghost icon" title="Shortcuts & help (?)">?</button>
+            <button id="exportBtn" class="btn btn-accent" title="Export Lua scene">Export</button>
+            <button id="closeBtn" class="btn btn-ghost icon" title="Close (Esc)">✕</button>
+        </div>
+    </header>
+
+    <!-- ═══ LEFT: LIBRARY ═════════════════════════════════════════════ -->
+    <aside id="leftPanel" class="panel">
+        <div class="panel-handle" title="Toggle library"></div>
+        <div class="panel-body">
+            <div class="panel-title">Library</div>
+            <div class="search-wrap">
+                <input id="animSearch" type="text" placeholder="Search animations… (Ctrl+F)" autocomplete="off" spellcheck="false">
+                <span id="resultCount" class="result-count">0</span>
+            </div>
+            <div id="breadcrumb" class="breadcrumb"></div>
+            <div id="previewBar" class="preview-bar idle">
+                <span class="preview-icon">▶</span>
+                <span id="previewName" class="preview-name"></span>
+                <span id="previewDur" class="preview-dur"></span>
+                <button id="previewAdd" class="mini add" title="Add this clip to the timeline">+</button>
+                <button id="previewStop" class="mini" title="Stop preview (Esc)">■</button>
+            </div>
+            <div id="animList" class="anim-list"></div>
+            <div id="favHeader" class="section-toggle">
+                <span class="section-arrow">▸</span><span>★ Favourites</span><span id="favCount" class="badge">0</span>
+            </div>
+            <div id="favList" class="fav-list"></div>
+        </div>
+    </aside>
+
+    <!-- ═══ RIGHT: INSPECTOR ══════════════════════════════════════════ -->
+    <aside id="rightPanel" class="panel">
+        <div class="panel-handle" title="Toggle inspector"></div>
+        <div class="panel-body">
+            <div class="panel-title props-title">
+                <span>Props <span id="propCount" class="badge">0</span></span>
+                <button id="addPropBtn" class="btn btn-accent sm">+ Add</button>
+            </div>
+            <div id="addPropDialog" class="add-dialog hidden">
+                <input id="propModelInput" type="text" placeholder="Search object model… (↑↓ Enter)" autocomplete="off" spellcheck="false">
+                <div id="propSuggestions" class="prop-suggestions"></div>
+                <div class="dialog-actions">
+                    <button id="confirmAddProp" class="btn btn-accent sm">Spawn</button>
+                    <button id="cancelAddProp" class="btn btn-ghost sm">Cancel</button>
+                </div>
+            </div>
+            <div id="propList" class="prop-list"></div>
+
+            <div id="inspectorContext" class="inspector-context">
+                <div id="projectInfo" class="project-info">
+                    <div class="insp-title"><span class="insp-kind">PROJECT</span><span class="insp-name">Overview</span></div>
+                    <div class="insp-row"><label>Duration</label><span id="piDuration" class="insp-val">0:00.00</span></div>
+                    <div class="insp-row"><label>Clips</label><span id="piClips" class="insp-val">0</span></div>
+                    <div class="insp-row"><label>Props</label><span id="piProps" class="insp-val">0</span></div>
+                    <div class="insp-row"><label>Keyframes</label><span id="piKfs" class="insp-val">0</span></div>
+                    <div class="tips">
+                        <b>Workflow</b>
+                        <ol>
+                            <li>Find an animation in the library. Click to preview it, double-click (or <b>+</b>) to add it to the timeline. Clips play back-to-back.</li>
+                            <li>Drag clips to reorder, drag their edges to trim. Drag the right edge past the end to <i>hold</i> the last frame.</li>
+                            <li>Add a prop, pick a bone and pose it with the sliders. Press <b>K</b> (or ◆) to keyframe the pose at the playhead; move the playhead and pose again.</li>
+                            <li>Drag a prop's bar ends to set when it appears / disappears.</li>
+                            <li>Save, then <b>Export</b> the Lua scene.</li>
+                        </ol>
+                        <span class="insp-hint">Press <b>?</b> for all shortcuts.</span>
+                    </div>
+                </div>
+                <div id="clipEditor" class="editor hidden"></div>
+                <div id="propEditor" class="editor hidden"></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ═══ TIMELINE ══════════════════════════════════════════════════ -->
+    <div id="timeline"></div>
+
+    <!-- ═══ MODALS ════════════════════════════════════════════════════ -->
+    <div id="exportModal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-card wide">
+            <div class="modal-header">
+                <span>Export</span>
+                <div class="export-tabs">
+                    <button class="export-tab active" data-tab="scene">Scene (Lua)</button>
+                    <button class="export-tab" data-tab="runtime">Runtime · scene_player.lua</button>
+                    <button class="export-tab" data-tab="json">Project JSON</button>
+                </div>
+                <button id="closeModal" class="btn btn-ghost icon">✕</button>
+            </div>
+            <textarea id="exportCode" readonly spellcheck="false"></textarea>
+            <div class="modal-footer">
+                <span class="insp-hint">Scene = data for your resource. Runtime = the player module to ship with it. JSON = re-importable project.</span>
+                <button id="copyBtn" class="btn btn-accent">Copy to clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="importModal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-card">
+            <div class="modal-header"><span>Import project JSON</span><button id="importCancel" class="btn btn-ghost icon">✕</button></div>
+            <textarea id="importText" spellcheck="false" placeholder="Paste the JSON from Export → Project JSON (v1 projects are converted automatically)"></textarea>
+            <div class="modal-footer"><button id="importDo" class="btn btn-accent">Import</button></div>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-card small">
+            <div class="modal-body" id="confirmText"></div>
+            <div class="modal-footer"><button id="confirmCancel" class="btn btn-ghost">Cancel</button><button id="confirmOk" class="btn btn-danger">OK</button></div>
+        </div>
+    </div>
+
+    <div id="helpModal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-card">
+            <div class="modal-header"><span>Shortcuts</span><button id="helpClose" class="btn btn-ghost icon">✕</button></div>
+            <div class="modal-body help-grid">
+                <b>Space</b><span>Play / pause</span>
+                <b>Home / End</b><span>Go to start / end</span>
+                <b>← →</b><span>Step one frame (Shift: one second)</span>
+                <b>↑ ↓</b><span>Previous / next clip edge or keyframe</span>
+                <b>K</b><span>Add / update keyframe at playhead (selected prop)</span>
+                <b>Delete</b><span>Delete selected keyframe / clip / prop</span>
+                <b>Ctrl+Z / Ctrl+Y</b><span>Undo / redo</span>
+                <b>Ctrl+C / Ctrl+V</b><span>Copy pose / paste as keyframe</span>
+                <b>Ctrl+D</b><span>Duplicate selected clip or prop</span>
+                <b>Ctrl+S</b><span>Save project</span>
+                <b>Ctrl+F</b><span>Search library</span>
+                <b>L · A · S</b><span>Toggle loop · auto-key · snap</span>
+                <b>F · + · −</b><span>Fit timeline · zoom in · zoom out (Ctrl+wheel zooms at cursor)</span>
+                <b>[ ]</b><span>Slider step finer / coarser</span>
+                <b>Drag in game view</b><span>Hold the mouse on the game to orbit the camera; click a prop to select it</span>
+                <b>Esc</b><span>Close dialog → stop preview → deselect → close tool</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="toasts"></div>
+    <div id="loading"><div class="spinner"></div><span id="loadingText">Loading library…</span></div>
+</div>
+
+<script src="js/util.js"></script>
+<script src="js/nui.js"></script>
+<script src="js/state.js"></script>
+<script src="js/browser.js"></script>
+<script src="js/timeline.js"></script>
+<script src="js/inspector.js"></script>
+<script src="js/export.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

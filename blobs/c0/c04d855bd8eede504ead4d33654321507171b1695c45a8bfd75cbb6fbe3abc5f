@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>poggy_skillcheck</title>
+    <link rel="stylesheet" href="skillcheck.css" />
+    <script src="https://cfx-nui-poggy_core/ui/hub/theme.js"></script>
+</head>
+<body>
+    <div id="skillcheck-wrapper">
+        <canvas id="skillcheck-canvas" width="160" height="160"></canvas>
+        <div id="skillcheck-key">Space</div>
+        <div id="skillcheck-streak"></div>
+        <div id="skillcheck-flash"></div>
+        <div id="skillcheck-fail-tint"></div>
+    </div>
+    <script>document.write('<scr'+'ipt src="skillcheck.js?t='+Date.now()+'"><\/scr'+'ipt>');</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Tickets</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cfx-nui-poggy_core/ui/hub/theme.js"></script>
+</head>
+<body>
+    <!-- The window: the player's form, or the staff panel. -->
+    <div id="shade" class="hidden"></div>
+    <div id="window" class="pt-window hidden"></div>
+
+    <!-- Always-on pieces: they never take the mouse. -->
+    <div id="badge" class="pt-badge hidden"></div>
+    <div id="toasts" class="pt-toasts"></div>
+
+    <!-- The warning screen. -->
+    <div id="warning" class="pt-warning hidden">
+        <div class="pt-warning__pulse"></div>
+        <div class="pt-warning__box">
+            <div class="pt-warning__title" id="warning-title"></div>
+            <div class="pt-warning__reason" id="warning-reason"></div>
+            <button class="pt-btn pt-btn--danger" id="warning-ok" disabled></button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

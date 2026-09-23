@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poggy Utilities</title>
+    <link rel="stylesheet" href="music.css">
+    <link rel="stylesheet" href="help.css">
+    <link rel="stylesheet" href="clock.css">
+    <script src="https://cfx-nui-poggy_core/ui/hub/theme.js"></script>
+</head>
+<body>
+    <div id="youtube-container">
+        <div id="player"></div>
+    </div>
+    
+    <div id="aop-display">
+        <span id="aop-text"></span>
+        <span id="aop-players"></span>
+        <div id="duty-row">
+            <span id="duty-law"></span>
+            <span id="duty-sep"></span>
+            <span id="duty-doc"></span>
+        </div>
+        <span id="aop-help">(do /aop to hide this)</span>
+        <div id="clock-widget">
+            <div id="clock-time">
+                <span id="clock-celestial">☀️</span>
+                <span id="clock-divider">│</span>
+                <span id="clock-time-text"></span>
+            </div>
+            <div id="clock-weather">
+                <span id="clock-weather-icon"></span>
+                <span id="clock-weather-text"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         HELP / GUIDE UI
+         ======================================== -->
+    <div id="help-overlay">
+        <div id="help-header">
+            <!-- Logo and name come from Config.Help.Logo / Config.Help.ServerName (config.lua) -->
+            <img id="help-logo" alt="" hidden onerror="this.hidden=true">
+            <div id="help-brand"></div>
+            <div id="help-search-wrap">
+                <input type="text" id="help-search" placeholder="Search guides, commands, tips..." autocomplete="off" spellcheck="false">
+            </div>
+            <button id="help-close" title="Close (Esc)">✕</button>
+        </div>
+        <div id="help-breadcrumb">
+            <button id="help-back">← Back</button>
+            <span id="help-breadcrumb-title"></span>
+        </div>
+        <div id="help-body">
+            <div id="help-hero"></div>
+            <div id="help-grid"></div>
+            <div id="help-unstuck">
+                <div id="help-unstuck-icon">⚠</div>
+                <div id="help-unstuck-text">I'M STUCK!</div>
+                <div id="help-unstuck-hint">Click here to teleport to the nearest road</div>
+            </div>
+            <div id="help-detail"></div>
+            <div id="help-search-results"></div>
+        </div>
+        <div id="help-footer">Type /help to toggle · Click a category to explore · Search for anything</div>
+    </div>
+    
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="nui://game/ui/jquery.js"></script>
+    <script src="sounds.js"></script>
+    <script src="help.js"></script>
+    <script src="clock.js"></script>
+
+    <!-- ========================================
+         ARMOR HUD — durability icon (bottom-left by default, configurable)
+         ======================================== -->
+    <div id="armor-hud" style="display:none; position:fixed; bottom:80px; left:30px; z-index:9000; pointer-events:none; cursor:default; user-select:none;">
+        <div id="armor-hud-inner" style="position:relative; width:40px; height:40px;">
+            <img id="armor-img" src="img/meter/rpg_tank_10.png"
+                 style="width:40px; height:40px; display:block;
+                        filter: drop-shadow(0 2px 6px rgba(0,0,0,0.7));">
+            <img id="armor-shield" src="img/armor.png"
+                 style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+                        width:0; height:0; pointer-events:none; user-select:none;
+                        filter: drop-shadow(0 1px 4px rgba(0,0,0,0.6));">
+        </div>
+    </div>
+
+    <!-- Move-mode overlay (shown while /movearmor is active) -->
+    <div id="armor-move-overlay" style="display:none; position:fixed; inset:0; z-index:8999; cursor:default;">
+        <div id="armor-move-hint"
+             style="position:fixed; top:20px; left:50%; transform:translateX(-50%);
+                    background:rgba(0,0,0,0.72); color:rgba(230,218,196,0.95);
+                    padding:8px 20px; border-radius:6px; font-size:12px; font-weight:600;
+                    letter-spacing:0.12em; text-transform:uppercase;
+                    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+                    pointer-events:none; white-space:nowrap;
+                    text-shadow:0 1px 4px rgba(0,0,0,0.8);">
+            Drag armor icon &bull; Click anywhere to save &amp; exit
+        </div>
+    </div>
+
+    <!-- ========================================
+         ARMOR REPAIR PROGRESS BAR
+         ======================================== -->
+    <div id="armor-repair-wrapper"
+         style="display:none; opacity:0; transition:opacity 180ms ease;
+                position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+                width:300px; flex-direction:column; align-items:center; gap:9px;
+                z-index:9001; pointer-events:none;">
+        <div id="armor-repair-label"
+             style="color:rgba(230,218,196,0.95); font-size:11px; font-weight:600;
+                    letter-spacing:0.18em; text-transform:uppercase;
+                    text-shadow:0 1px 6px rgba(0,0,0,0.9),0 0 20px rgba(0,0,0,0.6);
+                    white-space:nowrap; user-select:none;
+                    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;">
+            Repairing Armor&hellip;
+        </div>
+        <div id="armor-repair-track"
+             style="width:100%; height:5px; background:rgba(255,255,255,0.08);
+                    border-radius:999px; overflow:hidden; position:relative;
+                    box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset,0 2px 8px rgba(0,0,0,0.4);">
+            <div id="armor-repair-fill"
+                 style="position:absolute; inset:0; width:0%; height:100%;
+                        border-radius:999px;
+                        background:linear-gradient(90deg,#a07840 0%,#d4a85a 35%,#f0d48a 55%,#d4a85a 75%,#a07840 100%);
+                        background-size:250% 100%;
+                        animation:armorShimmer 2s linear infinite;">
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes armorShimmer {
+            0%   { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+    </style>
+
+    <script>
+    (function () {
+        'use strict';
+
+        var hud           = document.getElementById('armor-hud');
+        var hudInner      = document.getElementById('armor-hud-inner');
+        var img           = document.getElementById('armor-img');
+        var repairWrapper = document.getElementById('armor-repair-wrapper');
+        var repairFill    = document.getElementById('armor-repair-fill');
+        var repairLabel   = document.getElementById('armor-repair-label');
+        var moveOverlay   = document.getElementById('armor-move-overlay');
+
+        var moveMode   = false;
+        var isDragging = false;
+        var dragOffX   = 0;
+        var dragOffY   = 0;
+        var hasSavedPos = false;  // true once a DB position has been loaded
+
+        /** Return the image path for the current durability level */
+        function armorImgSrc(shots, maxShots, shotsPerStage) {
+            if (shots <= 0) return 'img/empty_bg.png';
+            var stages  = Math.round(maxShots / shotsPerStage);
+            var stage   = Math.ceil(shots / shotsPerStage);
+            var clamped = Math.max(1, Math.min(stages, stage));
+            return 'img/meter/rpg_tank_' + clamped + '.png';
+        }
+
+        /** Switch HUD to top+left positioning (needed for drag) */
+        function applyTopLeft(top, left) {
+            hud.style.bottom = 'auto';
+            hud.style.right  = 'auto';
+            hud.style.top    = top;
+            hud.style.left   = left;
+        }
+
+        /** Convert config bottom/left/right to equivalent top+left pixels */
+        function configToTopLeft(bottom, left, right, sizeStr) {
+            var sz = parseInt(sizeStr) || 60;
+            var b  = parseInt(bottom)  || 80;
+            var t  = (window.innerHeight - b - sz) + 'px';
+            var l;
+            if (right) {
+                var r = parseInt(right) || 30;
+                l = (window.innerWidth - r - sz) + 'px';
+            } else {
+                l = left || '30px';
+            }
+            return { top: t, left: l };
+        }
+
+        /** Resize the HUD container + circle image to a new CSS size string */
+        function applySize(sizeStr) {
+            img.style.width       = sizeStr;
+            img.style.height      = sizeStr;
+            hudInner.style.width  = sizeStr;
+            hudInner.style.height = sizeStr;
+        }
+
+        // ── Drag ─────────────────────────────────────────────────────────────
+        hud.addEventListener('mousedown', function (e) {
+            if (!moveMode) return;
+            isDragging = true;
+            var rect = hud.getBoundingClientRect();
+            dragOffX = e.clientX - rect.left;
+            dragOffY = e.clientY - rect.top;
+            hud.style.cursor = 'grabbing';
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        document.addEventListener('mousemove', function (e) {
+            if (!isDragging) return;
+            var newLeft = Math.max(0, Math.min(window.innerWidth  - hud.offsetWidth,  e.clientX - dragOffX));
+            var newTop  = Math.max(0, Math.min(window.innerHeight - hud.offsetHeight, e.clientY - dragOffY));
+            applyTopLeft(newTop + 'px', newLeft + 'px');
+        });
+
+        document.addEventListener('mouseup', function () {
+            if (!isDragging) return;
+            isDragging = false;
+            hud.style.cursor = 'grab';
+        });
+
+        // ── Exit move mode (overlay click or Escape) ─────────────────────────
+        moveOverlay.addEventListener('click', function (e) {
+            if (e.target === moveOverlay) { exitMoveMode(true); }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (moveMode && e.key === 'Escape') { exitMoveMode(true); }
+        });
+
+        function exitMoveMode(doSave) {
+            moveMode = false;
+            moveOverlay.style.display = 'none';
+            hud.style.pointerEvents   = 'none';
+            hud.style.cursor          = 'default';
+            hud.style.zIndex          = '9000';
+            if (doSave) {
+                fetch(`https://${GetParentResourceName()}/armorPositionSave`, {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ top: hud.style.top, left: hud.style.left })
+                });
+            }
+            fetch(`https://${GetParentResourceName()}/armorMoveExit`, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({})
+            });
+        }
+
+        // ── NUI messages ─────────────────────────────────────────────────────
+        window.addEventListener('message', function (e) {
+            var d = e.data;
+            if (!d || !d.type) return;
+
+            /* ── armorInit – apply config layout (skipped if DB pos already loaded) ── */
+            if (d.type === 'armorInit') {
+                var sz = d.imageWidth || '60px';
+                applySize(sz);
+                var shield = document.getElementById('armor-shield');
+                if (shield) {
+                    var ss = d.shieldSize || '35px';
+                    shield.style.width  = ss;
+                    shield.style.height = ss;
+                }
+                if (!hasSavedPos) {
+                    var pos = configToTopLeft(d.bottom, d.left, d.right, sz);
+                    applyTopLeft(pos.top, pos.left);
+                }
+                repairWrapper.style.bottom = d.repairBottom || '90px';
+                repairWrapper.style.width  = d.repairWidth  || '300px';
+            }
+
+            /* ── armorPositionLoad – restore saved DB position ── */
+            if (d.type === 'armorPositionLoad') {
+                if (d.top && d.left) {
+                    hasSavedPos = true;
+                    applyTopLeft(d.top, d.left);
+                }
+            }
+
+            /* ── armorUpdate – change tank image ── */
+            if (d.type === 'armorUpdate') {
+                img.src = armorImgSrc(d.shots, d.maxShots, d.shotsPerStage);
+            }
+
+            /* ── armorVisible – show/hide icon ── */
+            if (d.type === 'armorVisible') {
+                hud.style.display = d.visible ? 'block' : 'none';
+            }
+
+            /* ── armorMoveMode – enter drag-to-reposition mode ── */
+            if (d.type === 'armorMoveMode') {
+                if (d.enabled) {
+                    moveMode = true;
+                    hud.style.display       = 'block';
+                    hud.style.pointerEvents = 'all';
+                    hud.style.cursor        = 'grab';
+                    hud.style.zIndex        = '10001';
+                    moveOverlay.style.display = 'block';
+                } else {
+                    exitMoveMode(false);
+                }
+            }
+
+            /* ── armorRepairStart – show animated progress bar ── */
+            if (d.type === 'armorRepairStart') {
+                repairLabel.textContent = d.label || 'Repairing Armor...';
+                repairWrapper.style.display = 'flex';
+                void repairWrapper.offsetWidth;
+                repairWrapper.style.opacity = '1';
+                repairFill.style.transition = 'none';
+                repairFill.style.width = '0%';
+                void repairFill.offsetWidth;
+                repairFill.style.transition = 'width ' + d.duration + 'ms linear';
+                repairFill.style.width = '100%';
+            }
+
+            /* ── armorRepairEnd – hide the bar ── */
+            if (d.type === 'armorRepairEnd') {
+                repairWrapper.style.opacity = '0';
+                setTimeout(function () {
+                    repairWrapper.style.display = 'none';
+                    repairFill.style.transition = 'none';
+                    repairFill.style.width = '0%';
+                }, 200);
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

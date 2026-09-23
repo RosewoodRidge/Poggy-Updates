@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emotes</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cfx-nui-poggy_core/ui/hub/theme.js"></script>
+</head>
+<body>
+
+  <div id="root" class="hidden">
+
+    <div id="panel" class="panel">
+
+      <header class="panel-header">
+        <span class="header-mark">&#10022;</span>
+        <h1 class="header-title" id="title">Emotes</h1>
+        <span class="header-count" id="count"></span>
+        <button class="header-close" id="btn-close" type="button" title="Close">&times;</button>
+      </header>
+
+      <div class="search-row">
+        <span class="search-icon" aria-hidden="true">&#9906;</span>
+        <input id="search" type="text" autocomplete="off" spellcheck="false" placeholder="Search emotes" />
+        <button class="search-clear hidden" id="btn-clear" type="button" title="Clear">&times;</button>
+        <button class="filter" id="btn-props" type="button">Props only</button>
+      </div>
+
+      <div class="panel-body">
+        <nav class="categories" id="categories"></nav>
+
+        <div class="list-pane">
+          <ul class="emote-list" id="list"></ul>
+          <p class="empty hidden" id="empty"></p>
+        </div>
+      </div>
+
+      <footer class="panel-footer">
+        <label class="switch" id="keep-open">
+          <input type="checkbox" id="chk-keep" />
+          <span class="switch-track"><span class="switch-knob"></span></span>
+          <span class="switch-text" id="keep-text">Keep menu open</span>
+        </label>
+        <span class="hint" id="hint"></span>
+        <button class="btn-stop" id="btn-stop" type="button">Stop emote</button>
+      </footer>
+
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
