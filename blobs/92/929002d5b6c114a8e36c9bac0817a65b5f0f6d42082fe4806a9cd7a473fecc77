@@ -1,0 +1,127 @@
+/* ================================================================
+   Poggy theme skin: poggy_supplydrops (ui/index.html)
+
+   Covers the scavenger hunt window that /clue opens: the backdrop, the
+   card, its header (hunt name, close), the location photo's frame, the
+   blurred / revealed clue box, the penalty warning, SHOW CLUE, the reward
+   box, and the full-size photo view (backdrop, frame, close, magnifier).
+
+   The script has its own five colour themes (Config.Scavenger.Theme:
+   body.theme-crimson / twilight / oceanic / forest / monochrome). Every
+   rule here is html.pg-themed body ..., one element more specific than
+   theirs, so the Poggy theme wins over whichever one is picked. With the
+   script on PoggyCoreConfig.Theme.OwnLook, its own theme shows as before.
+
+   Left alone on purpose: the location photos themselves (images/*.jpg,
+   in the card, the full-size view and the magnifier's lens), the blur on
+   an unrevealed clue, and the card's lift on hover.
+   ================================================================ */
+
+html.pg-themed body {
+    color: var(--pg-text);
+    font-family: var(--pg-font-body);
+    line-height: 1.5;           /* Poppins' line box: the body font is shorter, and the card would shrink */
+}
+
+/* ── the backdrop and the card ── */
+html.pg-themed body #scavenger-container { background: var(--pg-veil); }
+
+html.pg-themed body #hunt-card,
+html.pg-themed body #hunt-card:hover {
+    background: var(--pg-panel-bg);
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius);
+    box-shadow: var(--pg-shadow);
+}
+
+/* ── header ── */
+html.pg-themed body .header {
+    background: transparent;
+    color: var(--pg-text);
+    border-bottom: 1px solid var(--pg-border-soft);
+}
+html.pg-themed body #hunt-title {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: .04em;
+    line-height: 1.2;           /* Russo One's line box, so the card keeps its height */
+    color: var(--pg-text);
+}
+html.pg-themed body #close-button { color: var(--pg-text-muted); }
+html.pg-themed body #close-button:hover { color: var(--pg-danger); }
+
+/* ── the photo's frame (the photo is left alone) ── */
+html.pg-themed body .image-container {
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius);
+    box-shadow: 0 5px 15px rgba(var(--pg-shade-rgb), 0.30);
+}
+
+/* ── clue ── */
+html.pg-themed body .clue-box,
+html.pg-themed body .reward-section {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius);
+}
+html.pg-themed body #clue-text {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-soft);
+}
+html.pg-themed body #penalty-text {
+    color: var(--pg-warning);
+    font-weight: 400;           /* 300 of the body font is a hairline */
+}
+
+html.pg-themed body #reveal-clue {
+    background: var(--pg-btn-primary-bg);
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft);   /* the button has no border: an edge that takes no room */
+    color: var(--pg-text);
+    border-radius: var(--pg-radius-sm);
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: .07em;
+    line-height: 1.5;           /* a button does not inherit the body's line box */
+}
+html.pg-themed body #reveal-clue:hover {
+    background: var(--pg-btn-primary-bg);
+    box-shadow: inset 0 0 0 1px var(--pg-accent);
+    color: var(--pg-accent-hi);
+}
+html.pg-themed body #reveal-clue:active { box-shadow: inset 0 0 0 1px var(--pg-accent); }
+
+/* ── reward ── */
+html.pg-themed body .reward-section h3 {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: .07em;
+    line-height: 1.2;
+    color: var(--pg-text-muted);
+}
+html.pg-themed body #reward-value {
+    font-family: var(--pg-font-body);
+    color: var(--pg-accent);
+}
+
+/* ── the full-size photo ── */
+html.pg-themed body .image-modal { background-color: rgba(var(--pg-shade-rgb), 0.88); }
+html.pg-themed body .modal-content {
+    border-radius: var(--pg-radius);
+    box-shadow: 0 0 0 1px var(--pg-border), var(--pg-shadow-strong);
+}
+html.pg-themed body #modal-image { border-radius: var(--pg-radius); }
+html.pg-themed body .modal-close {
+    background: var(--pg-popup-bg);
+    box-shadow: inset 0 0 0 1px var(--pg-btn-border);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text-muted);
+}
+html.pg-themed body .modal-close:hover {
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft);
+    color: var(--pg-danger);
+}
+html.pg-themed body .magnifier {
+    border: 2px solid var(--pg-accent-glow);
+    box-shadow: var(--pg-shadow), inset 0 0 5px rgba(var(--pg-shade-rgb), 0.50);
+}

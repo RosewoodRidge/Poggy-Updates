@@ -1,0 +1,301 @@
+/* ================================================================
+   Poggy theme skin: poggy_fishing_journal (ui/index.html)
+
+   Covers: the left sidebar (title, clock, close, tabs; Journal tab:
+   season counts, discovery bar, Active Now list and the Inactive
+   group; Discoveries tab: ring and list; Records tab: stat cards,
+   sort buttons, list; PBs tab), the fish lore sidebar on the right,
+   the water body popup, the map's pin labels and legend box, the
+   music button, and the two toasts (discovery, personal record).
+
+   The journal is drawn in plain CSS panels; the only picture is the
+   map (img/map.jpg), which is left alone.
+
+   Left alone on purpose:
+   - the map image, the map pins' and legend dots' colours, and the
+     location dots in the lore panel: each is the water type's colour
+     from JournalConfig.TypeColours (lake, river, ...), set by app.js;
+   - the water type pill in the popup keeps the type's colour as its
+     tint and edge (app.js writes it inline); only its text takes the
+     theme's text colour, so a pale type colour stays readable on a
+     light theme;
+   - Legendary orange (badge, names, the row's left edge): a rarity;
+   - fish icons and emoji.
+   Size badges (SM, MD, LG, XL) keep their meaning as the theme's
+   info / success / warning / danger, so they read on every preset.
+   ================================================================ */
+
+/* ── the script's own variables, re-pointed ─────────────────────── */
+html.pg-themed {
+    --bg-primary:     var(--pg-deep);
+    --bg-secondary:   var(--pg-panel);
+    --bg-card:        var(--pg-surface);
+    --bg-hover:       var(--pg-surface-hover);
+    --border:         var(--pg-border-soft);
+    --border-hover:   var(--pg-accent-soft);
+    --accent:         var(--pg-accent);
+    --accent-dim:     var(--pg-accent-faint);
+    --accent-glow:    var(--pg-accent-glow);
+    --text-primary:   var(--pg-text);
+    --text-secondary: var(--pg-text-soft);
+    --text-muted:     var(--pg-text-muted);
+    --gold:           var(--pg-accent);
+    --green:          var(--pg-success);
+    --red:            var(--pg-danger);
+}
+
+html.pg-themed body { font-family: var(--pg-font-body); }
+
+/* ── frame ──────────────────────────────────────────────────────── */
+html.pg-themed .journal-container { background: rgba(var(--pg-deep-rgb), 0.93); }
+html.pg-themed .sidebar,
+html.pg-themed .lore-sidebar {
+    background: var(--pg-panel-bg);
+    border-color: var(--pg-border);
+    box-shadow: var(--pg-shadow);
+}
+
+/* titles */
+html.pg-themed .journal-title,
+html.pg-themed .lore-fish-name,
+html.pg-themed .modal-water-name {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: var(--pg-text);
+}
+html.pg-themed .lore-scientific { font-family: var(--pg-font-display); }
+
+/* section labels */
+html.pg-themed .section-title,
+html.pg-themed .progress-title,
+html.pg-themed .season-label,
+html.pg-themed .records-stat-label,
+html.pg-themed .records-sort-label,
+html.pg-themed .discoveries-subtitle,
+html.pg-themed .lore-stat-label,
+html.pg-themed .lore-section-title,
+html.pg-themed .lore-family,
+html.pg-themed .modal-section-title,
+html.pg-themed .lore-voice-credit {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-text-muted);
+}
+/* the size group headings in the popup: app.js gives them an inline colour */
+html.pg-themed .modal-fish-list > div:not([class]) {
+    font-family: var(--pg-font-display) !important;
+    font-weight: 400 !important;
+    color: var(--pg-text-muted) !important;
+}
+
+/* clock */
+html.pg-themed .time-display { color: var(--pg-accent); }
+html.pg-themed .game-time { font-family: var(--pg-font-body); }
+
+/* close buttons: plain square buttons */
+html.pg-themed .close-btn,
+html.pg-themed .lore-close-btn,
+html.pg-themed .modal-close {
+    background: var(--pg-btn-bg);
+    border-color: var(--pg-btn-border);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text);
+}
+html.pg-themed .close-btn:hover,
+html.pg-themed .lore-close-btn:hover,
+html.pg-themed .modal-close:hover {
+    background: var(--pg-btn-bg-hover);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-text);
+}
+
+/* tabs */
+html.pg-themed .tab-btn {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-text-muted);
+}
+html.pg-themed .tab-btn:hover { color: var(--pg-text); background: var(--pg-surface); }
+html.pg-themed .tab-btn.active { color: var(--pg-accent); border-bottom-color: var(--pg-accent); }
+
+/* ── Journal tab ────────────────────────────────────────────────── */
+html.pg-themed .season-pill,
+html.pg-themed .records-stat-card,
+html.pg-themed .lore-stat {
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .season-count,
+html.pg-themed .records-stat-value,
+html.pg-themed .progress-text,
+html.pg-themed .discovery-pct,
+html.pg-themed .discoveries-count,
+html.pg-themed .lore-stat-value,
+html.pg-themed .record-rank,
+html.pg-themed .record-count,
+html.pg-themed .record-value,
+html.pg-themed .fish-group-count { font-family: var(--pg-font-body); }
+
+html.pg-themed .progress-bar-container {
+    background: var(--pg-deep);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .progress-bar {
+    background: var(--pg-accent);
+    border-radius: var(--pg-radius-sm);
+}
+
+html.pg-themed .fish-row { border-radius: var(--pg-radius-sm); }
+html.pg-themed .fish-row-icon,
+html.pg-themed .record-icon,
+html.pg-themed .discovery-item-icon,
+html.pg-themed .modal-fish-icon,
+html.pg-themed .pb-icon,
+html.pg-themed .lore-fish-icon,
+html.pg-themed .discovery-icon {
+    background: var(--pg-slot-bg);
+    border-color: var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+
+/* size badges: meaning pills; Legendary keeps its orange */
+html.pg-themed .fish-size-badge { border-radius: var(--pg-radius-sm); font-family: var(--pg-font-body); }
+html.pg-themed .fish-size-badge.sm { background: var(--pg-info-soft);    color: var(--pg-info); }
+html.pg-themed .fish-size-badge.md { background: var(--pg-success-soft); color: var(--pg-success); }
+html.pg-themed .fish-size-badge.lg { background: var(--pg-warning-soft); color: var(--pg-warning); }
+html.pg-themed .fish-size-badge.xl { background: var(--pg-danger-soft);  color: var(--pg-danger); }
+
+html.pg-themed .fish-season-dot.in,
+html.pg-themed .season-legend-dot.in { box-shadow: 0 0 5px rgba(var(--pg-success-rgb), 0.4); }
+
+/* ── Discoveries tab ────────────────────────────────────────────── */
+html.pg-themed .discoveries-progress-ring .ring-bg { stroke: var(--pg-accent-faint); }
+html.pg-themed .discovery-item,
+html.pg-themed .record-item,
+html.pg-themed .modal-fish-row,
+html.pg-themed .pb-item {
+    border-radius: var(--pg-radius-sm);
+}
+
+/* ── Records tab ────────────────────────────────────────────────── */
+html.pg-themed .sort-btn,
+html.pg-themed .pb-sort-btn {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    background: var(--pg-btn-bg);
+    border-color: var(--pg-btn-border);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text-muted);
+}
+html.pg-themed .sort-btn:hover,
+html.pg-themed .pb-sort-btn:hover {
+    background: var(--pg-btn-bg-hover);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-text);
+}
+html.pg-themed .sort-btn.active,
+html.pg-themed .pb-sort-btn.active {
+    background: var(--pg-accent-faint);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-accent);
+}
+
+/* ── PBs tab (was all gold: now the theme's rows, the accent for the weights) ── */
+html.pg-themed .pbs-header { border-bottom-color: var(--pg-border-soft); }
+html.pg-themed .pbs-title {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-text);
+    text-shadow: none;
+}
+html.pg-themed .pb-item {
+    background: var(--pg-surface);
+    border-color: var(--pg-border-soft);
+}
+html.pg-themed .pb-item:hover {
+    background: var(--pg-surface-hover);
+    border-color: var(--pg-accent-soft);
+}
+html.pg-themed .pb-meta-date { color: var(--pg-text-muted); }
+html.pg-themed .pb-weight {
+    font-family: var(--pg-font-body);
+    color: var(--pg-accent);
+    text-shadow: none;
+}
+
+/* ── map: pin labels, legend, music button ──────────────────────── */
+html.pg-themed .map-pin.selected { box-shadow: 0 0 14px var(--pg-accent-glow); }
+html.pg-themed .pin-label {
+    background: var(--pg-popup-bg);
+    border-color: var(--pg-border);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text);
+}
+html.pg-themed .map-legend {
+    background: var(--pg-panel-bg);
+    border-color: var(--pg-border);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .map-legend-item { color: var(--pg-text-soft); }
+html.pg-themed .mute-btn {
+    background: var(--pg-popup-bg);
+    border-color: var(--pg-btn-border);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text-soft);
+}
+html.pg-themed .mute-btn:hover {
+    background: var(--pg-raise);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-text);
+}
+
+/* ── lore sidebar ───────────────────────────────────────────────── */
+html.pg-themed .lore-summary,
+html.pg-themed .modal-lore { font-family: var(--pg-font-body); }
+html.pg-themed .lore-funfact-section { border-radius: var(--pg-radius-sm); }
+html.pg-themed .lore-funfact { color: var(--pg-text); }
+html.pg-themed .lore-location-tag { border-radius: var(--pg-radius-sm); }
+
+/* ── water body popup ───────────────────────────────────────────── */
+html.pg-themed .modal-overlay { background: var(--pg-veil); }
+html.pg-themed .modal-card {
+    background: var(--pg-popup-bg);
+    border-color: var(--pg-border);
+    border-radius: var(--pg-radius);
+    box-shadow: var(--pg-shadow-strong);
+}
+html.pg-themed .modal-water-type {
+    color: var(--pg-text) !important;       /* app.js sets the type colour inline */
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .modal-divider { background: var(--pg-border-soft); }
+
+/* ── toasts ─────────────────────────────────────────────────────── */
+html.pg-themed .discovery-toast-inner,
+html.pg-themed .record-toast-inner {
+    background: var(--pg-popup-bg);
+    border-color: var(--pg-border);
+    border-radius: var(--pg-radius);
+    box-shadow: var(--pg-shadow-strong), inset 0 0 0 1px var(--pg-accent-faint);
+}
+html.pg-themed .discovery-title,
+html.pg-themed .record-title {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-accent);
+    text-shadow: none;
+}
+html.pg-themed .discovery-fish-label,
+html.pg-themed .record-fish-label {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    color: var(--pg-text);
+}
+html.pg-themed .discovery-location { color: var(--pg-text-muted); }
+html.pg-themed .record-weight { font-family: var(--pg-font-body); color: var(--pg-accent); }
+html.pg-themed .record-trophy { filter: drop-shadow(0 0 8px var(--pg-accent-soft)); }

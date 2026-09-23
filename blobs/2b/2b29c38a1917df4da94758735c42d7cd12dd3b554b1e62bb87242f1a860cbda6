@@ -1,0 +1,345 @@
+/* ================================================================
+   Poggy theme skin: poggy_multijob (ui/index.html)
+
+   Covers the one admin window and all three tabs: the players sidebar
+   (search, online / offline lists), Edit Job (player's jobs, the editor,
+   Save / Add / Close), Job Presets (search, category filter, categories,
+   sub-categories, preset rows, Apply) and All Players (search, filter,
+   Refresh, the sortable table, Remove, the footer).
+
+   The script draws most of its boxes with no border, so edges here are
+   inset box-shadows (an added border would move everything by a pixel).
+
+   Left alone on purpose: nothing here is image art. Meaning kept: online
+   stays the success colour, "last login > 30 days" stays danger, "within
+   a week" stays success, Remove stays danger.
+   ================================================================ */
+
+/* ── the window ── */
+html.pg-themed body {
+    color: var(--pg-text);
+    font-family: var(--pg-font-body);
+}
+html.pg-themed #app {
+    background: var(--pg-panel-bg);
+    border-radius: var(--pg-radius);
+    box-shadow: var(--pg-shadow);
+    outline: 1px solid var(--pg-border);     /* the edge, drawn over the sidebar, taking no room */
+    outline-offset: -1px;
+}
+
+/* ── players sidebar ── */
+html.pg-themed .sidebar {
+    background: var(--pg-surface);
+    border-right: 1px solid var(--pg-border-soft);
+}
+html.pg-themed .sidebar h3 {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: .04em;
+    color: var(--pg-text);
+}
+html.pg-themed .section-header {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: .07em;
+    background: var(--pg-surface);
+    box-shadow: inset 0 0 0 1px var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .section-header.online { color: var(--pg-success); }
+html.pg-themed .section-header.offline { color: var(--pg-text-muted); }
+
+html.pg-themed #online-player-list li,
+html.pg-themed #offline-player-list li {
+    color: var(--pg-text);
+    border-bottom: 1px solid var(--pg-border-soft);
+}
+html.pg-themed #online-player-list li:hover,
+html.pg-themed #offline-player-list li:hover { background: var(--pg-surface-hover); }
+html.pg-themed #online-player-list li.active,
+html.pg-themed #offline-player-list li.active {
+    background: var(--pg-accent-faint);
+    color: var(--pg-accent);
+    box-shadow: inset 2px 0 0 var(--pg-accent);
+}
+
+/* ── inputs, selects ── */
+html.pg-themed #search,
+html.pg-themed .form-group input,
+html.pg-themed .form-group select,
+html.pg-themed .presets-header input,
+html.pg-themed .presets-header select,
+html.pg-themed .alljobs-header input,
+html.pg-themed .alljobs-header select {
+    background: var(--pg-input-bg);
+    border-color: var(--pg-input-border);
+    color: var(--pg-text);
+    font-family: var(--pg-font-body);
+    border-radius: var(--pg-radius-sm);
+}
+/* #search is the one input drawn with no border */
+html.pg-themed #search { box-shadow: inset 0 0 0 1px var(--pg-input-border); }
+html.pg-themed #search:focus {
+    box-shadow: inset 0 0 0 1px var(--pg-accent), var(--pg-focus-ring);
+    outline: none;
+}
+html.pg-themed .form-group input:focus,
+html.pg-themed .form-group select:focus,
+html.pg-themed .presets-header input:focus,
+html.pg-themed .presets-header select:focus,
+html.pg-themed .alljobs-header input:focus,
+html.pg-themed .alljobs-header select:focus {
+    border-color: var(--pg-accent);
+    box-shadow: var(--pg-focus-ring);
+    outline: none;
+}
+html.pg-themed input::placeholder { color: var(--pg-text-dim); }
+html.pg-themed .form-group input:disabled {
+    background: var(--pg-surface);
+    border-color: var(--pg-border-soft);
+    color: var(--pg-text-muted);
+}
+html.pg-themed option {
+    background: var(--pg-panel-solid);
+    color: var(--pg-text);
+}
+html.pg-themed .form-group label {
+    font-family: var(--pg-font-display);
+    color: var(--pg-text-muted);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+}
+
+/* ── buttons (the script's buttons have no border) ── */
+html.pg-themed button {
+    background: var(--pg-btn-bg);
+    box-shadow: inset 0 0 0 1px var(--pg-btn-border);
+    color: var(--pg-text);
+    border-radius: var(--pg-radius-sm);
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+}
+html.pg-themed button:hover:not(:disabled) {
+    background: var(--pg-btn-bg-hover);
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft);
+}
+html.pg-themed button:disabled { opacity: .45; cursor: not-allowed; }
+
+/* the primary actions */
+html.pg-themed #save-btn,
+html.pg-themed #refresh-alljobs-btn,
+html.pg-themed .job-item-btn.switch {
+    background: var(--pg-btn-primary-bg);
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft);
+    color: var(--pg-text);
+}
+html.pg-themed #save-btn:hover:not(:disabled),
+html.pg-themed #refresh-alljobs-btn:hover:not(:disabled),
+html.pg-themed .job-item-btn.switch:hover:not(:disabled) {
+    background: var(--pg-btn-primary-bg);
+    box-shadow: inset 0 0 0 1px var(--pg-accent);
+    color: var(--pg-accent-hi);
+}
+/* add / apply: the second action, a positive one */
+html.pg-themed #add-job-btn,
+html.pg-themed #apply-preset-btn {
+    background: var(--pg-btn-success-bg);
+    box-shadow: inset 0 0 0 1px rgba(var(--pg-success-rgb), 0.35);
+    color: var(--pg-text);
+}
+html.pg-themed #add-job-btn:hover:not(:disabled),
+html.pg-themed #apply-preset-btn:hover:not(:disabled) {
+    background: var(--pg-btn-success-bg);
+    box-shadow: inset 0 0 0 1px var(--pg-success);
+}
+html.pg-themed #apply-preset-btn:disabled {
+    background: var(--pg-btn-bg);
+    box-shadow: inset 0 0 0 1px var(--pg-btn-border);
+    color: var(--pg-text-muted);
+}
+html.pg-themed #close-btn,
+html.pg-themed #close-btn-2,
+html.pg-themed #close-btn-3,
+html.pg-themed .job-item-btn.edit {
+    background: var(--pg-btn-bg);
+    color: var(--pg-text);
+}
+html.pg-themed #close-btn:hover,
+html.pg-themed #close-btn-2:hover,
+html.pg-themed #close-btn-3:hover,
+html.pg-themed .job-item-btn.edit:hover:not(:disabled) { background: var(--pg-btn-bg-hover); }
+html.pg-themed .job-item-btn.delete,
+html.pg-themed .alljobs-table .remove-job-btn {
+    background: var(--pg-btn-danger-bg);
+    box-shadow: inset 0 0 0 1px rgba(var(--pg-danger-rgb), 0.40);
+    color: var(--pg-text);
+}
+html.pg-themed .job-item-btn.delete:hover:not(:disabled),
+html.pg-themed .alljobs-table .remove-job-btn:hover:not(:disabled) {
+    background: var(--pg-btn-danger-bg);
+    box-shadow: inset 0 0 0 1px var(--pg-danger);
+    color: var(--pg-danger);
+}
+
+/* ── tabs ── */
+html.pg-themed .tabs { border-bottom: 1px solid var(--pg-border-soft); }
+html.pg-themed .tab-btn,
+html.pg-themed .tab-btn:hover:not(:disabled) {
+    background: transparent;
+    box-shadow: none;
+    color: var(--pg-text-muted);
+    border-radius: 0;
+}
+html.pg-themed .tab-btn:hover:not(:disabled) { color: var(--pg-text); }
+html.pg-themed .tab-btn.active,
+html.pg-themed .tab-btn.active:hover:not(:disabled) {
+    background: transparent;
+    color: var(--pg-accent);
+    box-shadow: inset 0 -2px 0 var(--pg-accent);
+}
+
+/* ── headings, dividers, empty text ── */
+html.pg-themed h4,
+html.pg-themed .jobs-section h4 {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-text-muted);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+}
+html.pg-themed .divider { border-top-color: var(--pg-border-soft); }
+html.pg-themed .no-jobs { color: var(--pg-text-dim); }
+
+/* ── player's jobs ── */
+html.pg-themed .jobs-section {
+    background: var(--pg-surface);
+    box-shadow: inset 0 0 0 1px var(--pg-border-soft);
+    border-radius: var(--pg-radius);
+}
+html.pg-themed .job-item {
+    background: var(--pg-surface);
+    box-shadow: inset 0 0 0 1px var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .job-item:hover {
+    background: var(--pg-surface-hover);
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft);
+}
+html.pg-themed .job-item.current {
+    background: var(--pg-accent-faint);
+    border-left-color: var(--pg-accent);
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft);
+}
+html.pg-themed .job-item-name,
+html.pg-themed .preset-item-name {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: .03em;
+    color: var(--pg-text);
+}
+html.pg-themed .job-item-details,
+html.pg-themed .preset-item-details {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-muted);
+}
+
+/* ── presets ── */
+html.pg-themed .presets-list {
+    background: var(--pg-deep);
+    box-shadow: inset 0 0 0 1px var(--pg-border-soft);
+    border-radius: var(--pg-radius);
+}
+html.pg-themed .preset-category-header {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: .05em;
+    color: var(--pg-accent);
+    background: var(--pg-surface);
+    box-shadow: inset 0 0 0 1px var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .preset-category-header:hover {
+    background: var(--pg-surface-hover);
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft);
+}
+html.pg-themed .preset-category-header .toggle,
+html.pg-themed .preset-subcategory-header .toggle { color: var(--pg-text-muted); }
+html.pg-themed .preset-subcategory-header {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: .03em;
+    color: var(--pg-text-soft);
+    background: var(--pg-surface);
+    box-shadow: inset 0 0 0 1px var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .preset-subcategory-header:hover {
+    background: var(--pg-surface-hover);
+    color: var(--pg-text);
+}
+html.pg-themed .preset-item {
+    background: var(--pg-surface);
+    box-shadow: inset 0 0 0 1px var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .preset-item:hover {
+    background: var(--pg-surface-hover);
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft);
+}
+html.pg-themed .preset-item.selected {
+    background: var(--pg-accent-faint);
+    border-left-color: var(--pg-accent);
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft);
+}
+html.pg-themed .preset-item.selected .preset-item-name { color: var(--pg-accent); }
+html.pg-themed .preset-item.selected .preset-item-details { color: var(--pg-text-soft); }
+
+/* ── all players ── */
+html.pg-themed .alljobs-table-container {
+    background: var(--pg-deep);
+    border-color: var(--pg-border-soft);
+    border-radius: var(--pg-radius);
+}
+html.pg-themed .alljobs-table thead { background: var(--pg-raise); }
+html.pg-themed .alljobs-table th {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: .07em;
+    color: var(--pg-text-muted);
+    border-bottom-color: var(--pg-border);
+}
+html.pg-themed .alljobs-table th.sortable:hover {
+    background: var(--pg-surface-hover);
+    color: var(--pg-text);
+}
+html.pg-themed .alljobs-table th.sortable.asc,
+html.pg-themed .alljobs-table th.sortable.desc { color: var(--pg-text); }
+html.pg-themed .alljobs-table th.sortable.asc .sort-icon,
+html.pg-themed .alljobs-table th.sortable.desc .sort-icon { color: var(--pg-accent); }
+html.pg-themed .alljobs-table td {
+    border-bottom-color: var(--pg-border-soft);
+    color: var(--pg-text-soft);
+    font-family: var(--pg-font-body);
+}
+html.pg-themed .alljobs-table tbody tr:hover { background: var(--pg-surface-hover); }
+html.pg-themed .alljobs-table .char-name { color: var(--pg-text); }
+html.pg-themed .alljobs-table .job-name {
+    font-family: var(--pg-font-mono);
+    background: var(--pg-surface);
+    box-shadow: inset 0 0 0 1px var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text-soft);
+}
+html.pg-themed .alljobs-table .job-label { color: var(--pg-text); }
+html.pg-themed .alljobs-table .job-grade { color: var(--pg-accent); }
+html.pg-themed .alljobs-table .last-login { color: var(--pg-text-muted); }
+html.pg-themed .alljobs-table .last-login.recent { color: var(--pg-success); }
+html.pg-themed .alljobs-table .last-login.old { color: var(--pg-danger); }
+html.pg-themed .alljobs-footer { border-top-color: var(--pg-border-soft); }
+html.pg-themed #alljobs-count {
+    color: var(--pg-text-muted);
+    font-family: var(--pg-font-body);
+}

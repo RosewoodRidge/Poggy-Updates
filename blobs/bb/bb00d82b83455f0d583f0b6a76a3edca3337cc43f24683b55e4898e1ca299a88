@@ -1,0 +1,131 @@
+/* ================================================================
+   poggy_core — the Poggy theme (0.23.0)
+
+   Every Poggy script's page loads ui/hub/theme.js from poggy_core with one
+   line in its <head>. theme.js puts this sheet on the page, then that
+   script's own skin (ui/hub/theme-<poggy_id>.css), and sets the base
+   colours below on <html> from the theme the server owner chose in
+   poggy_core's config (PoggyCoreConfig.Theme, or /poggy → Poggy Core →
+   Theme). It also puts class "pg-themed" on <html>.
+
+   The look is the Poggy inventory's: near-black panels, a thin light edge,
+   square corners, a soft top sheen, cream text, one accent colour, a
+   period serif for titles and labels, a plain sans for numbers and prose.
+
+   This block is the contract every skin is written against. A skin names
+   no colour of its own: only these tokens. A preset or a custom theme
+   changes the BASE values (set inline on <html> by theme.js); everything
+   derived follows by itself.
+
+   Nothing here styles an element directly except the scrollbar and text
+   selection, so this sheet alone never moves a script's layout.
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap');
+
+@font-face { font-family: 'Source Serif 4'; font-weight: 400; font-style: normal; src: url('fonts/SourceSerif4-Regular.woff2') format('woff2'); }
+@font-face { font-family: 'Source Serif 4'; font-weight: 400; font-style: italic; src: url('fonts/SourceSerif4-Italic.woff2') format('woff2'); }
+@font-face { font-family: 'Source Serif 4'; font-weight: 600; font-style: normal; src: url('fonts/SourceSerif4-Semibold.woff2') format('woff2'); }
+@font-face { font-family: 'Source Serif 4'; font-weight: 700; font-style: normal; src: url('fonts/SourceSerif4-Bold.woff2') format('woff2'); }
+@font-face { font-family: 'Source Code Pro'; font-weight: 400; font-style: normal; src: url('fonts/SourceCodePro-Regular.woff2') format('woff2'); }
+
+:root {
+    /* ── base: what a preset or a custom theme sets (theme.js, inline) ──
+       Colours are "r, g, b" triples so any alpha can be taken from them:
+       rgba(var(--pg-accent-rgb), 0.2). These defaults are Rosewood, the
+       black and gold default, so a page whose theme has not arrived yet
+       already looks right. */
+    --pg-bg-rgb:        20, 20, 20;       /* panel colour */
+    --pg-deep-rgb:      14, 14, 14;       /* slots, inputs, wells: the bg pushed away from the text */
+    --pg-raise-rgb:     30, 30, 30;       /* popups, tooltips: the bg pulled toward the text */
+    --pg-text-rgb:      246, 239, 227;
+    --pg-accent-rgb:    214, 173, 104;
+    --pg-accent-hi-rgb: 232, 200, 142;    /* hover / pressed accent */
+    --pg-on-accent-rgb: 20, 20, 20;       /* text on a filled accent */
+    --pg-success-rgb:   143, 191, 127;
+    --pg-danger-rgb:    212, 138, 138;
+    --pg-warning-rgb:   224, 179, 90;
+    --pg-info-rgb:      143, 179, 217;
+    --pg-shade-rgb:     0, 0, 0;          /* shadows and veils: black on every theme */
+    --pg-panel-alpha:   0.94;
+
+    --pg-font-display: 'IM Fell English', 'Source Serif 4', Georgia, 'Times New Roman', serif;
+    --pg-font-body:    'Segoe UI', Arial, Helvetica, sans-serif;
+    --pg-font-mono:    'Source Code Pro', Consolas, 'Courier New', monospace;
+    --pg-radius:       0px;
+    --pg-radius-sm:    0px;
+
+    /* ── derived: never set these, use them ── */
+    --pg-bg:          rgb(var(--pg-bg-rgb));
+    --pg-panel:       rgba(var(--pg-bg-rgb), var(--pg-panel-alpha));
+    --pg-panel-solid: rgb(var(--pg-bg-rgb));
+    --pg-deep:        rgba(var(--pg-deep-rgb), 0.88);
+    --pg-raise:       rgba(var(--pg-raise-rgb), 0.99);
+
+    --pg-text:        rgb(var(--pg-text-rgb));
+    --pg-text-soft:   rgba(var(--pg-text-rgb), 0.82);
+    --pg-text-muted:  rgba(var(--pg-text-rgb), 0.60);
+    --pg-text-dim:    rgba(var(--pg-text-rgb), 0.35);
+
+    --pg-accent:       rgb(var(--pg-accent-rgb));
+    --pg-accent-hi:    rgb(var(--pg-accent-hi-rgb));
+    --pg-accent-soft:  rgba(var(--pg-accent-rgb), 0.35);
+    --pg-accent-glow:  rgba(var(--pg-accent-rgb), 0.50);
+    --pg-accent-faint: rgba(var(--pg-accent-rgb), 0.12);
+    --pg-on-accent:    rgb(var(--pg-on-accent-rgb));
+
+    --pg-success:      rgb(var(--pg-success-rgb));
+    --pg-success-soft: rgba(var(--pg-success-rgb), 0.14);
+    --pg-danger:       rgb(var(--pg-danger-rgb));
+    --pg-danger-soft:  rgba(var(--pg-danger-rgb), 0.14);
+    --pg-warning:      rgb(var(--pg-warning-rgb));
+    --pg-warning-soft: rgba(var(--pg-warning-rgb), 0.14);
+    --pg-info:         rgb(var(--pg-info-rgb));
+    --pg-info-soft:    rgba(var(--pg-info-rgb), 0.14);
+
+    /* surfaces laid over a panel: taken from the text colour, so they
+       lighten a dark theme and darken a light one */
+    --pg-surface:        rgba(var(--pg-text-rgb), 0.04);
+    --pg-surface-hover:  rgba(var(--pg-text-rgb), 0.08);
+    --pg-surface-strong: rgba(var(--pg-text-rgb), 0.12);
+
+    --pg-border:        rgba(var(--pg-text-rgb), 0.14);   /* a panel's edge */
+    --pg-border-soft:   rgba(var(--pg-text-rgb), 0.09);   /* slots, rows, dividers */
+    --pg-border-strong: rgba(var(--pg-text-rgb), 0.24);
+
+    --pg-veil:   rgba(var(--pg-shade-rgb), 0.55);         /* a full-screen backdrop behind a modal */
+    --pg-shadow: 0 1.2rem 3rem rgba(var(--pg-shade-rgb), 0.45);
+    --pg-shadow-strong: 0 1.2rem 3rem rgba(var(--pg-shade-rgb), 0.70);
+
+    /* ── recipes: whole backgrounds, as the inventory draws them ── */
+    --pg-panel-bg:
+        linear-gradient(180deg, rgba(var(--pg-text-rgb), 0.06), transparent 12%),
+        radial-gradient(circle at top right, rgba(var(--pg-text-rgb), 0.06), transparent 28%),
+        linear-gradient(135deg, rgba(var(--pg-text-rgb), 0.02), transparent 40%),
+        var(--pg-panel);
+    --pg-popup-bg:
+        linear-gradient(180deg, rgba(var(--pg-text-rgb), 0.08), transparent 20%),
+        var(--pg-raise);
+    --pg-slot-bg:
+        radial-gradient(circle at top, rgba(var(--pg-text-rgb), 0.05), transparent 55%),
+        linear-gradient(180deg, rgba(var(--pg-text-rgb), 0.03), transparent 24%),
+        var(--pg-deep);
+
+    --pg-btn-bg:          rgba(var(--pg-text-rgb), 0.04);
+    --pg-btn-bg-hover:    rgba(var(--pg-text-rgb), 0.08);
+    --pg-btn-border:      rgba(var(--pg-text-rgb), 0.12);
+    --pg-btn-primary-bg:  linear-gradient(180deg, var(--pg-accent-soft), rgba(var(--pg-shade-rgb), 0.20));
+    --pg-btn-danger-bg:   linear-gradient(180deg, rgba(var(--pg-danger-rgb), 0.30), rgba(var(--pg-shade-rgb), 0.20));
+    --pg-btn-success-bg:  linear-gradient(180deg, rgba(var(--pg-success-rgb), 0.30), rgba(var(--pg-shade-rgb), 0.20));
+
+    --pg-input-bg:     rgba(var(--pg-deep-rgb), 0.70);
+    --pg-input-border: rgba(var(--pg-text-rgb), 0.15);
+    --pg-focus-ring:   0 0 0 1px var(--pg-accent-soft);
+}
+
+/* The two things every page gets. */
+html.pg-themed ::-webkit-scrollbar { width: 5px; height: 5px; }
+html.pg-themed ::-webkit-scrollbar-track { background: rgba(var(--pg-shade-rgb), 0.2); }
+html.pg-themed ::-webkit-scrollbar-thumb { background: var(--pg-accent-soft); border: 0; border-radius: 0; background-clip: border-box; }
+html.pg-themed ::-webkit-scrollbar-thumb:hover { background: var(--pg-accent); }
+html.pg-themed ::selection { background: var(--pg-accent-soft); color: var(--pg-text); }

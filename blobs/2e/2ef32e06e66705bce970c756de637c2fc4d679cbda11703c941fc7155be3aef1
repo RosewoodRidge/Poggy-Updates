@@ -1,0 +1,54 @@
+/* ================================================================
+   Poggy theme skin: poggy_trashbins (ui/progressbar.html)
+
+   Covers the search progress bar: its label, track and fill.
+   Nothing here is image art. The bar's width is set by the page's
+   script (a width only); every colour below is from the stylesheet.
+
+   The label and bar used to float straight over the game world; text in
+   the theme's colour cannot be read there on a light theme (Ledger), so
+   the bar gets a panel behind it, drawn with a box-shadow spread (flat
+   panel colour, then a 1px edge) so nothing moves.
+   ================================================================ */
+
+html.pg-themed #wrapper {
+    background: var(--pg-panel);
+    box-shadow:
+        0 0 0 12px var(--pg-panel),
+        0 0 0 13px var(--pg-border),
+        var(--pg-shadow);
+}
+
+html.pg-themed #label {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    color: var(--pg-text);
+    text-shadow: none;
+}
+
+html.pg-themed #track {
+    background: var(--pg-deep);
+    border-radius: var(--pg-radius-sm);
+    box-shadow:
+        inset 0 0 0 1px var(--pg-border-soft),
+        0 2px 8px rgba(var(--pg-shade-rgb), 0.4);
+}
+
+/* The shimmer moves background-position, so the fill stays a gradient,
+   made of the accent and its hover shade. */
+html.pg-themed #fill {
+    border-radius: var(--pg-radius-sm);
+    background-image: linear-gradient(90deg,
+        var(--pg-accent) 0%,
+        var(--pg-accent) 35%,
+        var(--pg-accent-hi) 55%,
+        var(--pg-accent) 75%,
+        var(--pg-accent) 100%);
+}
+
+html.pg-themed #fill::after {
+    border-radius: var(--pg-radius-sm);
+    background: var(--pg-accent-hi);
+    box-shadow: 0 0 6px 1px var(--pg-accent-glow);
+}

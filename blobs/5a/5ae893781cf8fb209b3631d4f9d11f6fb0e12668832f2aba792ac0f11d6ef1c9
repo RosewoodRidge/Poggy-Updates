@@ -1,0 +1,232 @@
+/* ================================================================
+   Poggy theme skin: poggy_scene
+
+   Covers the three bottom-right panels: the scene text editor
+   (#scene-text-panel), the position editor (#scene-position-panel) and
+   the status editor with its saved presets (#status-panel).
+
+   The script's own Config.uitheme classes (html.theme-steel-blue, ...)
+   are overridden while the Poggy theme is on: this sheet loads after the
+   script's and re-points the same variables.
+
+   Left alone on purpose:
+   - the colour swatches (Config.sceneColors) and every colour a player
+     puts on their text: they are content, not chrome. The two text wells
+     (#scene-text-input, #status-text-input) stay dark on every theme,
+     light ones included, because the text in them is white by default
+     and is a preview of how it reads in the game world;
+   - the /me box (#mebox-root) and its move-mode hint: a chat overlay
+     drawn to match the chat resource, with per-job name colours
+     (Config.meboxJobColors) chosen for a dark backdrop.
+   ================================================================ */
+
+/* ── the script's own variables, re-pointed ── */
+html.pg-themed {
+    --gold:             var(--pg-accent);
+    --gold-light:       var(--pg-accent-hi);
+    --gold-dim:         var(--pg-text-muted);
+    --amber:            var(--pg-accent);
+    --bg-panel:         var(--pg-panel);
+    --bg-section:       var(--pg-surface);
+    --bg-hover:         var(--pg-surface-hover);
+    --bg-input:         var(--pg-input-bg);
+    --border:           var(--pg-border-soft);
+    --border-strong:    var(--pg-accent-soft);
+    --text:             var(--pg-text);
+    --text-muted:       var(--pg-text-muted);
+    --text-dim:         var(--pg-text-dim);
+    --red:              var(--pg-danger);
+    --green:            var(--pg-success);
+    --accent-tint:      transparent;
+    --btn-text:         var(--pg-text);
+    --btn-shadow:       transparent;
+    --btn-shadow-hover: transparent;
+    --radius:           var(--pg-radius);
+    --radius-sm:        var(--pg-radius-sm);
+}
+
+/* ── panels ── */
+html.pg-themed .panel {
+    background: var(--pg-panel-bg);
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius);
+    box-shadow: var(--pg-shadow);
+}
+html.pg-themed .panel-header {
+    background: transparent;
+    border-bottom: 1px solid var(--pg-border-soft);
+}
+html.pg-themed .header-icon { color: var(--pg-accent); }
+html.pg-themed .header-title {
+    font-family: var(--pg-font-display);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: .04em;
+    text-transform: none;
+    color: var(--pg-text);
+}
+html.pg-themed .field-label,
+html.pg-themed .axis-label {
+    font-family: var(--pg-font-display);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: .07em;
+    color: var(--pg-text-muted);
+}
+html.pg-themed .hint-row,
+html.pg-themed .presets-empty,
+html.pg-themed .char-count {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-muted);
+}
+html.pg-themed .presets-divider { background: var(--pg-border-soft); }
+
+/* ── toolbar: size select and swatches ── */
+html.pg-themed #editor-font-size {
+    background: var(--pg-input-bg);
+    border: 1px solid var(--pg-input-border);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text);
+    font-family: var(--pg-font-body);
+}
+html.pg-themed #editor-font-size:focus { border-color: var(--pg-accent); box-shadow: var(--pg-focus-ring); }
+html.pg-themed #editor-font-size option { background: var(--pg-panel-solid); color: var(--pg-text); }
+
+/* the swatch colours are the script's (inline); only the frame is the theme's */
+html.pg-themed .color-swatch {
+    border-radius: var(--pg-radius-sm);
+    box-shadow: 0 0 0 1px var(--pg-border);
+}
+html.pg-themed .color-swatch.active {
+    border-color: var(--pg-accent);
+    box-shadow: 0 0 0 1px var(--pg-accent-soft);
+}
+
+/* ── the text wells: a dark stage for the player's own colours ── */
+html.pg-themed #scene-text-input,
+html.pg-themed div#status-text-input {
+    background: rgba(var(--pg-shade-rgb), 0.86);
+    border: 1px solid var(--pg-input-border);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed #scene-text-input:focus,
+html.pg-themed div#status-text-input:focus {
+    border-color: var(--pg-accent);
+    box-shadow: var(--pg-focus-ring);
+}
+/* the placeholder takes the well's own (white) text colour, faded, so it
+   reads on the dark well whatever the theme */
+html.pg-themed #scene-text-input:empty::before,
+html.pg-themed div#status-text-input:empty::before {
+    color: inherit;
+    opacity: .45;
+    font-family: var(--pg-font-body);
+}
+
+/* ── position editor ── */
+html.pg-themed .scene-preview {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-accent);
+    font-family: var(--pg-font-body);
+}
+html.pg-themed .cc-stepper {
+    background: var(--pg-input-bg);
+    border: 1px solid var(--pg-input-border);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .cc-stepper:hover,
+html.pg-themed .cc-stepper:focus-within {
+    border-color: var(--pg-accent-soft);
+}
+html.pg-themed .cc-stepper:focus-within { box-shadow: var(--pg-focus-ring); }
+html.pg-themed .step-btn {
+    background: var(--pg-btn-bg);
+    border-color: var(--pg-border-soft);
+    color: var(--pg-text-soft);
+}
+html.pg-themed .step-btn:hover {
+    background: var(--pg-btn-bg-hover);
+    color: var(--pg-accent);
+}
+html.pg-themed .step-btn:active { background: var(--pg-accent-faint); }
+html.pg-themed .cc-stepper input[type="number"] {
+    color: var(--pg-text);
+    font-family: var(--pg-font-body);
+}
+
+/* ── buttons ── */
+html.pg-themed .btn-row button {
+    border: 1px solid var(--pg-btn-border);
+    border-radius: var(--pg-radius-sm);
+    font-family: var(--pg-font-display);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+html.pg-themed .btn-primary {
+    background: var(--pg-btn-primary-bg);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-text);
+    box-shadow: none;
+}
+html.pg-themed .btn-primary:hover {
+    background: var(--pg-btn-primary-bg);
+    border-color: var(--pg-accent);
+    box-shadow: none;
+}
+html.pg-themed .btn-secondary {
+    background: var(--pg-btn-bg);
+    border-color: var(--pg-btn-border);
+    color: var(--pg-text);
+}
+html.pg-themed .btn-secondary:hover {
+    background: var(--pg-btn-bg-hover);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-text);
+}
+
+/* ── status: preset name, save, the saved list ── */
+html.pg-themed input.name-input {
+    background: var(--pg-input-bg);
+    border: 1px solid var(--pg-input-border);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text);
+    font-family: var(--pg-font-body);
+}
+html.pg-themed input.name-input:focus { border-color: var(--pg-accent); box-shadow: var(--pg-focus-ring); }
+html.pg-themed input.name-input::placeholder { color: var(--pg-text-dim); }
+
+html.pg-themed .btn-save-preset {
+    background: var(--pg-btn-bg);
+    border: 1px solid var(--pg-btn-border);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-accent);
+}
+html.pg-themed .btn-save-preset:hover  { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); }
+html.pg-themed .btn-save-preset:active { background: var(--pg-accent-faint); }
+
+html.pg-themed .preset-item {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .preset-item:hover {
+    background: var(--pg-surface-hover);
+    border-color: var(--pg-accent-soft);
+}
+html.pg-themed .preset-item-name {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text);
+}
+html.pg-themed .preset-item-name:hover { color: var(--pg-accent); }
+html.pg-themed .preset-btn {
+    border: 1px solid var(--pg-btn-border);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .preset-btn-apply { background: var(--pg-btn-bg); color: var(--pg-accent); }
+html.pg-themed .preset-btn-apply:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); color: var(--pg-accent-hi); }
+html.pg-themed .preset-btn-delete { background: var(--pg-btn-bg); color: var(--pg-danger); }
+html.pg-themed .preset-btn-delete:hover { background: var(--pg-danger-soft); border-color: rgba(var(--pg-danger-rgb), 0.45); }

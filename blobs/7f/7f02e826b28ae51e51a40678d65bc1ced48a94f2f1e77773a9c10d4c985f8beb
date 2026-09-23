@@ -1,0 +1,274 @@
+/* ================================================================
+   Poggy theme skin: soup_supernaturals (ui/index.html)
+   (poggy_id 'soup_supernaturals', the same as the folder)
+
+   Covers: the full-screen stage (backdrop, nav title and tabs, Esc hint),
+   the rail's text and XP bar, every view: Nature (facts, notes), Powers
+   (tiles in every state: ready, held, cooldown, too costly, not finished,
+   locked), the Guide (class list, header, facts, power ladder), the
+   request form (chips, textarea, buttons), Seance, Staff (requests,
+   chips, search, table, grant), Craft (recipe cards, ingredient wells)
+   and the crafting minigame chrome (trail, prompt, scene frame, shelf
+   picks, ring, gauge, counters, done overlay), the consent / seance
+   prompt, toasts and the render-fault box.
+
+   Left alone on purpose:
+   - the CLASS colour. The page sets --accent / --accent-lift / --line-acc
+     inline on #stage and #hud from the character's class, and --gc on each
+     guide entry: a vampire is oxblood, a witch purple. That colour says
+     which nature you are, so it stays on the things that ARE the class:
+     the sigil and its glow, the vial and its liquid, the rail's level
+     numeral and divider, the fog, the guide's class icons / left edge /
+     level numerals, the cauldron / bench / flask drawing and its bubbles,
+     the HUD. Everything else (tabs, buttons, chips, held power, progress,
+     prompts) takes the theme's accent.
+   - the vial's glass and cork (a drawing), the film grain (an inline SVG
+     noise texture) and the ruby low-resource vignette (#vignette, a
+     screen effect over the game world, not part of a panel).
+   - item pictures in the ingredient wells and the shelf (img).
+   ================================================================ */
+
+/* ── the script's own variables, re-pointed ──────────────────────── */
+html.pg-themed {
+    --ink:     rgb(var(--pg-deep-rgb));
+    --coffee:  var(--pg-panel-solid);
+    --apricot: var(--pg-text);          /* headings and names: the theme's text; highlights use the accent below */
+    --vanilla: var(--pg-text);
+
+    --panel:   var(--pg-panel);
+    --panel-2: var(--pg-raise);
+    --line:    var(--pg-border-soft);
+    --line-2:  var(--pg-border);
+
+    --text:    var(--pg-text);
+    --text-2:  var(--pg-text-soft);
+    --text-3:  var(--pg-text-muted);
+
+    --good: var(--pg-success);
+    --warn: var(--pg-warning);
+    --bad:  var(--pg-danger);
+
+    --display: var(--pg-font-display);
+    --serif:   var(--pg-font-body);
+    --gothic:  var(--pg-font-display);
+    --mono:    var(--pg-font-mono);
+}
+
+/* ── the stage ───────────────────────────────────────────────────── */
+html.pg-themed .bg {
+    background:
+        linear-gradient(180deg, rgba(var(--pg-text-rgb), 0.05), transparent 12%),
+        radial-gradient(circle at top right, rgba(var(--pg-text-rgb), 0.05), transparent 28%),
+        radial-gradient(ellipse at 50% 50%, var(--pg-panel-solid), rgb(var(--pg-deep-rgb)) 85%),
+        var(--pg-panel-solid);
+}
+/* the frame's edge darkening: toward the theme's well colour, so a light theme is not smudged grey */
+html.pg-themed .vig { background: radial-gradient(ellipse at center, transparent 55%, rgba(var(--pg-deep-rgb), 0.75) 100%); }
+
+html.pg-themed .nav__title { font-weight: 400; letter-spacing: .04em; color: var(--pg-text); text-shadow: none; }
+html.pg-themed .tab { font-weight: 400; letter-spacing: .12em; color: var(--pg-text-muted); }
+html.pg-themed .tab:hover { color: var(--pg-text); }
+html.pg-themed .tab.is-on { color: var(--pg-accent); border-bottom-color: var(--pg-accent); }
+html.pg-themed .tab b { background: var(--pg-accent); color: var(--pg-on-accent); border-radius: var(--pg-radius-sm); font-family: var(--pg-font-body); }
+html.pg-themed .nav__esc { font-family: var(--pg-font-display); letter-spacing: .07em; }
+html.pg-themed .nav__esc kbd { border-color: var(--pg-border); border-radius: var(--pg-radius-sm); background: var(--pg-surface); }
+
+html.pg-themed .h { font-weight: 400; letter-spacing: .04em; color: var(--pg-text); }
+html.pg-themed .eyebrow { font-family: var(--pg-font-display); letter-spacing: .07em; color: var(--pg-text-muted); }
+
+/* rail: the class keeps the sigil, vial and numeral; text and XP follow the theme */
+html.pg-themed .rail__word { letter-spacing: .2em; }
+html.pg-themed .rail__name { font-weight: 400; letter-spacing: .04em; color: var(--pg-text); }
+html.pg-themed .rail__level small,
+html.pg-themed .vial__label,
+html.pg-themed .xp__row,
+html.pg-themed .rail__foot { font-family: var(--pg-font-display); letter-spacing: .07em; }
+html.pg-themed .vial__num { font-family: var(--pg-font-body); color: var(--pg-text-soft); }
+html.pg-themed .xp__row span:last-child { font-family: var(--pg-font-body); }
+html.pg-themed .xp__bar { background: var(--pg-deep); box-shadow: inset 0 0 0 1px var(--pg-border-soft); }
+html.pg-themed .xp__bar i { background: var(--pg-accent); box-shadow: none; }
+html.pg-themed .rail__foot b { color: var(--pg-accent); font-family: var(--pg-font-body); }
+
+/* ── power tiles ─────────────────────────────────────────────────── */
+html.pg-themed .tile,
+html.pg-themed .recipe {
+    background: var(--pg-slot-bg);
+    border-color: var(--pg-border-soft);
+    border-radius: var(--pg-radius);
+    color: var(--pg-text);
+}
+html.pg-themed .tile:hover,
+html.pg-themed .recipe:hover { border-color: var(--pg-accent-soft); }
+html.pg-themed .tile:before { border-color: rgba(var(--pg-text-rgb), 0.04); }
+html.pg-themed .tile__name,
+html.pg-themed .recipe__name { font-weight: 400; color: var(--pg-text); }
+html.pg-themed .tile__desc { color: var(--pg-text-soft); }
+html.pg-themed .tile__meta,
+html.pg-themed .recipe__foot { font-family: var(--pg-font-body); }
+html.pg-themed .tile__meta .tag {
+    font-family: var(--pg-font-display); letter-spacing: .07em;
+    background: var(--pg-surface); border-color: var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm); color: var(--pg-text-soft);
+}
+html.pg-themed .tile__cd { background: var(--pg-accent); box-shadow: none; }
+
+html.pg-themed .tile.is-ready { border-color: var(--pg-border); }
+html.pg-themed .tile.is-ready .tile__glyph { color: var(--pg-accent); }
+html.pg-themed .tile.is-ready:hover { border-color: var(--pg-accent-soft); box-shadow: var(--pg-shadow); }
+
+/* a held power: selected, with the script's slow pulse in the theme's accent */
+html.pg-themed .tile.is-on {
+    border-color: var(--pg-accent);
+    background: linear-gradient(180deg, var(--pg-accent-faint), transparent 60%), var(--pg-slot-bg);
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft);
+    animation-name: pgSoupHeld;
+}
+@keyframes pgSoupHeld {
+    0%, 100% { box-shadow: inset 0 0 0 1px var(--pg-accent-soft); }
+    50%      { box-shadow: inset 0 0 0 1px var(--pg-accent-soft), 0 0 0 1px var(--pg-accent-soft); }
+}
+html.pg-themed .tile.is-on .tile__glyph { color: var(--pg-accent); }
+html.pg-themed .tile.is-on .tag { border-color: var(--pg-accent-soft); color: var(--pg-accent); background: var(--pg-accent-faint); }
+html.pg-themed .tile.is-cost .tag { color: var(--pg-warning); border-color: rgba(var(--pg-warning-rgb), 0.45); background: var(--pg-warning-soft); }
+
+/* ── the guide ───────────────────────────────────────────────────── */
+html.pg-themed .gclass { color: var(--pg-text-soft); }
+html.pg-themed .gclass:hover { color: var(--pg-text); background: var(--pg-surface-hover); }
+html.pg-themed .gclass.is-on { color: var(--pg-accent); background: var(--pg-surface); }   /* left edge stays the class colour */
+html.pg-themed .ghead__sigil { border-color: var(--pg-border); }
+html.pg-themed .ghead__name { font-weight: 400; letter-spacing: .04em; color: var(--pg-text); }
+
+html.pg-themed .fact,
+html.pg-themed .req {
+    background: var(--pg-surface); border-color: var(--pg-border-soft); border-radius: var(--pg-radius);
+}
+html.pg-themed .fact__k,
+html.pg-themed .label,
+html.pg-themed .table th { font-family: var(--pg-font-display); letter-spacing: .07em; color: var(--pg-text-muted); }
+html.pg-themed .pline { border-bottom-color: var(--pg-border-soft); }
+html.pg-themed .pline b { color: var(--pg-text); }
+html.pg-themed .pline i { font-family: var(--pg-font-display); letter-spacing: .07em; }
+
+/* ── forms, chips, buttons, notes, tables ────────────────────────── */
+html.pg-themed .chip {
+    font-weight: 400; letter-spacing: .07em;
+    background: var(--pg-surface); border-color: var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm); color: var(--pg-text-soft);
+}
+html.pg-themed .chip:hover { color: var(--pg-text); border-color: var(--pg-accent-soft); background: var(--pg-surface-hover); }
+html.pg-themed .chip.is-on { border-color: var(--pg-accent-soft); color: var(--pg-accent); background: var(--pg-accent-faint); box-shadow: inset 0 0 0 1px var(--pg-accent-soft); }
+
+html.pg-themed .input,
+html.pg-themed .area {
+    background: var(--pg-input-bg); border-color: var(--pg-input-border);
+    color: var(--pg-text); font-family: var(--pg-font-body); border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .input:focus,
+html.pg-themed .area:focus { border-color: var(--pg-accent); box-shadow: var(--pg-focus-ring); outline: none; }
+html.pg-themed .input::placeholder,
+html.pg-themed .area::placeholder { color: var(--pg-text-dim); }
+
+html.pg-themed .btn {
+    background: var(--pg-btn-bg); border-color: var(--pg-btn-border); color: var(--pg-text);
+    border-radius: var(--pg-radius-sm); font-weight: 400; letter-spacing: .07em;
+}
+html.pg-themed .btn:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); }
+html.pg-themed .btn--go { background: var(--pg-btn-primary-bg); border-color: var(--pg-accent-soft); color: var(--pg-text); box-shadow: none; }
+html.pg-themed .btn--go:hover { background: var(--pg-btn-primary-bg); border-color: var(--pg-accent); }
+html.pg-themed .btn--bad { color: var(--pg-danger); border-color: rgba(var(--pg-danger-rgb), 0.40); }
+html.pg-themed .btn--bad:hover { background: var(--pg-btn-danger-bg); border-color: var(--pg-danger); }
+html.pg-themed .btn[disabled] { opacity: .45; }
+
+html.pg-themed .note { border-left-color: var(--pg-accent); background: var(--pg-surface); color: var(--pg-text-soft); }
+html.pg-themed .table td { border-bottom-color: var(--pg-border-soft); }
+html.pg-themed .table tr:hover td { background: var(--pg-surface-hover); }
+html.pg-themed .dot { background: var(--pg-text-dim); }
+html.pg-themed .dot.on { background: var(--pg-success); box-shadow: none; }
+html.pg-themed .req { border-color: var(--pg-border); }
+html.pg-themed .req__who { font-weight: 400; color: var(--pg-text); }
+html.pg-themed .req__who em { color: var(--pg-accent); }
+
+/* ── prompt and toasts (outside the stage: never had the class colour) ── */
+html.pg-themed #prompt {
+    background: var(--pg-popup-bg); border-color: var(--pg-border);
+    border-radius: var(--pg-radius); box-shadow: var(--pg-shadow-strong);
+}
+html.pg-themed .prompt__t { font-weight: 400; letter-spacing: .04em; color: var(--pg-text); }
+html.pg-themed .prompt__bar { background: var(--pg-deep); }
+html.pg-themed .prompt__bar i { background: var(--pg-accent); box-shadow: none; }
+
+html.pg-themed .toast {
+    background: var(--pg-popup-bg); border-left-color: var(--pg-accent);
+    border-radius: var(--pg-radius-sm); color: var(--pg-text);
+    box-shadow: var(--pg-shadow), inset 0 0 0 1px var(--pg-border-soft);
+}
+
+/* ── crafting ────────────────────────────────────────────────────── */
+html.pg-themed .recipe.can { border-color: var(--pg-border-strong); }
+html.pg-themed .recipe.can:hover { border-color: var(--pg-accent-soft); }
+html.pg-themed .ing__ic,
+html.pg-themed .pick__ic { color: var(--pg-text-muted); }
+html.pg-themed .ing__ic { background: var(--pg-slot-bg); border-color: var(--pg-border-soft); border-radius: var(--pg-radius-sm); }
+html.pg-themed .ing__lbl { color: var(--pg-text-soft); }
+html.pg-themed .ing__n { font-family: var(--pg-font-body); color: var(--pg-text-soft); }
+html.pg-themed .ing.short .ing__n,
+html.pg-themed .ing.short .ing__lbl { color: var(--pg-danger); }
+html.pg-themed .ing.short .ing__ic { border-color: rgba(var(--pg-danger-rgb), 0.4); }
+html.pg-themed .recipe__foot { border-top-color: var(--pg-border-soft); }
+
+html.pg-themed .game__name { font-weight: 400; letter-spacing: .04em; color: var(--pg-text); }
+html.pg-themed .game__prompt b { color: var(--pg-accent); }
+html.pg-themed .trail i { background: var(--pg-border); }
+html.pg-themed .trail i.done { background: var(--pg-accent); box-shadow: none; }
+html.pg-themed .trail i.now { background: var(--pg-accent-hi); box-shadow: 0 0 0 2px var(--pg-accent-soft); }
+
+html.pg-themed .scene {
+    border-color: var(--pg-border-soft); border-radius: var(--pg-radius);
+    background:
+        radial-gradient(ellipse at 50% 30%, rgba(var(--pg-text-rgb), 0.04), transparent 60%),
+        rgba(var(--pg-deep-rgb), 0.55);
+}
+html.pg-themed .pick {
+    background: var(--pg-popup-bg); border-color: var(--pg-border);
+    border-radius: var(--pg-radius-sm); color: var(--pg-text);
+}
+html.pg-themed .pick:hover { border-color: var(--pg-accent-soft); box-shadow: var(--pg-shadow); }
+html.pg-themed .pick__lbl { color: var(--pg-text-soft); }
+html.pg-themed .pick.wrong { border-color: var(--pg-danger); }
+
+html.pg-themed .count { font-family: var(--pg-font-body); color: var(--pg-accent); }
+html.pg-themed .count small { font-family: var(--pg-font-display); letter-spacing: .07em; }
+html.pg-themed .ring circle.track { stroke: var(--pg-border); }
+html.pg-themed .ring circle.prog { stroke: var(--pg-accent); filter: none; }
+html.pg-themed .ring .spoon { background: var(--pg-accent-hi); box-shadow: none; }
+html.pg-themed .gauge {
+    background: var(--pg-deep); border-color: var(--pg-border);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .gauge .zone { background: var(--pg-success-soft); border-left-color: var(--pg-success); border-right-color: var(--pg-success); }
+html.pg-themed .gauge .needle { background: var(--pg-text); box-shadow: none; }
+html.pg-themed .gauge .fill { background: var(--pg-accent); }
+html.pg-themed .gauge__lbl { font-family: var(--pg-font-display); letter-spacing: .07em; }
+html.pg-themed .hits i { border-color: var(--pg-border-strong); }
+html.pg-themed .hits i.on { background: var(--pg-accent); border-color: var(--pg-accent); box-shadow: none; }
+html.pg-themed .spark { background: var(--pg-accent-hi); }
+html.pg-themed .done { background: var(--pg-veil); }
+html.pg-themed .done__t { font-weight: 400; color: var(--pg-text); text-shadow: none; }
+
+html.pg-themed .fault {
+    color: var(--pg-danger); background: var(--pg-raise);
+    border-top-color: var(--pg-danger); font-family: var(--pg-font-mono);
+}
+
+/* ── class colours on a light theme ──────────────────────────────── */
+/* Some class colours are pale (werewolf apricot, ghost vanilla). They stay
+   the class's own, but get a hairline shadow so they still read on a light
+   theme; on a dark theme the shadow is invisible. */
+html.pg-themed .sigil svg { filter: drop-shadow(0 0 1px rgba(var(--pg-shade-rgb), 0.55)) drop-shadow(0 0 14px var(--accent)); }
+html.pg-themed .ghead__sigil svg { filter: drop-shadow(0 0 1px rgba(var(--pg-shade-rgb), 0.55)) drop-shadow(0 0 10px var(--gc)); }
+html.pg-themed .gclass svg { filter: drop-shadow(0 0 1px rgba(var(--pg-shade-rgb), 0.8)); }
+html.pg-themed .rail__level,
+html.pg-themed .lvl__n,
+html.pg-themed #hud .hud__roman { text-shadow: 0 0 1px rgba(var(--pg-shade-rgb), 0.9), 0 0 2px rgba(var(--pg-shade-rgb), 0.6); }
+html.pg-themed .rail__level small,
+html.pg-themed .lvl__n small { text-shadow: none; }

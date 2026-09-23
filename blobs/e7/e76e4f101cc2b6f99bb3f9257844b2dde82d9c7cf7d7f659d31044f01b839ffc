@@ -1,0 +1,329 @@
+/* ================================================================
+   Poggy theme skin: poggy_transform
+
+   Covers the shapeshifter picker (#app: header, revert button, admin
+   custom-ped row, category tabs, search, the animal / NPC / player cards,
+   close hint) and the animal emote picker (#emote-menu).
+
+   Left alone on purpose: the animal pictures in the cards and the emote
+   header (images/*.png), and the emoji icons. The card badges keep their
+   meaning: aggressive = danger, passive = success, NPC = info,
+   legendary = warning, player = accent.
+   ================================================================ */
+
+/* ── the script's own variables, re-pointed ── */
+html.pg-themed {
+    --accent:            var(--pg-accent);
+    --accent-glow:       var(--pg-accent-soft);
+    --accent-bright:     var(--pg-accent-hi);
+    --danger:            var(--pg-danger);
+    --danger-glow:       var(--pg-danger-soft);
+    --glass-bg:          var(--pg-panel);
+    --glass-border:      var(--pg-border);
+    --glass-hover:       var(--pg-surface-hover);
+    --text-primary:      var(--pg-text);
+    --text-secondary:    var(--pg-text-muted);
+    --card-bg:           var(--pg-deep);
+    --card-border:       var(--pg-border-soft);
+    --aggressive-accent: var(--pg-danger);
+    --aggressive-glow:   var(--pg-danger-soft);
+    --passive-accent:    var(--pg-success);
+    --passive-glow:      var(--pg-success-soft);
+    --legendary-accent:  var(--pg-warning);
+    --legendary-glow:    var(--pg-warning-soft);
+    --people-accent:     var(--pg-info);
+    --people-glow:       var(--pg-info-soft);
+}
+
+html.pg-themed body { font-family: var(--pg-font-body); color: var(--pg-text); }
+
+/* ── panels ── */
+html.pg-themed .container,
+html.pg-themed .emote-container {
+    background: var(--pg-panel-bg);
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius);
+    box-shadow: var(--pg-shadow);
+}
+html.pg-themed .container::-webkit-scrollbar-thumb,
+html.pg-themed .emote-list::-webkit-scrollbar-thumb { background: var(--pg-accent-soft); border-radius: 0; }
+html.pg-themed .container::-webkit-scrollbar-thumb:hover { background: var(--pg-accent); }
+
+/* ── header ── */
+html.pg-themed .header-glow { background: none; }
+html.pg-themed .header-icon { color: var(--pg-accent); }
+html.pg-themed .title {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: .12em;
+    background: none;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    -webkit-text-fill-color: currentColor;
+    color: var(--pg-text);
+}
+html.pg-themed .subtitle {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-text-muted);
+    letter-spacing: .07em;
+}
+html.pg-themed .header-line,
+html.pg-themed .emote-divider { background: var(--pg-border-soft); }
+
+/* ── revert (a danger action) ── */
+html.pg-themed .revert-btn,
+html.pg-themed .emote-stop-btn {
+    background: var(--pg-btn-danger-bg);
+    border: 1px solid rgba(var(--pg-danger-rgb), 0.45);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-danger);
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+}
+html.pg-themed .revert-btn:hover,
+html.pg-themed .emote-stop-btn:hover {
+    background: var(--pg-btn-danger-bg);
+    border-color: var(--pg-danger);
+    box-shadow: none;
+}
+
+/* ── admin custom ped row ── */
+html.pg-themed .custom-ped-section {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .custom-ped-label {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-text-muted);
+    letter-spacing: .07em;
+}
+html.pg-themed .custom-ped-row input,
+html.pg-themed .search-bar input {
+    background: var(--pg-input-bg);
+    border: 1px solid var(--pg-input-border);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text);
+    font-family: var(--pg-font-body);
+}
+html.pg-themed .custom-ped-row input::placeholder,
+html.pg-themed .search-bar input::placeholder { color: var(--pg-text-dim); }
+html.pg-themed .custom-ped-row input:focus,
+html.pg-themed .search-bar input:focus {
+    background: var(--pg-input-bg);
+    border-color: var(--pg-accent);
+    box-shadow: var(--pg-focus-ring);
+    outline: none;
+}
+html.pg-themed .custom-ped-btn {
+    background: var(--pg-btn-primary-bg);
+    border: 1px solid var(--pg-accent-soft);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text);
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+}
+html.pg-themed .custom-ped-btn:hover {
+    background: var(--pg-btn-primary-bg);
+    border-color: var(--pg-accent);
+    box-shadow: none;
+}
+html.pg-themed .custom-ped-btn:disabled { opacity: .45; }
+
+/* ── tabs ── */
+html.pg-themed .tabs { border-bottom: 1px solid var(--pg-border-soft); }
+html.pg-themed .tab {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text-muted);
+    font-family: var(--pg-font-display);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: .04em;
+}
+html.pg-themed .tab:hover {
+    background: var(--pg-surface);
+    border-color: transparent;
+    color: var(--pg-text);
+}
+html.pg-themed .tab.active {
+    background: transparent;
+    border-color: transparent;
+    border-bottom-color: var(--pg-accent);
+    color: var(--pg-accent);
+    box-shadow: none;
+}
+html.pg-themed .tab .tab-count {
+    background: var(--pg-surface);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text-muted);
+    font-family: var(--pg-font-body);
+}
+html.pg-themed .tab.active .tab-count {
+    background: var(--pg-accent-faint);
+    color: var(--pg-accent);
+}
+
+/* ── cards ── */
+html.pg-themed .animal-card {
+    background: var(--pg-slot-bg);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius);
+}
+html.pg-themed .animal-card:hover,
+html.pg-themed .animal-card.player-skin-card:hover {
+    border-color: var(--pg-accent-soft);
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft);
+}
+/* the kind still shows on hover, in its meaning colour */
+html.pg-themed .animal-card.aggressive:hover { border-color: rgba(var(--pg-danger-rgb), 0.55); box-shadow: inset 0 0 0 1px rgba(var(--pg-danger-rgb), 0.35); }
+html.pg-themed .animal-card.passive:hover    { border-color: rgba(var(--pg-success-rgb), 0.55); box-shadow: inset 0 0 0 1px rgba(var(--pg-success-rgb), 0.35); }
+html.pg-themed .animal-card.people-card:hover { border-color: rgba(var(--pg-info-rgb), 0.55); box-shadow: inset 0 0 0 1px rgba(var(--pg-info-rgb), 0.35); }
+html.pg-themed .animal-card.player-skin-card:hover { border-color: var(--pg-accent-soft); box-shadow: inset 0 0 0 1px var(--pg-accent-soft); }
+html.pg-themed .animal-card.legendary {
+    background: var(--pg-slot-bg);
+    border-color: rgba(var(--pg-warning-rgb), 0.35);
+}
+html.pg-themed .animal-card.legendary:hover {
+    border-color: var(--pg-warning);
+    box-shadow: inset 0 0 0 1px rgba(var(--pg-warning-rgb), 0.35);
+}
+html.pg-themed .animal-card.people-card { border-color: rgba(var(--pg-info-rgb), 0.25); }
+html.pg-themed .animal-card.player-skin-card { border-color: var(--pg-border-soft); }
+
+/* the picture well behind an animal picture (the picture itself is left alone) */
+html.pg-themed .card-image {
+    background: var(--pg-deep);
+    border-bottom: 1px solid var(--pg-border-soft);
+}
+html.pg-themed .card-image .fallback-icon { color: var(--pg-text); }
+
+html.pg-themed .card-name {
+    font-family: var(--pg-font-display);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: .04em;
+    color: var(--pg-text);
+}
+html.pg-themed .animal-card.legendary .card-name {
+    background: none;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    -webkit-text-fill-color: currentColor;
+    color: var(--pg-warning);
+}
+html.pg-themed .card-model {
+    font-family: var(--pg-font-mono);
+    color: var(--pg-text-muted);
+}
+
+/* badges: a meaning pill each */
+html.pg-themed .badge {
+    border-radius: var(--pg-radius-sm);
+    font-family: var(--pg-font-body);
+    background: var(--pg-surface-strong);
+    border: 1px solid var(--pg-border-soft);
+    color: var(--pg-text-soft);
+}
+/* the pills sit on a picture: give them a solid well under the meaning tint */
+html.pg-themed .badge.aggressive {
+    background: linear-gradient(var(--pg-danger-soft), var(--pg-danger-soft)), var(--pg-panel-solid);
+    border-color: rgba(var(--pg-danger-rgb), 0.45);
+    color: var(--pg-danger);
+}
+html.pg-themed .badge.passive {
+    background: linear-gradient(var(--pg-success-soft), var(--pg-success-soft)), var(--pg-panel-solid);
+    border-color: rgba(var(--pg-success-rgb), 0.45);
+    color: var(--pg-success);
+}
+html.pg-themed .badge.people-badge {
+    background: linear-gradient(var(--pg-info-soft), var(--pg-info-soft)), var(--pg-panel-solid);
+    border-color: rgba(var(--pg-info-rgb), 0.45);
+    color: var(--pg-info);
+}
+html.pg-themed .animal-card.legendary .badge.legendary-badge {
+    background: linear-gradient(var(--pg-warning-soft), var(--pg-warning-soft)), var(--pg-panel-solid);
+    border-color: rgba(var(--pg-warning-rgb), 0.5);
+    color: var(--pg-warning);
+}
+html.pg-themed .badge.legendary-badge .star { text-shadow: none; }
+html.pg-themed .badge.player-badge {
+    background: linear-gradient(var(--pg-accent-faint), var(--pg-accent-faint)), var(--pg-panel-solid);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-accent);
+}
+
+/* player cards: initials instead of a picture */
+html.pg-themed .player-skin-avatar {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-accent);
+    background: radial-gradient(ellipse at center, var(--pg-accent-faint) 0%, transparent 75%);
+    text-shadow: none;
+}
+
+html.pg-themed .no-animals { color: var(--pg-text-muted); font-family: var(--pg-font-body); }
+
+/* ── key hints ── */
+html.pg-themed .close-hint,
+html.pg-themed .emote-hint { color: var(--pg-text-muted); font-family: var(--pg-font-body); }
+html.pg-themed .close-hint kbd,
+html.pg-themed .emote-hint kbd {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text-soft);
+    font-family: var(--pg-font-mono);
+}
+
+/* ── emote picker ── */
+html.pg-themed .emote-animal-img-wrap {
+    background: var(--pg-slot-bg);
+    border-color: var(--pg-border);
+}
+html.pg-themed .emote-animal-name {
+    font-family: var(--pg-font-display);
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: .04em;
+    color: var(--pg-text);
+}
+html.pg-themed .emote-animal-sub {
+    font-family: var(--pg-font-display);
+    color: var(--pg-text-muted);
+    letter-spacing: .07em;
+}
+html.pg-themed .emote-btn {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text);
+    font-family: var(--pg-font-display);
+    font-size: 14px;
+    line-height: 1.15;          /* the serif runs taller: keep the row height */
+    font-weight: 400;
+    letter-spacing: .03em;
+}
+html.pg-themed .emote-btn:hover {
+    background: var(--pg-surface-hover);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-accent);
+}
+html.pg-themed .emote-loop-tag {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text-muted);
+    font-family: var(--pg-font-body);
+}
+
+/* a player card's id is dimmed to half by the script (inline opacity):
+   start it from the softer text so it stays legible on a light theme */
+html.pg-themed .player-skin-card .card-model { color: var(--pg-text-soft); }

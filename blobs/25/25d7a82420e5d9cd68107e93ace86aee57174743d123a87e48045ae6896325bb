@@ -1,0 +1,619 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crafting</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="vendor/vue.js"></script>
+  <script src="https://cfx-nui-poggy_core/ui/hub/theme.js"></script>
+</head>
+<body>
+<div id="app">
+  <!-- ╔══════════════════════════════════════════════════════╗ -->
+  <!-- ║  MAIN OVERLAY                                         ║ -->
+  <!-- ╚══════════════════════════════════════════════════════╝ -->
+  <div class="craft-overlay" v-if="isVisible">
+
+    <!-- ── Sidebar ──────────────────────────────────────── -->
+    <div class="craft-sidebar">
+      <div class="craft-brand">
+        <svg class="craft-brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        <span class="craft-brand-text">{{ t('ui_title') }}</span>
+      </div>
+
+      <div class="craft-search-wrap">
+        <input class="craft-search" type="text" v-model="searchText"
+               :placeholder="t('ui_search')" autocomplete="off" spellcheck="false"/>
+      </div>
+
+      <div class="craft-filter-row">
+        <label class="craft-toggle">
+          <input type="checkbox" v-model="filterOwned"/>
+          <span class="craft-toggle-track"></span>
+          <span class="craft-toggle-thumb"></span>
+        </label>
+        <span class="craft-filter-label" @click="filterOwned=!filterOwned">{{ t('ui_filter_owned') }}</span>
+      </div>
+      <div class="craft-filter-row">
+        <label class="craft-toggle">
+          <input type="checkbox" v-model="filterAccessible"/>
+          <span class="craft-toggle-track"></span>
+          <span class="craft-toggle-thumb"></span>
+        </label>
+        <span class="craft-filter-label" @click="filterAccessible=!filterAccessible">{{ t('ui_filter_access') }}</span>
+      </div>
+
+      <div class="craft-categories">
+        <div class="craft-cat-section-label">{{ t('ui_categories') }}</div>
+        <div class="craft-cat-chip"
+             :class="{active: selectedCategory === 'all'}"
+             @click="selectCategory('all')">
+          <span class="craft-cat-dot" style="background:var(--accent)"></span>
+          {{ t('ui_all') }}
+          <span class="craft-cat-count">{{ allCraftablesUnfiltered.length }}</span>
+        </div>
+        <!-- Accessible categories (sorted A-Z) -->
+        <div class="craft-cat-chip"
+             v-for="cat in categories.filter(c => c._accessible)"
+             :key="cat.ident"
+             :class="{active: selectedCategory === cat.ident}"
+             :style="{'--node-color': getCatColor(cat.ident)}"
+             @click="selectCategory(cat.ident)">
+          <span class="craft-cat-dot" :style="{background: getCatColor(cat.ident)}"></span>
+          {{ cat.text || cat.ident }}
+          <span class="craft-cat-count">{{ getCatCount(cat.ident) }}</span>
+        </div>
+        <!-- Divider: Requires Access -->
+        <div class="craft-cat-divider" v-if="categories.some(c => !c._accessible)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          {{ t('ui_locked_section') }}
+        </div>
+        <!-- Locked categories (sorted A-Z) -->
+        <div class="craft-cat-chip craft-cat-chip-locked"
+             v-for="cat in categories.filter(c => !c._accessible)"
+             :key="cat.ident"
+             :class="{active: selectedCategory === cat.ident}"
+             :style="{'--node-color': getCatColor(cat.ident)}"
+             @click="selectCategory(cat.ident)">
+          <span class="craft-cat-dot" :style="{background: getCatColor(cat.ident)}"></span>
+          {{ cat.text || cat.ident }}
+          <span class="craft-cat-count">{{ getCatCount(cat.ident) }}</span>
+        </div>
+      </div>
+
+      <div class="craft-sidebar-footer">
+        <div class="craft-footer-btn exit-btn" @click="closeMenu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+          </svg>
+          {{ t('ui_close') }}
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Main area ─────────────────────────────────────── -->
+    <div class="craft-main">
+
+      <!-- Grid view -->
+      <template v-if="view === 'grid'">
+        <div class="craft-grid-header">
+          <span class="craft-grid-title">{{ selectedCategory === 'all' ? t('ui_all_recipes') : (categories.find(c=>c.ident===selectedCategory) || {}).text || selectedCategory }}</span>
+          <span class="craft-grid-count">{{ filteredCraftables.length }} {{ filteredCraftables.length === 1 ? t('ui_recipe_one') : t('ui_recipe_many') }}</span>
+        </div>
+        <div class="craft-view" @scroll.passive="onGridScroll">
+          <div v-if="filteredCraftables.length === 0" class="craft-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
+            {{ t('ui_no_match') }}
+          </div>
+          <div class="craft-recipe-grid" v-else>
+            <div class="recipe-node"
+                 v-for="(item, idx) in visibleCraftables"
+                 :key="item.Text"
+                 :class="{locked: item._locked}"
+                 :style="{'--node-color': getCatColor(item.Category), '--node-bg': getCatBg(item.Category), '--i': Math.min(idx % pageSize, 14)}"
+                 @click="openDetail(item)">
+              <div class="recipe-node-body">
+                <div class="recipe-node-header">
+                  <div class="recipe-node-img-wrap">
+                    <div class="recipe-node-img"
+                         :style="{backgroundImage: getItemImageUrl(item.Reward && item.Reward[0] ? item.Reward[0].name : 'placeholder')}">
+                    </div>
+                  </div>
+                  <div class="recipe-node-info">
+                    <div class="recipe-node-title">{{ recipeLabel(item) }}</div>
+                    <div class="recipe-node-cat">{{ item.Category }}</div>
+                  </div>
+                </div>
+                <div class="recipe-node-ings">
+                  <div class="recipe-node-ing"
+                       v-for="ing in (item.Items || []).slice(0,4)"
+                       :key="ing.name"
+                       :class="{missing: getIngHaveCount(ing) < ing.count}"
+                       @mouseenter="showIngTooltip(getIngDisplayName(ing), $event)"
+                       @mouseleave="hideIngTooltip">
+                    <div class="recipe-node-ing-img-wrap">
+                      <div class="recipe-node-ing-img"
+                           :style="{backgroundImage: getIngDisplayImageUrl(ing)}"></div>
+                      <div v-if="ing.AltNames && ing.AltNames.length" class="ing-alt-badge">~</div>
+                    </div>
+                    {{ getItemDisplayLabel(getIngDisplayName(ing)) }} ×{{ ing.count }}                    <div v-if="hoveredAltIng === ing && ing.AltNames && ing.AltNames.length" class="ing-alt-cycle">
+                      <button class="ing-cycle-btn" @click.stop="cycleAlt(-1)">&#8249;</button>
+                      <span class="ing-cycle-pos">{{ hoveredAltIndex + 1 }}/{{ ing.AltNames.length + 1 }}</span>
+                      <button class="ing-cycle-btn" @click.stop="cycleAlt(1)">&#8250;</button>
+                    </div>                  </div>
+                  <div v-if="item.Items && item.Items.length > 4" class="recipe-node-ing" style="color:var(--text-dim)">
+                    +{{ (item.Items || []).length - 4 }} more
+                  </div>
+                </div>
+                <div class="recipe-node-footer">
+                  <template v-if="item._locked">
+                    <span class="recipe-node-lock-badge">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                      {{ getRecipeJobLabel(item) }}
+                    </span>
+                  </template>
+                  <template v-else>
+                    <span class="recipe-node-craftable" :class="{zero: getMaxCraftable(item) === 0}">
+                      {{ getMaxCraftable(item) > 0 ? t('ui_craft_x', getMaxCraftable(item)) : t('ui_missing') }}
+                    </span>
+                    <span class="recipe-node-chain-hint" v-if="item.Items && hasSubChain(item)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/>
+                      </svg>
+                      {{ t('ui_chain') }}
+                    </span>
+                  </template>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Detail view -->
+      <template v-if="view === 'detail' && selectedRecipe">
+        <div class="craft-view">
+          <div class="craft-detail-view">
+            <div class="craft-detail-hero">
+              <button class="detail-back-btn" @click="view='grid'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                {{ t('ui_back') }}
+              </button>
+              <div class="detail-hero-inner">
+                <div class="detail-hero-img-wrap">
+                  <div class="detail-hero-glow" :style="{'--hero-glow': getCatBg(selectedRecipe.Category)}"></div>
+                  <div class="detail-hero-img"
+                       :style="{backgroundImage: getItemImageUrl(selectedRecipe.Reward && selectedRecipe.Reward[0] ? selectedRecipe.Reward[0].name : 'placeholder')}">
+                  </div>
+                </div>
+                <div class="detail-hero-info">
+                  <div class="detail-hero-title">{{ recipeLabel(selectedRecipe) }}</div>
+                  <div class="detail-hero-meta">
+                    <span class="detail-cat-badge"
+                          :style="{'--node-color': getCatColor(selectedRecipe.Category), 'border-color': getCatColor(selectedRecipe.Category)}">
+                      {{ selectedRecipe.Category }}
+                    </span>
+                    <span class="detail-craftable-badge" :class="{zero: getMaxCraftable(selectedRecipe) === 0}">
+                      {{ getMaxCraftable(selectedRecipe) > 0 ? t('ui_craft_x', getMaxCraftable(selectedRecipe)) : t('ui_missing') }}
+                    </span>
+                  </div>
+                  <div class="detail-stat-pills" v-if="selectedRecipe.Reward && selectedRecipe.Reward[0]">
+                    <div class="detail-stat-pill dsp-inv"
+                         :class="{'dsp-inv-full': getItemLimit(selectedRecipe.Reward[0].name) > 0 && getInventoryCount(selectedRecipe.Reward[0].name) >= getItemLimit(selectedRecipe.Reward[0].name)}">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
+                        <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>
+                      </svg>
+                      <div class="dsp-body">
+                        <span class="dsp-label">{{ t('ui_in_stock') }}</span>
+                        <span class="dsp-value">{{ getInventoryCount(selectedRecipe.Reward[0].name) }}</span>
+                      </div>
+                    </div>
+                    <div class="detail-stat-pill dsp-max">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="3" y1="9" x2="21" y2="9"/>
+                        <line x1="9" y1="21" x2="9" y2="9"/>
+                      </svg>
+                      <div class="dsp-body">
+                        <span class="dsp-label">{{ t('ui_max_hold') }}</span>
+                        <span class="dsp-value">{{ getItemLimit(selectedRecipe.Reward[0].name) > 0 ? getItemLimit(selectedRecipe.Reward[0].name) : '\u221e' }}</span>
+                      </div>
+                    </div>
+                    <div class="detail-stat-pill dsp-yield">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                      </svg>
+                      <div class="dsp-body">
+                        <span class="dsp-label">{{ t('ui_per_craft') }}</span>
+                        <span class="dsp-value">&times;{{ selectedRecipe.Reward[0].count || 1 }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="detail-actions">
+                    <div v-if="selectedRecipe._locked" class="detail-locked-banner">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0110 0v4"/>
+                      </svg>
+                      {{ getRecipeJobLabel(selectedRecipe) }}
+                    </div>
+                    <template v-if="!selectedRecipe._locked">
+                      <button class="detail-action-btn btn-craft"
+                              :class="{disabled: getMaxCraftable(selectedRecipe) === 0}"
+                              @click="startCraft(selectedRecipe)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                        </svg>
+                        {{ t('ui_craft') }}
+                      </button>
+                    </template>
+                    <button class="detail-action-btn btn-list" v-if="shoppingListEnabled" @click="addToShoppingList(selectedRecipe)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                      {{ t('ui_list_add') }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="craft-chain-section">
+              <!-- Recipe Chain first -->
+              <div class="chain-section-header">
+                <span class="chain-section-title">{{ t('ui_recipe_chain') }}</span>
+                <div class="chain-section-line"></div>
+              </div>
+              <div v-if="recipeChain">
+                <chain-node :node="recipeChain"
+                            :inventory="inventory"
+                            :all-craftables-unfiltered="allCraftablesUnfiltered"
+                            :all-craftables="allCraftables"
+                            :cat-color-map="categoryColorMap"
+                            :item-labels="itemLabels"
+                            :item-sources="itemSources"
+                            :on-ing-hover="showIngTooltip"
+                            :on-ing-leave="hideIngTooltip"
+                            :job="job">
+                </chain-node>
+              </div>
+              <div v-else class="cn-no-chain">{{ t('ui_no_chain') }}</div>
+
+              <!-- Used In section below -->
+              <template v-if="usedInRecipes.length > 0">
+                <div style="height:28px"></div>
+                <div class="chain-section-header" style="margin-bottom:10px">
+                  <span class="chain-section-title">{{ t('ui_used_in') }}</span>
+                  <div class="chain-section-line"></div>
+                </div>
+
+                <!-- Can Craft sub-group -->
+                <template v-if="usedInAccessible.length > 0">
+                  <div class="used-in-subheader">{{ t('ui_can_craft') }}</div>
+                  <div class="used-in-grid">
+                    <div class="used-in-card"
+                         v-for="r in usedInAccessible"
+                         :key="r.Text"
+                         :style="{'--node-color': getCatColor(r.Category)}"
+                         @click="openDetail(r)">
+                      <div class="used-in-img"
+                           :style="{backgroundImage: getItemImageUrl(r.Reward && r.Reward[0] ? r.Reward[0].name : 'placeholder')}"></div>
+                      <div class="used-in-info">
+                        <div class="used-in-name">{{ recipeLabel(r) }}</div>
+                        <div class="used-in-cat">{{ r.Category }}</div>
+                      </div>
+                      <svg class="used-in-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- No Access sub-group -->
+                <template v-if="usedInLocked.length > 0">
+                  <div class="used-in-subheader locked" style="margin-top:14px">{{ t('ui_no_access') }}</div>
+                  <div class="used-in-grid">
+                    <div class="used-in-card used-in-card-locked"
+                         v-for="r in usedInLocked"
+                         :key="r.Text"
+                         :style="{'--node-color': getCatColor(r.Category)}"
+                         @click="openDetail(r)">
+                      <div class="used-in-img"
+                           :style="{backgroundImage: getItemImageUrl(r.Reward && r.Reward[0] ? r.Reward[0].name : 'placeholder')}"></div>
+                      <div class="used-in-info">
+                        <div class="used-in-name">{{ recipeLabel(r) }}</div>
+                        <div class="used-in-cat">{{ r.Category }}</div>
+                      </div>
+                      <svg class="used-in-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    </div>
+                  </div>
+                </template>
+              </template>
+            </div>
+          </div>
+        </div>
+      </template>
+
+    </div><!-- end .craft-main -->
+
+    <!-- ── Right Panel: persistent shopping list + craft actions ── -->
+    <div class="craft-right-panel" v-if="shoppingListEnabled">
+      <div class="crp-header">
+        <svg class="crp-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        <span class="crp-title">{{ t('ui_list_title') }}</span>
+        <span class="crp-badge" v-if="shoppingList.length > 0">{{ shoppingList.length }}</span>
+        <button class="crp-clear-btn" v-if="shoppingList.some(i=>i.checked)" @click="clearCheckedItems" title="Remove checked">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          {{ t('ui_list_clear') }}
+        </button>
+      </div>
+
+      <!-- Empty state -->
+      <div class="crp-empty" v-if="shoppingList.length === 0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        <span>{{ t('ui_list_empty') }}</span>
+        <small v-html="t('ui_list_empty_hint')"></small>
+      </div>
+
+      <!-- Shopping groups -->
+      <div class="crp-scroll" v-else>
+        <div class="crp-group"
+             v-for="group in shoppingByRecipe"
+             :key="group.recipeName">
+
+          <!-- Group header -->
+          <div class="crp-group-header">
+            <!-- Row 1: recipe name + navigate + remove -->
+            <div class="crp-group-title-row">
+              <span class="crp-group-name"
+                    @click="openDetailByName(group.recipeName)"
+                    title="View recipe">{{ recipeNameToLabel(group.recipeName) }}</span>
+              <button class="crp-view-btn" @click="openDetailByName(group.recipeName)" title="View recipe">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button class="crp-remove-group-btn"
+                      @click="group.items.forEach(i => removeShoppingItem(i.id))"
+                      title="Remove group">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+            <!-- Row 2: craft/status + track + recipe qty stepper -->
+            <div class="crp-group-actions">
+              <template v-if="allCraftablesUnfiltered.find(r => r.Text === group.recipeName) && !allCraftablesUnfiltered.find(r => r.Text === group.recipeName)._locked">
+                <button v-if="getMaxCraftable(allCraftablesUnfiltered.find(r => r.Text === group.recipeName)) > 0"
+                        class="crp-craft-btn"
+                        @click="startCraft(allCraftablesUnfiltered.find(r => r.Text === group.recipeName))"
+                        title="Craft this recipe">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                  </svg>
+                  Craft &#xd7;{{ getMaxCraftable(allCraftablesUnfiltered.find(r => r.Text === group.recipeName)) }}
+                </button>
+                <span v-else class="crp-need-badge">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  {{ t('ui_list_need') }}
+                </span>
+              </template>
+              <span v-else-if="allCraftablesUnfiltered.find(r => r.Text === group.recipeName)?._locked"
+                    class="crp-locked-badge"
+                    :title="getRecipeJobLabel(allCraftablesUnfiltered.find(r => r.Text === group.recipeName))">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                {{ t('ui_list_locked') }}
+              </span>
+              <!-- Track toggle -->
+              <button class="crp-track-btn"
+                      :class="{active: isRecipeTracked(group.recipeName)}"
+                      @click="toggleTrackRecipe(group.recipeName)"
+                      :title="isRecipeTracked(group.recipeName) ? t('ui_tracking') : t('ui_track')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                {{ isRecipeTracked(group.recipeName) ? t('ui_tracking') : t('ui_track') }}
+              </button>
+              <!-- Recipe-level quantity stepper -->
+              <div class="crp-recipe-qty">
+                <button class="crp-rqty-btn" @click="adjustRecipeQty(group, -1)">&#x2212;</button>
+                <span class="crp-rqty-num">&#xd7;{{ getGroupRecipeQty(group) }}</span>
+                <button class="crp-rqty-btn" @click="adjustRecipeQty(group, 1)">&#x2b;</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Items -->
+          <div class="crp-item"
+               v-for="item in group.items"
+               :key="item.id"
+               :class="{checked: item.checked}">
+            <div class="crp-item-cb"
+                 :class="{checked: item.checked}"
+                 @click="toggleShoppingItem(item.id)">
+              <svg v-if="item.checked" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div class="crp-item-img" :style="{backgroundImage: getItemImageUrl(item.item_name)}"></div>
+            <div class="crp-item-info">
+              <div class="crp-item-name">{{ item.item_label || item.item_name }}</div>
+              <div class="crp-item-row">
+                <div class="crp-prog-track">
+                  <div class="crp-prog-fill" :class="shoppingItemStatus(item)"
+                       :style="{width: (shoppingItemFill(item)*100)+'%'}"></div>
+                </div>
+                <span class="crp-have-need" :class="shoppingItemStatus(item)">
+                  {{ shoppingItemHave(item) }}/{{ item.quantity }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div><!-- end .craft-right-panel -->
+
+  </div><!-- end .craft-overlay -->
+
+  <!-- ── Quantity dialog ──────────────────────────────────── -->
+  <div class="quantity-dialog" v-if="isVisible && showQtyDialog" @click.self="showQtyDialog=false">
+    <div class="quantity-dialog-box">
+      <div class="dialog-title">{{ t('ui_how_many') }}</div>
+      <div class="quantity-controls">
+        <button class="qty-btn" @click="adjustQty(-1)">−</button>
+        <input class="qty-input" type="number" v-model.number="craftQty" min="1"
+               :max="getMaxCraftable(craftItem)" @focus="$event.target.select()"/>
+        <button class="qty-btn" @click="adjustQty(1)">+</button>
+      </div>
+      <div class="dialog-info" v-if="craftItem">
+        <div class="dialog-info-row">
+          <span>{{ t('ui_max_craftable') }}</span>
+          <span class="dialog-info-max">×{{ getMaxCraftable(craftItem) }}</span>
+        </div>
+        <div class="dialog-info-row" v-for="ing in (craftItem && craftItem.Items || [])" :key="ing.name">
+          <span>{{ qtyRow(ing).label }}</span>
+          <span :style="{color: qtyRow(ing).ok ? 'var(--ok)' : 'var(--danger)'}">
+            {{ qtyRow(ing).have }} / {{ qtyRow(ing).need }}
+          </span>
+        </div>
+      </div>
+      <div class="dialog-buttons">
+        <button class="dlg-btn dlg-craft" @click="confirmCraft">{{ t('ui_craft_x', craftQty) }}</button>
+        <button class="dlg-btn dlg-max" @click="craftQty = getMaxCraftable(craftItem); confirmCraft()">{{ t('ui_max') }}</button>
+        <button class="dlg-btn dlg-cancel" @click="showQtyDialog=false">{{ t('ui_cancel') }}</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tracker focus-mode click-catcher ──────────────────────── -->
+  <div class="tracker-focus-catcher" v-if="trackerFocusMode" @click.self="releaseTrackerFocus"></div>
+
+  <!-- ── Gathering Tracker HUD (draggable, always on top) ──────── -->
+  <div class="craft-tracker-hud"
+       v-if="trackerVisible"
+       v-show="!trackerHidden"
+       :class="{minimized: trackerMinimized, dragging: trackerDragging, 'focus-mode': trackerFocusMode}"
+       :style="{left: trackerPos.x+'px', top: trackerPos.y+'px'}">
+    <div class="tracker-titlebar" @mousedown.prevent="startTrackerDrag">
+      <svg class="tracker-grip" viewBox="0 0 10 16" fill="currentColor">
+        <circle cx="3" cy="2" r="1.2"/><circle cx="7" cy="2" r="1.2"/>
+        <circle cx="3" cy="6" r="1.2"/><circle cx="7" cy="6" r="1.2"/>
+        <circle cx="3" cy="10" r="1.2"/><circle cx="7" cy="10" r="1.2"/>
+        <circle cx="3" cy="14" r="1.2"/><circle cx="7" cy="14" r="1.2"/>
+      </svg>
+      <span class="tracker-title">{{ t('ui_tracker_title') }}</span>
+      <div class="tracker-controls">
+        <button class="tracker-ctrl" @click.stop="trackerMinimized=!trackerMinimized"
+                :title="trackerMinimized ? 'Expand' : 'Minimise'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline v-if="trackerMinimized" points="18 15 12 9 6 15"/>
+            <polyline v-else points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <button class="tracker-ctrl tracker-ctrl-close"
+                @click.stop="trackedRecipeNames.splice(0)"
+                title="Dismiss all">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="tracker-body" v-if="!trackerMinimized">
+      <div class="tracker-group" v-for="group in trackedGroups" :key="group.recipeName">
+        <div class="tracker-group-header">
+          <span class="tracker-group-name">{{ group.recipeName }}</span>
+          <button class="tracker-untrack-btn" @click.stop="toggleTrackRecipe(group.recipeName)" title="Stop tracking">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="tracker-item"
+             v-for="item in group.items"
+             :key="item.id"
+             :class="{checked: item.checked}">
+          <div class="tracker-checkbox" :class="{checked: item.checked}" @click="toggleShoppingItem(item.id)">
+            <svg v-if="item.checked" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="tracker-item-img" :style="{backgroundImage: getItemImageUrl(item.item_name)}"></div>
+          <div class="tracker-item-main">
+            <div class="tracker-item-name">{{ item.item_label || item.item_name }}</div>
+            <div class="tracker-item-progress">
+              <div class="tracker-progress-track">
+                <div class="tracker-progress-fill"
+                     :class="shoppingItemStatus(item)"
+                     :style="{width: (shoppingItemFill(item)*100)+'%'}"></div>
+              </div>
+              <span class="tracker-have-need" :class="shoppingItemStatus(item)">
+                {{ shoppingItemHave(item) }}/{{ item.quantity }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tracker-hints">
+      <span>/gt</span> {{ t('ui_tracker_move') }}
+      <span class="tracker-hint-sep">·</span>
+      <span>/gthide</span> {{ t('ui_tracker_hide') }}
+    </div>
+  </div>
+
+  <!-- ── Item Source Tooltip ─────────────────────────────────────── -->
+  <transition name="ing-tip">
+    <div class="ing-source-tooltip"
+         v-if="hoveredIng"
+         :style="{left: tooltipPos.x + 'px', top: tooltipPos.y + 'px'}">
+      <div class="ist-header">
+        <div class="ist-img"
+             :style="{backgroundImage: getItemImageUrl(hoveredIng.name)}"></div>
+        <div class="ist-title">
+          <div class="ist-name">{{ getItemDisplayLabel(hoveredIng.name) }}</div>
+          <div class="ist-source-badge"
+               :class="'ist-src-' + (hoveredIng.source.source || 'unknown').toLowerCase().replace(/[^a-z]/g,'-')">
+            {{ hoveredIng.source.source || 'Unknown' }}
+          </div>
+        </div>
+      </div>
+      <div class="ist-desc">{{ hoveredIng.source.description }}</div>
+      <div class="ist-inv-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/>
+        </svg>
+        {{ t('ui_in_inventory') }} <strong>{{ getInventoryCount(hoveredIng.name) }}</strong>
+      </div>
+    </div>
+  </transition>
+
+  <!-- ── Progress bar ────────────────────────────────────── -->
+  <!-- Drawn here so the script needs no progress-bar resource and looks the -->
+  <!-- same on every framework. The fill is a CSS transition, not a timer.   -->
+  <transition name="craft-prog">
+    <div class="craft-progress" v-if="progress.shown" :class="'craft-progress-' + progress.position">
+      <div class="craft-progress-label">{{ progress.label }}</div>
+      <div class="craft-progress-track">
+        <div class="craft-progress-fill"
+             :style="{width: progress.fill + '%', transitionDuration: progress.duration + 'ms'}"></div>
+      </div>
+    </div>
+  </transition>
+
+</div><!-- end #app -->
+<script src="app.js"></script>
+</body>
+</html>

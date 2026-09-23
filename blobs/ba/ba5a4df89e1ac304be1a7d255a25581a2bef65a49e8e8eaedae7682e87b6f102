@@ -1,0 +1,320 @@
+/* ================================================================
+   poggy_crafting — the Poggy skin (poggy_core ui/hub/theme.js loads it)
+
+   Covers the one page (ui/index.html, Vue): the recipe browser (sidebar
+   with search, filters and categories; the recipe grid), a recipe's page
+   (hero, stat pills, Craft / Add to list, the recipe chain, "used in"), the
+   shopping-list panel on the right, the quantity dialog, the ingredient
+   tooltip, the gathering tracker, and the progress bar.
+
+   The script keeps its colours in :root variables: those are re-pointed at
+   the Poggy tokens first, then the rules that name colours directly.
+
+   Left alone on purpose: item pictures (vorp_inventory's icons, drawn as
+   background images); each category's pastel, which app.js writes inline
+   as --node-color and on the category dots (it tells the categories apart);
+   the item-source badges' colours (Hunting, Mining, ...), which mean the
+   source. On the light Ledger preset the words drawn in a pastel take the
+   text colour instead, and keep the pastel in their edges and dots.
+   ================================================================ */
+
+html.pg-themed {
+    --bg-overlay:    var(--pg-panel-bg);
+    --bg-panel:      var(--pg-panel);
+    --bg-card:       var(--pg-surface);
+    --bg-input:      var(--pg-input-bg);
+    --border-dim:    var(--pg-border-soft);
+    --border-soft:   var(--pg-border);
+    --border-accent: var(--pg-accent-soft);
+    --text-primary:  var(--pg-text);
+    --text-secondary: var(--pg-text-soft);
+    --text-dim:      var(--pg-text-muted);
+    --text:          var(--pg-text);
+    --text-accent:   var(--pg-accent);
+    --accent:        var(--pg-accent);
+    --accent-glow:   var(--pg-accent-faint);
+    --accent-bright: var(--pg-accent-hi);
+    --ok:            var(--pg-success);
+    --warn:          var(--pg-warning);
+    --danger:        var(--pg-danger);
+    --locked-bg:     var(--pg-danger-soft);
+    --locked-border: rgba(var(--pg-danger-rgb), 0.45);
+    --r-sm:          var(--pg-radius-sm);
+    --r-md:          var(--pg-radius);
+    --r-lg:          var(--pg-radius);
+    /* each category's hover / chain tint: one quiet surface, the category's
+       own colour stays in its line, edge and dot */
+    --cat1-bg: var(--pg-surface-hover);  --cat2-bg: var(--pg-surface-hover);  --cat3-bg: var(--pg-surface-hover);
+    --cat4-bg: var(--pg-surface-hover);  --cat5-bg: var(--pg-surface-hover);  --cat6-bg: var(--pg-surface-hover);
+    --cat7-bg: var(--pg-surface-hover);  --cat8-bg: var(--pg-surface-hover);  --cat9-bg: var(--pg-surface-hover);
+    --cat10-bg: var(--pg-surface-hover); --cat11-bg: var(--pg-surface-hover); --cat12-bg: var(--pg-surface-hover);
+}
+
+html.pg-themed body { font-family: var(--pg-font-body); color: var(--pg-text); }
+
+/* ── the screen and its three columns ── */
+html.pg-themed .craft-overlay { background: var(--pg-panel-bg); }
+html.pg-themed .craft-overlay::before,
+html.pg-themed .craft-overlay::after { background: none; }
+html.pg-themed .craft-sidebar { background: rgba(var(--pg-deep-rgb), 0.45); border-right-color: var(--pg-border); }
+html.pg-themed .craft-right-panel { background: rgba(var(--pg-deep-rgb), 0.45); border-left-color: var(--pg-border); }
+
+/* ── titles and labels: the display font ── */
+html.pg-themed .craft-brand-text,
+html.pg-themed .crp-title,
+html.pg-themed .tracker-title { font-family: var(--pg-font-display); font-weight: 400; color: var(--pg-accent); }
+html.pg-themed .craft-grid-title,
+html.pg-themed .shopping-title,
+html.pg-themed .detail-hero-title,
+html.pg-themed .dialog-title,
+html.pg-themed .recipe-node-title,
+html.pg-themed .cn-recipe-name,
+html.pg-themed .used-in-name {
+    font-family: var(--pg-font-display); font-weight: 400; letter-spacing: .04em; color: var(--pg-text);
+}
+html.pg-themed .detail-hero-title { text-shadow: none; }
+html.pg-themed .craft-cat-section-label,
+html.pg-themed .chain-section-title,
+html.pg-themed .used-in-subheader,
+html.pg-themed .cn-flow-label,
+html.pg-themed .dsp-label {
+    font-family: var(--pg-font-display); font-weight: 400; color: var(--pg-text-muted);
+}
+html.pg-themed .used-in-subheader.locked { color: rgba(var(--pg-danger-rgb), 0.8); }
+html.pg-themed .shopping-group-name,
+html.pg-themed .crp-group-name,
+html.pg-themed .tracker-group-name { font-family: var(--pg-font-display); font-weight: 400; color: var(--pg-accent); }
+html.pg-themed .crp-group-name:hover { color: var(--pg-accent-hi); }
+
+/* ── search, filters, toggles ── */
+html.pg-themed .craft-search {
+    background: var(--pg-input-bg); border: 1px solid var(--pg-input-border); color: var(--pg-text);
+    font-family: var(--pg-font-body); border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .craft-search::placeholder { color: var(--pg-text-dim); }
+html.pg-themed .craft-search:focus { background: var(--pg-input-bg); border-color: var(--pg-accent); box-shadow: var(--pg-focus-ring); }
+html.pg-themed .craft-filter-label { color: var(--pg-text-soft); }
+html.pg-themed .craft-toggle-track { background: var(--pg-deep); border-color: var(--pg-border-soft); border-radius: var(--pg-radius-sm); }
+html.pg-themed .craft-toggle-thumb { background: var(--pg-text-muted); border-radius: var(--pg-radius-sm); }
+html.pg-themed .craft-toggle input:checked ~ .craft-toggle-track { background: var(--pg-accent-faint); border-color: var(--pg-accent-soft); }
+html.pg-themed .craft-toggle input:checked ~ .craft-toggle-thumb { background: var(--pg-accent); }
+
+/* ── categories (the sidebar list) ── */
+html.pg-themed .craft-cat-chip { font-family: var(--pg-font-display); color: var(--pg-text-soft); border-radius: var(--pg-radius-sm); }
+html.pg-themed .craft-cat-chip:hover { background: var(--pg-surface-hover); color: var(--pg-text); }
+html.pg-themed .craft-cat-chip.active {
+    background: var(--pg-accent-faint); border-color: var(--pg-accent-soft); color: var(--pg-accent); font-weight: 400;
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft);
+}
+html.pg-themed .craft-cat-chip-locked { color: var(--pg-text-dim); }
+html.pg-themed .craft-cat-divider { color: var(--pg-text-muted); }
+html.pg-themed .craft-cat-count {
+    background: var(--pg-surface); border-radius: var(--pg-radius-sm); color: var(--pg-text-muted); font-family: var(--pg-font-body);
+}
+
+/* ── sidebar footer ── */
+html.pg-themed .craft-footer-btn {
+    font-family: var(--pg-font-display); font-weight: 400; text-transform: uppercase; letter-spacing: .07em;
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .craft-footer-btn.list-btn { background: var(--pg-btn-bg); border-color: var(--pg-btn-border); color: var(--pg-text); }
+html.pg-themed .craft-footer-btn.list-btn.has-items { background: var(--pg-btn-primary-bg); border-color: var(--pg-accent-soft); }
+html.pg-themed .craft-footer-btn.list-btn:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); }
+html.pg-themed .craft-footer-btn.exit-btn { background: var(--pg-btn-bg); border-color: rgba(var(--pg-danger-rgb), 0.35); color: var(--pg-danger); }
+html.pg-themed .craft-footer-btn.exit-btn:hover { background: var(--pg-btn-danger-bg); border-color: var(--pg-danger); }
+html.pg-themed .list-badge,
+html.pg-themed .crp-badge {
+    background: var(--pg-accent); color: var(--pg-on-accent); border-radius: var(--pg-radius-sm); font-family: var(--pg-font-body);
+}
+
+/* ── the recipe grid ── */
+html.pg-themed .craft-grid-header,
+html.pg-themed .craft-shopping-header { border-bottom-color: var(--pg-border-soft); }
+html.pg-themed .craft-grid-count { font-family: var(--pg-font-body); color: var(--pg-text-muted); }
+html.pg-themed .recipe-node { background: var(--pg-slot-bg); border-color: var(--pg-border-soft); border-radius: var(--pg-radius); }
+html.pg-themed .recipe-node:hover { box-shadow: 0 8px 24px rgba(var(--pg-shade-rgb), 0.35); }
+html.pg-themed .recipe-node.locked::after {
+    background: repeating-linear-gradient(-45deg, transparent, transparent 5px, rgba(var(--pg-danger-rgb), 0.05) 5px, rgba(var(--pg-danger-rgb), 0.05) 6px);
+}
+html.pg-themed .recipe-node-img-wrap,
+html.pg-themed .cn-recipe-img-wrap {
+    background: var(--pg-slot-bg); border-color: var(--pg-border-soft); border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .recipe-node-ing {
+    background: var(--pg-surface); border-color: var(--pg-border-soft); border-radius: var(--pg-radius-sm); color: var(--pg-text-soft);
+}
+html.pg-themed .recipe-node-ing.missing { color: var(--pg-danger); border-color: rgba(var(--pg-danger-rgb), 0.35); }
+html.pg-themed .recipe-node-footer { border-top-color: var(--pg-border-soft); }
+html.pg-themed .recipe-node-lock-badge,
+html.pg-themed .cn-locked-badge,
+html.pg-themed .crp-locked-badge {
+    background: var(--pg-danger-soft); border-color: rgba(var(--pg-danger-rgb), 0.40); color: var(--pg-danger); border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .ing-alt-badge { background: var(--pg-accent); color: var(--pg-on-accent); border-radius: var(--pg-radius-sm); }
+html.pg-themed .ing-cycle-btn { background: var(--pg-accent-faint); border-color: var(--pg-border); color: var(--pg-accent); border-radius: var(--pg-radius-sm); }
+html.pg-themed .ing-cycle-btn:hover { background: var(--pg-accent-soft); }
+
+/* ── a recipe's page ── */
+html.pg-themed .craft-detail-hero { background: rgba(var(--pg-deep-rgb), 0.25); border-bottom-color: var(--pg-border-soft); }
+html.pg-themed .detail-back-btn { font-family: var(--pg-font-display); color: var(--pg-text-muted); }
+html.pg-themed .detail-back-btn:hover { color: var(--pg-accent); }
+html.pg-themed .detail-cat-badge { background: var(--pg-surface); border-radius: var(--pg-radius-sm); font-family: var(--pg-font-body); }
+html.pg-themed .detail-stat-pill { background: var(--pg-surface); border-color: var(--pg-border-soft); border-radius: var(--pg-radius-sm); }
+html.pg-themed .dsp-value { font-family: var(--pg-font-body); }
+html.pg-themed .dsp-inv { background: var(--pg-success-soft); border-color: rgba(var(--pg-success-rgb), 0.35); }
+html.pg-themed .dsp-inv.dsp-inv-full { background: var(--pg-warning-soft); border-color: rgba(var(--pg-warning-rgb), 0.40); }
+html.pg-themed .dsp-max { background: var(--pg-accent-faint); border-color: var(--pg-accent-soft); }
+html.pg-themed .dsp-yield { background: var(--pg-info-soft); border-color: rgba(var(--pg-info-rgb), 0.40); }
+html.pg-themed .dsp-yield svg,
+html.pg-themed .dsp-yield .dsp-value { color: var(--pg-info); }
+html.pg-themed .detail-locked-banner {
+    background: var(--pg-danger-soft); border-color: rgba(var(--pg-danger-rgb), 0.40); color: var(--pg-danger); border-radius: var(--pg-radius-sm);
+}
+
+/* buttons: Craft (primary), Add to list, the dialog's three */
+html.pg-themed .detail-action-btn,
+html.pg-themed .dlg-btn {
+    font-family: var(--pg-font-display); font-weight: 400; text-transform: uppercase; letter-spacing: .07em;
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .btn-craft,
+html.pg-themed .dlg-craft { background: var(--pg-btn-primary-bg); border-color: var(--pg-accent-soft); color: var(--pg-text); }
+html.pg-themed .btn-craft:hover,
+html.pg-themed .dlg-craft:hover { background: var(--pg-btn-primary-bg); border-color: var(--pg-accent); }
+html.pg-themed .btn-craft.disabled { opacity: .45; }
+html.pg-themed .btn-list { background: var(--pg-btn-bg); border-color: var(--pg-btn-border); color: var(--pg-text); }
+html.pg-themed .btn-list:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); }
+html.pg-themed .dlg-max { background: var(--pg-btn-success-bg); border-color: rgba(var(--pg-success-rgb), 0.45); color: var(--pg-text); }
+html.pg-themed .dlg-max:hover { background: var(--pg-btn-success-bg); border-color: var(--pg-success); }
+html.pg-themed .dlg-cancel { background: var(--pg-btn-bg); border-color: var(--pg-btn-border); color: var(--pg-text); }
+html.pg-themed .dlg-cancel:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); }
+
+/* the recipe chain */
+html.pg-themed .chain-section-line { background: var(--pg-border-soft); }
+html.pg-themed .cn-recipe-bar { border-radius: var(--pg-radius); }
+html.pg-themed .cn-flow-track { background: var(--pg-border-soft); }
+html.pg-themed .cn-ing-card { background: var(--pg-slot-bg); border-color: var(--pg-border-soft); border-radius: var(--pg-radius); }
+html.pg-themed .cn-ing-card.cn-ing-missing { border-color: rgba(var(--pg-danger-rgb), 0.40); }
+html.pg-themed .cn-ing-card.cn-ing-locked { background: var(--pg-danger-soft); border-color: rgba(var(--pg-danger-rgb), 0.45); }
+html.pg-themed .cn-ing-card.cn-ing-clickable:hover { box-shadow: 0 4px 16px rgba(var(--pg-shade-rgb), 0.35); }
+html.pg-themed .cn-ing-count-badge {
+    background: var(--pg-raise); border-color: var(--pg-border); border-radius: var(--pg-radius-sm); font-family: var(--pg-font-body);
+}
+html.pg-themed .cn-ing-count-badge.ok { border-color: rgba(var(--pg-success-rgb), 0.35); }
+html.pg-themed .cn-ing-count-badge.warn { border-color: rgba(var(--pg-warning-rgb), 0.35); }
+html.pg-themed .cn-ing-count-badge.bad { border-color: rgba(var(--pg-danger-rgb), 0.35); }
+html.pg-themed .cn-raw-badge {
+    background: var(--pg-success-soft); border-color: rgba(var(--pg-success-rgb), 0.40); color: var(--pg-success); border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .cn-expand-btn,
+html.pg-themed .cn-view-btn { border-radius: var(--pg-radius-sm); font-family: var(--pg-font-body); }
+html.pg-themed .cn-view-btn { background: var(--pg-btn-bg); }
+html.pg-themed .cn-no-chain { border-color: var(--pg-border-soft); border-radius: var(--pg-radius); }
+html.pg-themed .used-in-card { background: var(--pg-slot-bg); border-color: var(--pg-border-soft); border-radius: var(--pg-radius); }
+
+/* ── the shopping list: the right panel and its full view ── */
+html.pg-themed .crp-header { border-bottom-color: var(--pg-border-soft); }
+html.pg-themed .crp-clear-btn {
+    background: var(--pg-success-soft); border-color: rgba(var(--pg-success-rgb), 0.35); color: var(--pg-success); border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .crp-clear-btn:hover { background: rgba(var(--pg-success-rgb), 0.22); border-color: var(--pg-success); }
+html.pg-themed .crp-group { border-bottom-color: var(--pg-border-soft); }
+html.pg-themed .crp-craft-btn { background: var(--pg-btn-primary-bg); border-color: var(--pg-accent-soft); color: var(--pg-text); border-radius: var(--pg-radius-sm); }
+html.pg-themed .crp-craft-btn:hover { background: var(--pg-btn-primary-bg); border-color: var(--pg-accent); }
+html.pg-themed .crp-need-badge { background: var(--pg-warning-soft); border-color: rgba(var(--pg-warning-rgb), 0.35); color: var(--pg-warning); border-radius: var(--pg-radius-sm); }
+html.pg-themed .crp-track-btn,
+html.pg-themed .shopping-group-btn,
+html.pg-themed .shopping-action-btn { background: var(--pg-btn-bg); border-color: var(--pg-btn-border); color: var(--pg-text-soft); border-radius: var(--pg-radius-sm); }
+html.pg-themed .crp-track-btn:hover,
+html.pg-themed .shopping-group-btn:hover,
+html.pg-themed .shopping-action-btn:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); color: var(--pg-text); }
+html.pg-themed .crp-track-btn.active,
+html.pg-themed .shopping-group-btn.track-active { background: var(--pg-success-soft); border-color: rgba(var(--pg-success-rgb), 0.45); color: var(--pg-success); }
+html.pg-themed .shopping-action-btn.danger { color: var(--pg-danger); border-color: rgba(var(--pg-danger-rgb), 0.35); }
+html.pg-themed .shopping-action-btn.danger:hover { background: var(--pg-btn-danger-bg); border-color: var(--pg-danger); }
+html.pg-themed .crp-view-btn,
+html.pg-themed .crp-rqty-btn,
+html.pg-themed .shopping-qty-btn { background: var(--pg-btn-bg); border-color: var(--pg-btn-border); color: var(--pg-text-soft); border-radius: var(--pg-radius-sm); }
+html.pg-themed .crp-view-btn:hover,
+html.pg-themed .crp-rqty-btn:hover,
+html.pg-themed .shopping-qty-btn:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); color: var(--pg-accent); }
+html.pg-themed .crp-remove-group-btn,
+html.pg-themed .shopping-remove-btn { border-radius: var(--pg-radius-sm); }
+html.pg-themed .shopping-remove-btn:hover { background: var(--pg-danger-soft); border-color: rgba(var(--pg-danger-rgb), 0.40); }
+html.pg-themed .crp-rqty-num,
+html.pg-themed .shopping-qty-num,
+html.pg-themed .crp-have-need,
+html.pg-themed .tracker-have-need,
+html.pg-themed .shopping-have-need span { font-family: var(--pg-font-body); }
+html.pg-themed .crp-item,
+html.pg-themed .shopping-item { border-bottom-color: var(--pg-border-soft); }
+html.pg-themed .shopping-group-header { border-bottom-color: var(--pg-border-soft); }
+html.pg-themed .crp-item-cb,
+html.pg-themed .shopping-checkbox,
+html.pg-themed .tracker-checkbox { border-color: var(--pg-border-strong); border-radius: var(--pg-radius-sm); }
+html.pg-themed .crp-item-cb.checked,
+html.pg-themed .shopping-checkbox.checked,
+html.pg-themed .tracker-checkbox.checked { background: var(--pg-accent); border-color: var(--pg-accent); color: var(--pg-on-accent); }
+html.pg-themed .crp-prog-track,
+html.pg-themed .shopping-progress-track,
+html.pg-themed .tracker-progress-track { background: var(--pg-deep); border-radius: var(--pg-radius-sm); }
+html.pg-themed .crp-prog-fill,
+html.pg-themed .shopping-progress-fill,
+html.pg-themed .tracker-progress-fill { border-radius: var(--pg-radius-sm); }
+
+/* ── the quantity dialog ── */
+html.pg-themed .quantity-dialog { background: var(--pg-veil); }
+html.pg-themed .quantity-dialog-box {
+    background: var(--pg-popup-bg); border: 1px solid var(--pg-border); border-radius: var(--pg-radius); box-shadow: var(--pg-shadow-strong);
+}
+html.pg-themed .qty-btn { background: var(--pg-btn-bg); border-color: var(--pg-btn-border); color: var(--pg-text); border-radius: var(--pg-radius-sm); }
+html.pg-themed .qty-btn:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); }
+html.pg-themed .qty-input {
+    background: var(--pg-input-bg); border-color: var(--pg-input-border); color: var(--pg-text);
+    font-family: var(--pg-font-body); border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .qty-input:focus { border-color: var(--pg-accent); box-shadow: var(--pg-focus-ring); }
+html.pg-themed .dialog-info { background: var(--pg-surface); border-color: var(--pg-border-soft); border-radius: var(--pg-radius-sm); }
+
+/* ── the ingredient tooltip ── */
+html.pg-themed .ing-source-tooltip {
+    background: var(--pg-popup-bg); border: 1px solid var(--pg-border); border-radius: var(--pg-radius-sm);
+    box-shadow: var(--pg-shadow-strong); font-family: var(--pg-font-body);
+}
+html.pg-themed .ist-img { background-color: var(--pg-deep); border-radius: var(--pg-radius-sm); }
+html.pg-themed .ist-source-badge { border-radius: var(--pg-radius-sm); }
+html.pg-themed .ist-inv-row { border-top-color: var(--pg-border-soft); }
+html.pg-themed .currency-cost { color: var(--pg-danger); }
+html.pg-themed .currency-earning { color: var(--pg-success); }
+
+/* ── the gathering tracker (on screen while playing) ── */
+html.pg-themed .craft-tracker-hud {
+    background: var(--pg-panel-bg); border: 1px solid var(--pg-border); border-radius: var(--pg-radius); box-shadow: var(--pg-shadow-strong);
+}
+html.pg-themed .craft-tracker-hud.focus-mode { border-color: var(--pg-accent); box-shadow: 0 0 0 2px var(--pg-accent-soft), var(--pg-shadow-strong); }
+html.pg-themed .tracker-titlebar { background: var(--pg-surface); border-bottom-color: var(--pg-border-soft); }
+html.pg-themed .tracker-ctrl { border-radius: var(--pg-radius-sm); }
+html.pg-themed .tracker-ctrl:hover { background: var(--pg-surface-hover); color: var(--pg-text); }
+html.pg-themed .tracker-group + .tracker-group { border-top-color: var(--pg-border-soft); }
+html.pg-themed .tracker-hints { border-top-color: var(--pg-border-soft); color: var(--pg-text-muted); }
+
+/* ── the progress bar (drawn over the world, no panel behind it) ── */
+html.pg-themed .craft-progress { font-family: var(--pg-font-body); }
+html.pg-themed .craft-progress-label {
+    font-family: var(--pg-font-display); color: var(--pg-text);
+    text-shadow: 0 0 6px rgba(var(--pg-bg-rgb), 0.95), 0 1px 3px rgba(var(--pg-bg-rgb), 0.95);
+}
+html.pg-themed .craft-progress-track {
+    background: var(--pg-deep); border-color: var(--pg-border); border-radius: var(--pg-radius-sm); box-shadow: var(--pg-shadow);
+}
+html.pg-themed .craft-progress-fill { background: var(--pg-accent); }
+
+/* ── Ledger (light): words drawn in a category's pastel or a source's colour
+      take the text colour; the pastel stays in the edge, line and dot. ── */
+html.pg-themed[data-pg-tone="light"] .recipe-node-cat,
+html.pg-themed[data-pg-tone="light"] .cn-recipe-cat,
+html.pg-themed[data-pg-tone="light"] .used-in-cat,
+html.pg-themed[data-pg-tone="light"] .detail-cat-badge,
+html.pg-themed[data-pg-tone="light"] .cn-expand-btn,
+html.pg-themed[data-pg-tone="light"] .cn-view-btn,
+html.pg-themed[data-pg-tone="light"] .ist-source-badge { color: var(--pg-text-soft); }

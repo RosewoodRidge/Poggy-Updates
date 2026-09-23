@@ -1,0 +1,275 @@
+/* ================================================================
+   poggy_tickets — the Poggy skin (poggy_core ui/hub/theme.js loads it)
+
+   Covers the one page (ui/index.html) on both games: the player's window
+   (the first choice, the form, My tickets and a ticket's conversation,
+   Solved questions, Website), the staff desk (Tickets list + a ticket,
+   Staff chat, Players and a player's record, Bans, Staff: people, roles and
+   ready replies, Audit, Website), the dialogs, the staff badge, the toasts
+   and the warning screen. The FiveM line (poggy_tickets_fivem) is the same
+   page and is given this skin too.
+
+   The script keeps its colours in :root variables: those are re-pointed at
+   the Poggy tokens first, then the rules that name colours directly.
+
+   Left alone on purpose: the colours that carry meaning and that app.js
+   writes inline (each kind of ticket's pastel, the priorities red → peach →
+   blue → grey, the states, each staff role's colour, chat rooms' colours).
+   On the light Ledger preset those pastels are too pale to read as text, so
+   there the text of an inline-coloured pill, chip or title takes the text
+   colour and keeps the pastel in its border, tint and dot.
+   ================================================================ */
+
+html.pg-themed {
+    --bg:          var(--pg-bg);
+    --panel:       var(--pg-panel-solid);
+    --panel-2:     var(--pg-surface);
+    --panel-hi:    var(--pg-surface-hover);
+    --field:       var(--pg-input-bg);
+    --hover:       var(--pg-surface-hover);
+    --rule:        var(--pg-border-soft);
+    --rule-strong: var(--pg-border-strong);
+    --ink:         var(--pg-text);
+    --ink-soft:    var(--pg-text-soft);
+    --ink-faint:   var(--pg-text-muted);
+    --ink-dim:     var(--pg-text-dim);
+    --blue:        var(--pg-accent);
+    --blue-lift:   var(--pg-accent-hi);
+    --blue-soft:   var(--pg-accent-faint);
+    --blue-ink:    var(--pg-on-accent);
+    --gold:        var(--pg-warning);
+    --amber:       var(--pg-warning);
+    --lavender:    var(--pg-info);
+    --green:       var(--pg-success);
+    --go:          var(--pg-success);
+    --go-lift:     var(--pg-success);
+    --red:         var(--pg-danger);
+    --red-soft:    var(--pg-danger-soft);
+    --serif:       var(--pg-font-body);
+    --mono:        var(--pg-font-mono);
+    --radius:      var(--pg-radius-sm);
+    --shadow:      var(--pg-shadow);
+}
+
+/* ── the window ── */
+html.pg-themed #shade { background: var(--pg-veil); }
+html.pg-themed .pt-window {
+    background: var(--pg-panel-bg);
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius);
+    box-shadow: var(--pg-shadow);
+}
+html.pg-themed .pt-window--full { border: 0; border-radius: 0; }
+html.pg-themed .pt-head { background: var(--pg-surface); border-bottom-color: var(--pg-border-soft); }
+html.pg-themed .pt-head__title {
+    font-family: var(--pg-font-display); font-weight: 400; letter-spacing: .04em; color: var(--pg-text);
+}
+html.pg-themed .pt-head__title::before { background: var(--pg-accent); }
+html.pg-themed .pt-x {
+    background: var(--pg-btn-bg); border: 1px solid var(--pg-btn-border); color: var(--pg-text);
+    border-radius: var(--pg-radius-sm); font-family: var(--pg-font-body);
+}
+html.pg-themed .pt-x:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); color: var(--pg-text); }
+
+/* ── tabs ── */
+html.pg-themed .pt-tab { font-family: var(--pg-font-display); color: var(--pg-text-muted); letter-spacing: .03em; }
+html.pg-themed .pt-tab:hover { color: var(--pg-text); }
+html.pg-themed .pt-tab.is-on { color: var(--pg-accent); border-bottom-color: var(--pg-accent); }
+
+/* ── labels and titles: the display font ── */
+html.pg-themed .pt-label,
+html.pg-themed .pt-filters__label,
+html.pg-themed .pt-fact__k,
+html.pg-themed .pt-d-bar__label,
+html.pg-themed .pt-helps__title,
+html.pg-themed .pt-toast__title,
+html.pg-themed .pt-answer__k,
+html.pg-themed .pt-table th,
+html.pg-themed .pt-audit__day,
+html.pg-themed .pt-webid__k {
+    font-family: var(--pg-font-display); letter-spacing: .07em;
+}
+html.pg-themed .pt-label,
+html.pg-themed .pt-filters__label,
+html.pg-themed .pt-fact__k,
+html.pg-themed .pt-d-bar__label,
+html.pg-themed .pt-table th { color: var(--pg-text-muted); }
+html.pg-themed .pt-audit__day { color: var(--pg-accent); background: var(--pg-panel-solid); }
+html.pg-themed .pt-table th { background: var(--pg-panel-solid); border-bottom-color: var(--pg-border); }
+
+html.pg-themed .pt-choose__title,
+html.pg-themed .pt-choice__title,
+html.pg-themed .pt-dialog__title,
+html.pg-themed .pt-d-head__cat {
+    font-family: var(--pg-font-display); font-weight: 400; letter-spacing: .04em;
+}
+
+/* ── chips (the radio choices) and pills ── */
+html.pg-themed .pt-chip {
+    font-family: var(--pg-font-display); border-radius: var(--pg-radius-sm);
+    border-color: var(--pg-border); background: var(--pg-surface); color: var(--pg-text-soft);
+}
+html.pg-themed .pt-chip:hover { background: var(--pg-surface-hover); border-color: var(--pg-accent-soft); color: var(--pg-text); }
+html.pg-themed .pt-chip.is-on {
+    background: var(--pg-accent-faint); border-color: var(--pg-accent-soft); color: var(--pg-accent);
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft);
+}
+html.pg-themed .pt-chip--more { border-style: dashed; }
+html.pg-themed .pt-chip__n { border-radius: var(--pg-radius-sm); background: var(--pg-danger); color: var(--pg-bg); }
+
+/* Pills carry ticket numbers and counts ("#38 Player report", "Warnings 3"):
+   the body font, so the figures read as figures. */
+html.pg-themed .pt-pill {
+    font-family: var(--pg-font-body); border-radius: var(--pg-radius-sm);
+    background: var(--pg-surface); border-color: var(--pg-border-soft); color: var(--pg-text-soft);
+}
+
+/* ── inputs ── */
+html.pg-themed .pt-input,
+html.pg-themed .pt-text {
+    background: var(--pg-input-bg); border: 1px solid var(--pg-input-border); color: var(--pg-text);
+    font-family: var(--pg-font-body); border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .pt-input::placeholder,
+html.pg-themed .pt-text::placeholder { color: var(--pg-text-dim); }
+html.pg-themed .pt-input:focus,
+html.pg-themed .pt-text:focus { border-color: var(--pg-accent); box-shadow: var(--pg-focus-ring); outline: none; }
+
+html.pg-themed .pt-toggle__box { border-radius: var(--pg-radius-sm); background: var(--pg-deep); border-color: var(--pg-border-soft); }
+html.pg-themed .pt-toggle__box::after { border-radius: var(--pg-radius-sm); background: var(--pg-text-muted); }
+html.pg-themed .pt-toggle.is-on .pt-toggle__box { background: var(--pg-success-soft); border-color: var(--pg-success); }
+html.pg-themed .pt-toggle.is-on .pt-toggle__box::after { background: var(--pg-success); }
+
+/* ── buttons ── */
+html.pg-themed .pt-btn {
+    background: var(--pg-btn-bg); border: 1px solid var(--pg-btn-border); color: var(--pg-text);
+    border-radius: var(--pg-radius-sm); font-family: var(--pg-font-display); font-weight: 400;
+    text-transform: uppercase; letter-spacing: .07em;
+}
+/* The ticket's action bar and the help-request rows are single rows cut to
+   the original font: there the words stay in their own case, or the last
+   button leaves the window (or eats the caller's name). */
+html.pg-themed .pt-d-bar .pt-btn,
+html.pg-themed .pt-helprow .pt-btn { text-transform: none; letter-spacing: .03em; }
+html.pg-themed .pt-btn:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); color: var(--pg-text); }
+html.pg-themed .pt-btn[disabled] { opacity: .45; background: var(--pg-btn-bg); border-color: var(--pg-btn-border); color: var(--pg-text); }
+html.pg-themed .pt-btn--act { background: var(--pg-btn-primary-bg); border-color: var(--pg-accent-soft); color: var(--pg-text); }
+html.pg-themed .pt-btn--act:hover { background: var(--pg-btn-primary-bg); border-color: var(--pg-accent); color: var(--pg-text); }
+html.pg-themed .pt-btn--go { background: var(--pg-btn-success-bg); border-color: rgba(var(--pg-success-rgb), 0.45); color: var(--pg-text); }
+html.pg-themed .pt-btn--go:hover { background: var(--pg-btn-success-bg); border-color: var(--pg-success); color: var(--pg-text); }
+html.pg-themed .pt-btn--ghost { background: transparent; }
+html.pg-themed .pt-btn--danger { background: var(--pg-btn-bg); border-color: rgba(var(--pg-danger-rgb), 0.45); color: var(--pg-danger); }
+html.pg-themed .pt-btn--danger:hover { background: var(--pg-btn-danger-bg); border-color: var(--pg-danger); color: var(--pg-text); }
+html.pg-themed .pt-btn--note { background: rgba(var(--pg-danger-rgb), 0.22); border-color: rgba(var(--pg-danger-rgb), 0.55); color: var(--pg-text); }
+html.pg-themed .pt-btn--note:hover { background: var(--pg-btn-danger-bg); border-color: var(--pg-danger); color: var(--pg-text); }
+
+/* ── player: the first choice ── */
+html.pg-themed .pt-choice { border-radius: var(--pg-radius); font-family: var(--pg-font-body); color: var(--pg-text); }
+html.pg-themed .pt-choice:hover { box-shadow: 0 10px 26px rgba(var(--pg-shade-rgb), 0.45); }
+html.pg-themed .pt-choice--help { background: var(--pg-warning-soft); border-color: rgba(var(--pg-warning-rgb), 0.45); }
+html.pg-themed .pt-choice--help:hover { background: rgba(var(--pg-warning-rgb), 0.20); border-color: var(--pg-warning); }
+html.pg-themed .pt-choice--help .pt-choice__title { color: var(--pg-warning); }
+html.pg-themed .pt-choice--help .pt-choice__title::before { background: var(--pg-warning); }
+html.pg-themed .pt-choice--ticket { background: var(--pg-accent-faint); border-color: var(--pg-accent-soft); }
+html.pg-themed .pt-choice--ticket:hover { background: rgba(var(--pg-accent-rgb), 0.20); border-color: var(--pg-accent); }
+html.pg-themed .pt-choice--ticket .pt-choice__title { color: var(--pg-accent); }
+html.pg-themed .pt-choice--ticket .pt-choice__title::before { background: var(--pg-accent); }
+html.pg-themed .pt-choice__title::before { border-radius: 0; }
+
+/* ── list rows: My tickets, the staff list, results ── */
+html.pg-themed .pt-mine,
+html.pg-themed .pt-row { background: var(--pg-surface); border-color: var(--pg-border-soft); border-left-color: var(--pg-border-strong); }
+html.pg-themed .pt-mine:hover,
+html.pg-themed .pt-row:hover { background: var(--pg-surface-hover); border-top-color: var(--pg-accent-soft); border-right-color: var(--pg-accent-soft); border-bottom-color: var(--pg-accent-soft); }
+html.pg-themed .pt-mine.is-unseen { border-left-color: var(--pg-danger); }
+html.pg-themed .pt-row.is-cur {
+    background: var(--pg-accent-faint); border-top-color: var(--pg-accent-soft); border-right-color: var(--pg-accent-soft);
+    border-bottom-color: var(--pg-accent-soft); box-shadow: inset 0 0 0 1px var(--pg-accent-soft);
+}
+html.pg-themed .pt-result.is-on,
+html.pg-themed .pt-person.is-on { background: var(--pg-accent-faint); color: var(--pg-accent); }
+html.pg-themed .pt-row__id,
+html.pg-themed .pt-mine__id,
+html.pg-themed .pt-d-head__id { font-family: var(--pg-font-body); }
+html.pg-themed .pt-name.is-link:hover { color: var(--pg-accent); }
+
+/* ── the conversation ── */
+html.pg-themed .pt-convo { background: var(--pg-deep); border-color: var(--pg-border-soft); }
+html.pg-themed .pt-bub__text { background: var(--pg-surface-hover); border-color: var(--pg-border-soft); border-radius: var(--pg-radius); font-family: var(--pg-font-body); }
+html.pg-themed .pt-bub.is-me .pt-bub__text { background: rgba(var(--pg-accent-rgb), 0.14); border-color: var(--pg-accent-soft); border-radius: var(--pg-radius); }
+html.pg-themed .pt-bub.is-note .pt-bub__who { color: var(--pg-danger); }
+html.pg-themed .pt-bub.is-note .pt-bub__text { background: rgba(var(--pg-danger-rgb), 0.16); border-color: rgba(var(--pg-danger-rgb), 0.55); color: var(--pg-text); }
+html.pg-themed .pt-bub.is-system .pt-bub__text { background: transparent; }
+html.pg-themed .pt-bub.is-answer .pt-bub__text { border-color: var(--pg-success); box-shadow: 0 0 0 1px rgba(var(--pg-success-rgb), 0.35); }
+html.pg-themed .pt-bub__mark { font-family: var(--pg-font-body); }
+html.pg-themed .pt-input.is-note,
+html.pg-themed .pt-text.is-note { background: rgba(var(--pg-danger-rgb), 0.14); border-color: rgba(var(--pg-danger-rgb), 0.55); color: var(--pg-text); }
+html.pg-themed .pt-input.is-note::placeholder { color: rgba(var(--pg-danger-rgb), 0.7); }
+html.pg-themed .pt-toggle--note.is-on { color: var(--pg-danger); }
+html.pg-themed .pt-rec.is-note { background: var(--pg-danger-soft); border-left-color: rgba(var(--pg-danger-rgb), 0.7); }
+
+html.pg-themed .pt-answer { background: var(--pg-success-soft); border-color: rgba(var(--pg-success-rgb), 0.45); border-left-color: var(--pg-success); }
+html.pg-themed .pt-desc { background: var(--pg-deep); border-color: var(--pg-border-soft); font-family: var(--pg-font-body); }
+
+/* ── staff desk ── */
+html.pg-themed .pt-left,
+html.pg-themed .pt-audit__side { background: rgba(var(--pg-deep-rgb), 0.35); border-right-color: var(--pg-border-soft); }
+html.pg-themed .pt-helps { background: rgba(var(--pg-warning-rgb), 0.07); }
+html.pg-themed .pt-facts,
+html.pg-themed .pt-card,
+html.pg-themed .pt-helpbox { background: var(--pg-surface); border-color: var(--pg-border-soft); }
+html.pg-themed .pt-d-bar { background: var(--pg-surface); border-top-color: var(--pg-border-soft); }
+html.pg-themed .pt-clip__url { color: var(--pg-accent); }
+html.pg-themed .pt-results { background: var(--pg-deep); border-color: var(--pg-border-soft); }
+html.pg-themed .pt-aud__ticket { border-radius: var(--pg-radius-sm); color: var(--pg-accent); border-color: var(--pg-border); }
+html.pg-themed .pt-aud__ticket:hover { border-color: var(--pg-accent-soft); background: var(--pg-accent-faint); }
+
+/* ── dialogs ── */
+html.pg-themed .pt-dialog-shade { background: rgba(var(--pg-shade-rgb), 0.70); }
+html.pg-themed .pt-dialog {
+    background: var(--pg-popup-bg); border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius); box-shadow: var(--pg-shadow-strong);
+}
+
+/* ── the web id and the Website tab ── */
+html.pg-themed .pt-webid { background: var(--pg-surface); border-color: var(--pg-border-soft); font-family: var(--pg-font-body); }
+html.pg-themed .pt-webid:hover { border-color: var(--pg-accent-soft); }
+html.pg-themed .pt-webid--line { background: var(--pg-surface); border-color: var(--pg-border-soft); border-radius: 0; }
+html.pg-themed .pt-webid__code,
+html.pg-themed .pt-webcode,
+html.pg-themed .pt-web__urlbig,
+html.pg-themed .pt-web__url { color: var(--pg-accent); }
+html.pg-themed .pt-webcode.pt-webcode--pair { color: var(--pg-text); }
+html.pg-themed .pt-web__state { background: var(--pg-surface); border-color: var(--pg-border-soft); border-left-color: var(--pg-warning); }
+html.pg-themed .pt-web__state.is-on { border-left-color: var(--pg-success); }
+html.pg-themed .pt-web__n { background: var(--pg-surface); border-color: var(--pg-border); border-radius: var(--pg-radius-sm); }
+
+/* ── badge and toasts ── */
+html.pg-themed .pt-badge {
+    background: var(--pg-popup-bg); border: 1px solid var(--pg-accent-soft); color: var(--pg-accent);
+    border-radius: var(--pg-radius-sm); font-family: var(--pg-font-display); box-shadow: var(--pg-shadow);
+}
+html.pg-themed .pt-badge b { font-family: var(--pg-font-body); color: var(--pg-text); }
+html.pg-themed .pt-toast {
+    background: var(--pg-popup-bg); border: 1px solid var(--pg-border); border-left: 3px solid var(--pg-accent);
+    border-radius: var(--pg-radius-sm); box-shadow: var(--pg-shadow-strong); color: var(--pg-text);
+}
+html.pg-themed .pt-toast__title { color: var(--pg-accent); }
+
+/* ── the warning screen (red on purpose) ── */
+html.pg-themed .pt-warning { background: rgba(var(--pg-shade-rgb), 0.78); }
+html.pg-themed .pt-warning__pulse {
+    background: radial-gradient(ellipse at center, rgba(var(--pg-danger-rgb), 0) 35%, rgba(var(--pg-danger-rgb), 0.45) 100%);
+}
+html.pg-themed .pt-warning__box {
+    background: var(--pg-popup-bg); border: 1px solid var(--pg-danger);
+    border-radius: var(--pg-radius); box-shadow: var(--pg-shadow-strong);
+}
+html.pg-themed .pt-warning__title { font-family: var(--pg-font-display); color: var(--pg-danger); }
+html.pg-themed .pt-warning__reason { font-family: var(--pg-font-body); color: var(--pg-text); }
+
+/* ── Ledger (light): the inline pastels are kept as tints and edges, and the
+      words on them take the text colour so they stay readable. ── */
+html.pg-themed[data-pg-tone="light"] .pt-pill[style],
+html.pg-themed[data-pg-tone="light"] .pt-chip[style],
+html.pg-themed[data-pg-tone="light"] .pt-d-head__cat[style] { color: var(--pg-text) !important; }

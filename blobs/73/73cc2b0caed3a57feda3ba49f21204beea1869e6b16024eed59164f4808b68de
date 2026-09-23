@@ -1,0 +1,806 @@
+/* ================================================================
+   poggy_core — Poggy theme skin for poggy_markets
+
+   Pages (all one ui/index.html):
+     - Store manager: header, tab bar, Dashboard, Inventory, Buy List,
+       Sold Items, Ledger, Analytics (the CSS bar chart), Settings,
+       Employees.
+     - Customer shop: Buy (list and grid, the grid's detail bar and
+       hover tip), Sell, the sell-total bar.
+     - Commodities exchange: sidebar, header, filter bar, Market table,
+       Chart (toolbar, search autocomplete, range buttons, info bar,
+       trade sidebar), Portfolio cards, Account, the trade modal, toasts.
+     - The text prompt (js/prompt.js: naming a store).
+
+   Scope: html.pg-themed:not([data-skin]). skin.js puts data-skin on
+   <html> only for an image skin (Config.UI.skin = "leather", or any
+   other name); "default" removes the attribute. So this skin applies
+   exactly when no image skin is chosen, and the leather skin keeps its
+   own look (and its images) untouched.
+
+   Left alone on purpose:
+     - the leather image skin (css/skin-leather.css) and its images;
+     - item icons;
+     - the exchange price chart (a <canvas> drawn by Chart.js with
+       colours written in exchange.js; CSS cannot reach it);
+     - the select arrow (a data-URI SVG with a fixed grey stroke; it
+       reads on both dark and light themes).
+
+   Meaning kept: gains / buy / deposit green (--pg-success), losses /
+   short / delete red (--pg-danger), withdraw / sell / low stock amber
+   (--pg-warning). Numbers and prices in the body font; prices in the
+   accent.
+
+   The exchange writes a few colours into element.style (the chart's
+   current price, the spread, the trade sidebar's position type and
+   P&L, the price flash on a chart click). Those are matched by the
+   colour Chromium serialises into the style attribute and re-pointed
+   with !important, so their meaning (up green, down red) survives.
+   ================================================================ */
+
+/* ── The script's own variables, re-pointed to the theme ─────────── */
+html.pg-themed:not([data-skin]) {
+    --bg-primary:    transparent;
+    --bg-secondary:  var(--pg-surface);
+    --bg-tertiary:   var(--pg-deep);
+    --bg-elevated:   var(--pg-raise);
+    --bg-hover:      var(--pg-surface-hover);
+    --bg-active:     var(--pg-surface-strong);
+    --bg-base:       var(--pg-surface);
+
+    --border-primary:   var(--pg-border-soft);
+    --border-secondary: var(--pg-border);
+    --border-accent:    var(--pg-accent-soft);
+
+    --text-primary:   var(--pg-text);
+    --text-secondary: var(--pg-text-soft);
+    --text-muted:     var(--pg-text-muted);
+    --text-accent:    var(--pg-accent);
+
+    --accent:        var(--pg-accent);
+    --accent-hover:  var(--pg-accent-hi);
+    --accent-glow:   var(--pg-accent-faint);
+    --accent-bg:     var(--pg-accent-faint);
+
+    --green:         var(--pg-success);
+    --green-bg:      var(--pg-success-soft);
+    --green-border:  rgba(var(--pg-success-rgb), 0.35);
+    --orange:        var(--pg-warning);
+    --orange-bg:     var(--pg-warning-soft);
+    --orange-border: rgba(var(--pg-warning-rgb), 0.35);
+    --red:           var(--pg-danger);
+    --red-bg:        var(--pg-danger-soft);
+    --red-border:    rgba(var(--pg-danger-rgb), 0.35);
+    --yellow:        var(--pg-warning);
+
+    --radius-sm: var(--pg-radius-sm);
+    --radius-md: var(--pg-radius-sm);
+    --radius-lg: var(--pg-radius);
+
+    --font-body:    var(--pg-font-body);
+    --font-heading: var(--pg-font-display);
+    --font-mono:    var(--pg-font-body);
+}
+
+/* ── Windows ─────────────────────────────────────────────────────── */
+html.pg-themed:not([data-skin]) #manager-container,
+html.pg-themed:not([data-skin]) .customer-container,
+html.pg-themed:not([data-skin]) #exchange-container {
+    background: var(--pg-panel-bg);
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius);
+    box-shadow: var(--pg-shadow);
+    color: var(--pg-text);
+}
+html.pg-themed:not([data-skin]) #exchange-container { border: none; border-radius: 0; box-shadow: none; }
+
+/* Headers and bars laid on the panel: a quiet band, no colour of their own */
+html.pg-themed:not([data-skin]) .manager-header,
+html.pg-themed:not([data-skin]) .customer-header,
+html.pg-themed:not([data-skin]) .ex-header {
+    background: transparent;
+    border-bottom: 1px solid var(--pg-border-soft);
+}
+html.pg-themed:not([data-skin]) .tab-bar,
+html.pg-themed:not([data-skin]) .cust-tab-bar {
+    background: transparent;
+    border-bottom: 1px solid var(--pg-border-soft);
+}
+
+/* ── Titles ──────────────────────────────────────────────────────── */
+html.pg-themed:not([data-skin]) .manager-header h1,
+html.pg-themed:not([data-skin]) .customer-header h1,
+html.pg-themed:not([data-skin]) .ex-sidebar-brand h1,
+html.pg-themed:not([data-skin]) .ex-header h2 {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: .04em;
+    text-transform: none;
+    color: var(--pg-text);
+}
+html.pg-themed:not([data-skin]) .manager-header h1,
+html.pg-themed:not([data-skin]) .customer-header h1 { font-size: 21px; }
+html.pg-themed:not([data-skin]) .ex-sidebar-brand h1 { font-size: 20px; letter-spacing: .08em; }
+html.pg-themed:not([data-skin]) .ex-header h2 { font-size: 20px; }
+
+html.pg-themed:not([data-skin]) .panel-title,
+html.pg-themed:not([data-skin]) .settings-card-title,
+html.pg-themed:not([data-skin]) .ex-account-card h3,
+html.pg-themed:not([data-skin]) .ex-modal-header h3,
+html.pg-themed:not([data-skin]) .ex-ct-header h3,
+html.pg-themed:not([data-skin]) .ex-pc-name,
+html.pg-themed:not([data-skin]) .pm-prompt-title {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: .04em;
+    color: var(--pg-text);
+}
+html.pg-themed:not([data-skin]) .dash-panel .panel-title,
+html.pg-themed:not([data-skin]) .buylist-current .panel-title,
+html.pg-themed:not([data-skin]) .buylist-add-panel .panel-title,
+html.pg-themed:not([data-skin]) .ledger-history-header .panel-title,
+html.pg-themed:not([data-skin]) .analytics-chart-header .panel-title,
+html.pg-themed:not([data-skin]) .inv-toolbar .panel-title { font-size: 16px; }
+html.pg-themed:not([data-skin]) .settings-card-title { font-size: 17px; }
+html.pg-themed:not([data-skin]) .ex-account-card h3,
+html.pg-themed:not([data-skin]) .ex-ct-header h3 { font-size: 16px; }
+html.pg-themed:not([data-skin]) .ex-modal-header h3,
+html.pg-themed:not([data-skin]) .pm-prompt-title { font-size: 18px; }
+html.pg-themed:not([data-skin]) .ex-pc-name { font-size: 16px; }
+html.pg-themed:not([data-skin]) .emp-add-panel .panel-title { font-size: 13px; color: var(--pg-text-muted); text-transform: uppercase; letter-spacing: .07em; }
+
+/* Section labels: display font, muted, small capitals */
+html.pg-themed:not([data-skin]) .stat-label,
+html.pg-themed:not([data-skin]) .listings-table th,
+html.pg-themed:not([data-skin]) .ex-table th,
+html.pg-themed:not([data-skin]) .form-group label,
+html.pg-themed:not([data-skin]) .cust-sel-key,
+html.pg-themed:not([data-skin]) .ex-sidebar-brand span,
+html.pg-themed:not([data-skin]) .ex-balance-label,
+html.pg-themed:not([data-skin]) .ex-stat-label,
+html.pg-themed:not([data-skin]) .ex-chart-info-label,
+html.pg-themed:not([data-skin]) .ex-ct-input-group label,
+html.pg-themed:not([data-skin]) .ex-modal-input-group label,
+html.pg-themed:not([data-skin]) .ex-ct-position h4 {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--pg-text-muted);
+}
+
+/* ── Numbers and prices: the body font ───────────────────────────── */
+html.pg-themed:not([data-skin]) .stat-value,
+html.pg-themed:not([data-skin]) .top-seller-rank,
+html.pg-themed:not([data-skin]) .ex-balance-amount,
+html.pg-themed:not([data-skin]) .ex-price,
+html.pg-themed:not([data-skin]) .ex-stat-value,
+html.pg-themed:not([data-skin]) .ex-pc-pnl-value,
+html.pg-themed:not([data-skin]) .ex-pc-current,
+html.pg-themed:not([data-skin]) .ex-pc-tp-input,
+html.pg-themed:not([data-skin]) .ex-modal-row-value,
+html.pg-themed:not([data-skin]) .ex-modal-input-group input,
+html.pg-themed:not([data-skin]) .ex-chart-current-price,
+html.pg-themed:not([data-skin]) .ex-chart-ac-price,
+html.pg-themed:not([data-skin]) .ex-chart-info-item span:last-child,
+html.pg-themed:not([data-skin]) .ex-ct-value {
+    font-family: var(--pg-font-body);
+}
+html.pg-themed:not([data-skin]) .stat-value { color: var(--pg-text); }
+html.pg-themed:not([data-skin]) .stat-green,
+html.pg-themed:not([data-skin]) .ex-balance-amount,
+html.pg-themed:not([data-skin]) .ex-price,
+html.pg-themed:not([data-skin]) .cust-sel-total,
+html.pg-themed:not([data-skin]) .cust-grid-tip-price,
+html.pg-themed:not([data-skin]) .cust-buy-total-cell,
+html.pg-themed:not([data-skin]) .cust-sell-total-cell,
+html.pg-themed:not([data-skin]) .top-seller-rev { color: var(--pg-accent); }
+html.pg-themed:not([data-skin]) .top-seller-qty { color: var(--pg-text-soft); }
+html.pg-themed:not([data-skin]) #settings-upgrade-total,
+html.pg-themed:not([data-skin]) #storage-upgrade-total { font-family: var(--pg-font-body); }
+html.pg-themed:not([data-skin]) .cust-sell-total-bar strong { color: var(--pg-accent); font-family: var(--pg-font-body); }
+html.pg-themed:not([data-skin]) .settings-card-desc code { font-family: var(--pg-font-mono); border-radius: var(--pg-radius-sm) !important; }
+html.pg-themed:not([data-skin]) .settings-card-desc a { color: var(--pg-accent) !important; }   /* inline colour names an undefined variable */
+
+/* ── Tabs ────────────────────────────────────────────────────────── */
+html.pg-themed:not([data-skin]) .tab-btn,
+html.pg-themed:not([data-skin]) .cust-tab-btn,
+html.pg-themed:not([data-skin]) .ex-ct-tab {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: .06em;
+    color: var(--pg-text-muted);
+    border-bottom-color: transparent;
+}
+html.pg-themed:not([data-skin]) .tab-btn,
+html.pg-themed:not([data-skin]) .cust-tab-btn { font-size: 15px; }
+html.pg-themed:not([data-skin]) .ex-ct-tab { font-size: 13px; }
+html.pg-themed:not([data-skin]) .tab-btn:hover,
+html.pg-themed:not([data-skin]) .cust-tab-btn:hover,
+html.pg-themed:not([data-skin]) .ex-ct-tab:hover { color: var(--pg-text); }
+html.pg-themed:not([data-skin]) .tab-btn.active,
+html.pg-themed:not([data-skin]) .cust-tab-btn.active {
+    color: var(--pg-accent);
+    border-bottom-color: var(--pg-accent);
+}
+/* the trade sidebar's Buy / Short tabs keep their meaning colour */
+html.pg-themed:not([data-skin]) .ex-ct-tab.active[data-ct-action="buy"] { color: var(--pg-success); border-bottom-color: var(--pg-success); }
+html.pg-themed:not([data-skin]) .ex-ct-tab.active[data-ct-action="short"] { color: var(--pg-danger); border-bottom-color: var(--pg-danger); }
+
+/* Exchange sidebar nav: a list of places, selected like a row */
+html.pg-themed:not([data-skin]) .ex-sidebar {
+    background: rgba(var(--pg-text-rgb), 0.02);
+    border-right: 1px solid var(--pg-border-soft);
+}
+html.pg-themed:not([data-skin]) .ex-nav-item {
+    font-family: var(--pg-font-display);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: .04em;
+    color: var(--pg-text-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed:not([data-skin]) .ex-nav-item:hover { background: var(--pg-surface-hover); color: var(--pg-text); }
+html.pg-themed:not([data-skin]) .ex-nav-item.active {
+    background: var(--pg-surface);
+    color: var(--pg-accent);
+    border-color: var(--pg-accent-soft);
+}
+
+/* Toggle groups: market filter, chart range, list / grid view */
+html.pg-themed:not([data-skin]) .ex-filter-bar { background: transparent; border-bottom: 1px solid var(--pg-border-soft); }
+html.pg-themed:not([data-skin]) .ex-filter-btn,
+html.pg-themed:not([data-skin]) .ex-chart-range-btn,
+html.pg-themed:not([data-skin]) .cust-view-btn {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: .06em;
+    background: var(--pg-btn-bg);
+    color: var(--pg-text-muted);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed:not([data-skin]) .ex-filter-btn { border: 1px solid var(--pg-btn-border); text-transform: uppercase; }
+html.pg-themed:not([data-skin]) .ex-filter-btn:hover,
+html.pg-themed:not([data-skin]) .ex-chart-range-btn:hover,
+html.pg-themed:not([data-skin]) .cust-view-btn:hover { background: var(--pg-btn-bg-hover); color: var(--pg-text); }
+html.pg-themed:not([data-skin]) .ex-filter-btn.active,
+html.pg-themed:not([data-skin]) .ex-chart-range-btn.active,
+html.pg-themed:not([data-skin]) .cust-view-btn.active {
+    background: var(--pg-btn-primary-bg);
+    color: var(--pg-accent);
+    border-color: var(--pg-accent-soft);
+}
+html.pg-themed:not([data-skin]) .ex-chart-range-btns,
+html.pg-themed:not([data-skin]) .cust-view-toggle {
+    background: var(--pg-deep);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed:not([data-skin]) .cust-view-btn + .cust-view-btn { border-left-color: var(--pg-border-soft); }
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+/* every button family shares the house shape */
+html.pg-themed:not([data-skin]) .btn-action,
+html.pg-themed:not([data-skin]) .btn-submit,
+html.pg-themed:not([data-skin]) .btn-danger,
+html.pg-themed:not([data-skin]) .btn-outline,
+html.pg-themed:not([data-skin]) .btn-inline-save,
+html.pg-themed:not([data-skin]) .btn-max,
+html.pg-themed:not([data-skin]) .cust-btn-buy,
+html.pg-themed:not([data-skin]) .cust-btn-sell,
+html.pg-themed:not([data-skin]) .cust-btn-sell-all-row,
+html.pg-themed:not([data-skin]) .ex-btn,
+html.pg-themed:not([data-skin]) .ex-balance-actions button,
+html.pg-themed:not([data-skin]) .ex-account-input-row button,
+html.pg-themed:not([data-skin]) .ex-pc-tp-set,
+html.pg-themed:not([data-skin]) .ex-modal-footer button,
+html.pg-themed:not([data-skin]) .ex-ct-confirm,
+html.pg-themed:not([data-skin]) .ex-ct-pos-btn,
+html.pg-themed:not([data-skin]) .pm-prompt-btn {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    border-radius: var(--pg-radius-sm);
+    box-shadow: none;
+    transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+html.pg-themed:not([data-skin]) button:disabled { opacity: .45; cursor: default; }
+
+/* plain: Refresh, Save, Apply, Withdraw, Upgrade, Max, Cancel, Set */
+html.pg-themed:not([data-skin]) .btn-action,
+html.pg-themed:not([data-skin]) .btn-max,
+html.pg-themed:not([data-skin]) .cust-qty-group .btn-max,
+html.pg-themed:not([data-skin]) .ex-pc-tp-set,
+html.pg-themed:not([data-skin]) .ex-modal-cancel,
+html.pg-themed:not([data-skin]) .ex-ct-pos-btn,
+html.pg-themed:not([data-skin]) .pm-prompt-btn.cancel {
+    background: var(--pg-btn-bg);
+    border: 1px solid var(--pg-btn-border);
+    color: var(--pg-text);
+}
+html.pg-themed:not([data-skin]) .ex-modal-cancel { border-color: var(--pg-btn-border) !important; }   /* the page's own rule is !important */
+html.pg-themed:not([data-skin]) .btn-action:hover,
+html.pg-themed:not([data-skin]) .btn-max:hover,
+html.pg-themed:not([data-skin]) .cust-qty-group .btn-max:hover,
+html.pg-themed:not([data-skin]) .ex-pc-tp-set:hover,
+html.pg-themed:not([data-skin]) .ex-modal-cancel:hover,
+html.pg-themed:not([data-skin]) .ex-ct-pos-btn:hover,
+html.pg-themed:not([data-skin]) .pm-prompt-btn.cancel:hover {
+    background: var(--pg-btn-bg-hover);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-text);
+}
+html.pg-themed:not([data-skin]) .ex-modal-cancel:hover { border-color: var(--pg-accent-soft) !important; }
+
+/* primary: Add, Deposit, Take, Buy, Sell (in the shop), Confirm */
+html.pg-themed:not([data-skin]) .btn-submit,
+html.pg-themed:not([data-skin]) .btn-inline-save,
+html.pg-themed:not([data-skin]) .cust-btn-buy,
+html.pg-themed:not([data-skin]) .cust-btn-sell,
+html.pg-themed:not([data-skin]) .ex-modal-confirm-cover,
+html.pg-themed:not([data-skin]) .pm-prompt-btn.confirm {
+    background: var(--pg-btn-primary-bg);
+    border: 1px solid var(--pg-accent-soft);
+    color: var(--pg-text);
+}
+html.pg-themed:not([data-skin]) .ex-modal-confirm-cover { border-color: var(--pg-accent-soft) !important; }
+html.pg-themed:not([data-skin]) .btn-submit:hover,
+html.pg-themed:not([data-skin]) .btn-inline-save:hover,
+html.pg-themed:not([data-skin]) .cust-btn-buy:hover,
+html.pg-themed:not([data-skin]) .cust-btn-sell:hover,
+html.pg-themed:not([data-skin]) .ex-modal-confirm-cover:hover,
+html.pg-themed:not([data-skin]) .pm-prompt-btn.confirm:hover {
+    background: linear-gradient(180deg, var(--pg-accent-glow), rgba(var(--pg-shade-rgb), 0.20));
+    border-color: var(--pg-accent);
+    color: var(--pg-text);
+}
+
+/* danger: Del, Remove, Sell All (every item) */
+html.pg-themed:not([data-skin]) .btn-danger,
+html.pg-themed:not([data-skin]) .btn-outline {
+    background: var(--pg-btn-bg);
+    border: 1px solid rgba(var(--pg-danger-rgb), 0.35);
+    color: var(--pg-danger);
+}
+html.pg-themed:not([data-skin]) .btn-outline { border-color: rgba(var(--pg-danger-rgb), 0.35) !important; color: var(--pg-danger) !important; }  /* inline colours, same meaning */
+html.pg-themed:not([data-skin]) .btn-danger:hover,
+html.pg-themed:not([data-skin]) .btn-outline:hover {
+    background: var(--pg-danger-soft);
+    border-color: var(--pg-danger) !important;
+}
+
+/* caution: Sell All on one row */
+html.pg-themed:not([data-skin]) .cust-btn-sell-all-row {
+    background: var(--pg-btn-bg);
+    border: 1px solid rgba(var(--pg-warning-rgb), 0.35);
+    color: var(--pg-warning);
+}
+html.pg-themed:not([data-skin]) .cust-btn-sell-all-row:hover {
+    background: var(--pg-warning-soft);
+    border-color: var(--pg-warning);
+    color: var(--pg-warning);
+}
+
+/* Exchange trade buttons keep the trading meaning: buy / deposit green,
+   short red, sell / withdraw amber, cover the accent. */
+html.pg-themed:not([data-skin]) .ex-btn-buy,
+html.pg-themed:not([data-skin]) .ex-btn-deposit {
+    background: var(--pg-success-soft);
+    border-color: rgba(var(--pg-success-rgb), 0.35) !important;
+    color: var(--pg-success);
+}
+html.pg-themed:not([data-skin]) .ex-btn-short {
+    background: var(--pg-danger-soft);
+    border-color: rgba(var(--pg-danger-rgb), 0.35);
+    color: var(--pg-danger);
+}
+html.pg-themed:not([data-skin]) .ex-btn-sell,
+html.pg-themed:not([data-skin]) .ex-btn-withdraw {
+    background: var(--pg-warning-soft);
+    border-color: rgba(var(--pg-warning-rgb), 0.35) !important;
+    color: var(--pg-warning);
+}
+html.pg-themed:not([data-skin]) .ex-btn-cover {
+    background: var(--pg-btn-primary-bg);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-accent);
+}
+html.pg-themed:not([data-skin]) .ex-btn-buy:hover,
+html.pg-themed:not([data-skin]) .ex-btn-deposit:hover { background: rgba(var(--pg-success-rgb), 0.24); border-color: var(--pg-success) !important; }
+html.pg-themed:not([data-skin]) .ex-btn-short:hover { background: rgba(var(--pg-danger-rgb), 0.24); border-color: var(--pg-danger); }
+html.pg-themed:not([data-skin]) .ex-btn-sell:hover,
+html.pg-themed:not([data-skin]) .ex-btn-withdraw:hover { background: rgba(var(--pg-warning-rgb), 0.24); border-color: var(--pg-warning) !important; }
+html.pg-themed:not([data-skin]) .ex-btn-cover:hover { border-color: var(--pg-accent); }
+
+html.pg-themed:not([data-skin]) .ex-modal-confirm-buy,
+html.pg-themed:not([data-skin]) .ex-ct-confirm.buy {
+    background: var(--pg-btn-success-bg);
+    border: 1px solid rgba(var(--pg-success-rgb), 0.45) !important;
+    color: var(--pg-success);
+}
+html.pg-themed:not([data-skin]) .ex-modal-confirm-short,
+html.pg-themed:not([data-skin]) .ex-ct-confirm.short {
+    background: var(--pg-btn-danger-bg);
+    border: 1px solid rgba(var(--pg-danger-rgb), 0.45) !important;
+    color: var(--pg-danger);
+}
+html.pg-themed:not([data-skin]) .ex-modal-confirm-sell {
+    background: linear-gradient(180deg, rgba(var(--pg-warning-rgb), 0.30), rgba(var(--pg-shade-rgb), 0.20));
+    border: 1px solid rgba(var(--pg-warning-rgb), 0.45) !important;
+    color: var(--pg-warning);
+}
+html.pg-themed:not([data-skin]) .ex-modal-confirm-buy:hover,
+html.pg-themed:not([data-skin]) .ex-ct-confirm.buy:hover { border-color: var(--pg-success) !important; background: linear-gradient(180deg, rgba(var(--pg-success-rgb), 0.42), rgba(var(--pg-shade-rgb), 0.20)); }
+html.pg-themed:not([data-skin]) .ex-modal-confirm-short:hover,
+html.pg-themed:not([data-skin]) .ex-ct-confirm.short:hover { border-color: var(--pg-danger) !important; background: linear-gradient(180deg, rgba(var(--pg-danger-rgb), 0.42), rgba(var(--pg-shade-rgb), 0.20)); }
+html.pg-themed:not([data-skin]) .ex-modal-confirm-sell:hover { border-color: var(--pg-warning) !important; }
+
+html.pg-themed:not([data-skin]) .ex-ct-pos-btn.sell { color: var(--pg-warning); border-color: rgba(var(--pg-warning-rgb), 0.35); }
+html.pg-themed:not([data-skin]) .ex-ct-pos-btn.sell:hover { background: var(--pg-warning-soft); border-color: var(--pg-warning); color: var(--pg-warning); }
+html.pg-themed:not([data-skin]) .ex-ct-pos-btn.cover { color: var(--pg-accent); border-color: var(--pg-accent-soft); }
+html.pg-themed:not([data-skin]) .ex-ct-pos-btn.cover:hover { background: var(--pg-accent-faint); border-color: var(--pg-accent); color: var(--pg-accent); }
+
+/* Close buttons: a small square plain button */
+html.pg-themed:not([data-skin]) .btn-close,
+html.pg-themed:not([data-skin]) .ex-btn-close {
+    background: var(--pg-btn-bg);
+    border: 1px solid var(--pg-btn-border);
+    color: var(--pg-text);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed:not([data-skin]) .btn-close:hover,
+html.pg-themed:not([data-skin]) .ex-btn-close:hover {
+    background: var(--pg-btn-bg-hover);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-text);
+}
+html.pg-themed:not([data-skin]) .ex-modal-close,
+html.pg-themed:not([data-skin]) .btn-small-cancel { color: var(--pg-text-muted); }
+html.pg-themed:not([data-skin]) .ex-modal-close:hover { color: var(--pg-text); }
+html.pg-themed:not([data-skin]) .btn-small-cancel:hover { color: var(--pg-danger); }
+
+/* ── Inputs ──────────────────────────────────────────────────────── */
+html.pg-themed:not([data-skin]) .input-field,
+html.pg-themed:not([data-skin]) .ex-search-box input,
+html.pg-themed:not([data-skin]) .ex-chart-search,
+html.pg-themed:not([data-skin]) .ex-account-input-row input,
+html.pg-themed:not([data-skin]) .ex-ct-input-group input,
+html.pg-themed:not([data-skin]) .ex-modal-input-group input,
+html.pg-themed:not([data-skin]) .ex-pc-tp-input,
+html.pg-themed:not([data-skin]) .pm-prompt-input {
+    background-color: var(--pg-input-bg);
+    border: 1px solid var(--pg-input-border);
+    color: var(--pg-text);
+    font-family: var(--pg-font-body);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed:not([data-skin]) .input-field:focus,
+html.pg-themed:not([data-skin]) .ex-search-box input:focus,
+html.pg-themed:not([data-skin]) .ex-chart-search:focus,
+html.pg-themed:not([data-skin]) .ex-account-input-row input:focus,
+html.pg-themed:not([data-skin]) .ex-ct-input-group input:focus,
+html.pg-themed:not([data-skin]) .ex-modal-input-group input:focus,
+html.pg-themed:not([data-skin]) .ex-pc-tp-input:focus,
+html.pg-themed:not([data-skin]) .pm-prompt-input:focus {
+    border-color: var(--pg-accent);
+    box-shadow: var(--pg-focus-ring);
+    outline: none;
+}
+html.pg-themed:not([data-skin]) .input-field::placeholder,
+html.pg-themed:not([data-skin]) .ex-search-box input::placeholder,
+html.pg-themed:not([data-skin]) .ex-chart-search::placeholder,
+html.pg-themed:not([data-skin]) .ex-account-input-row input::placeholder,
+html.pg-themed:not([data-skin]) .ex-pc-tp-input::placeholder,
+html.pg-themed:not([data-skin]) .pm-prompt-input::placeholder { color: var(--pg-text-dim); }
+html.pg-themed:not([data-skin]) select.input-field option { background: var(--pg-panel-solid); color: var(--pg-text); }
+html.pg-themed:not([data-skin]) .ex-search-box svg,
+html.pg-themed:not([data-skin]) .ex-chart-search-icon { color: var(--pg-text-muted); }
+html.pg-themed:not([data-skin]) .cust-toggle-label input[type="checkbox"] { accent-color: var(--pg-accent); }
+html.pg-themed:not([data-skin]) .cust-toggle-label,
+html.pg-themed:not([data-skin]) .toggle-label { color: var(--pg-text-soft); }
+
+/* Toggle switch (Settings → Map Blip) */
+html.pg-themed:not([data-skin]) .toggle-slider {
+    background: var(--pg-deep);
+    border: 1px solid var(--pg-border);
+}
+html.pg-themed:not([data-skin]) .toggle-slider::before { background: var(--pg-text-muted); }
+html.pg-themed:not([data-skin]) .toggle-switch input:checked + .toggle-slider {
+    background: var(--pg-accent-faint);
+    border-color: var(--pg-accent-soft);
+}
+html.pg-themed:not([data-skin]) .toggle-switch input:checked + .toggle-slider::before { background: var(--pg-accent); }
+
+/* ── Cards and boxes laid on the panel ───────────────────────────── */
+html.pg-themed:not([data-skin]) .stat-card,
+html.pg-themed:not([data-skin]) .dash-panel,
+html.pg-themed:not([data-skin]) .settings-card,
+html.pg-themed:not([data-skin]) .analytics-chart-panel,
+html.pg-themed:not([data-skin]) .inv-panel,
+html.pg-themed:not([data-skin]) .emp-add-panel,
+html.pg-themed:not([data-skin]) .ex-stat-card,
+html.pg-themed:not([data-skin]) .ex-account-card,
+html.pg-themed:not([data-skin]) .ex-port-card {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed:not([data-skin]) .ex-port-card:hover { border-color: var(--pg-accent-soft); }
+html.pg-themed:not([data-skin]) .ex-port-card.card-profit { border-left: 3px solid var(--pg-success); }
+html.pg-themed:not([data-skin]) .ex-port-card.card-loss   { border-left: 3px solid var(--pg-danger); }
+
+/* wells: balances, summaries */
+html.pg-themed:not([data-skin]) .ledger-balance-card,
+html.pg-themed:not([data-skin]) .ex-balance-card,
+html.pg-themed:not([data-skin]) .ex-modal-summary {
+    background: var(--pg-deep);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+
+/* bars along a panel's edge: toolbars, footers */
+html.pg-themed:not([data-skin]) .inv-toolbar,
+html.pg-themed:not([data-skin]) .cust-toolbar,
+html.pg-themed:not([data-skin]) .ledger-top,
+html.pg-themed:not([data-skin]) .pagination,
+html.pg-themed:not([data-skin]) .cust-sell-total-bar,
+html.pg-themed:not([data-skin]) .cust-grid-selection,
+html.pg-themed:not([data-skin]) .buylist-add-panel,
+html.pg-themed:not([data-skin]) .storage-add-panel,
+html.pg-themed:not([data-skin]) .ex-chart-toolbar,
+html.pg-themed:not([data-skin]) .ex-chart-info-bar,
+html.pg-themed:not([data-skin]) .ex-chart-trade {
+    background: rgba(var(--pg-text-rgb), 0.025);
+    border-color: var(--pg-border-soft);
+}
+
+/* ── Tables ──────────────────────────────────────────────────────── */
+/* the header sticks while rows scroll under it: it needs a solid colour */
+html.pg-themed:not([data-skin]) .listings-table th,
+html.pg-themed:not([data-skin]) .ex-table th {
+    background: var(--pg-raise);
+    border-bottom: 1px solid var(--pg-border);
+}
+html.pg-themed:not([data-skin]) .cust-table-wrapper .listings-table th {
+    box-shadow: 0 -20px 0 var(--pg-raise), 0 -40px 0 var(--pg-raise);
+}
+html.pg-themed:not([data-skin]) .ex-table th:hover { color: var(--pg-text); }
+html.pg-themed:not([data-skin]) .ex-table th.sort-asc,
+html.pg-themed:not([data-skin]) .ex-table th.sort-desc { color: var(--pg-accent); }
+html.pg-themed:not([data-skin]) .listings-table td,
+html.pg-themed:not([data-skin]) .ex-table td { border-bottom-color: var(--pg-border-soft); }
+html.pg-themed:not([data-skin]) .listings-table tbody tr:hover,
+html.pg-themed:not([data-skin]) .ex-table tbody tr:hover { background: var(--pg-surface-hover); }
+html.pg-themed:not([data-skin]) .empty-cell,
+html.pg-themed:not([data-skin]) .empty-state,
+html.pg-themed:not([data-skin]) .ex-empty,
+html.pg-themed:not([data-skin]) .ex-port-empty,
+html.pg-themed:not([data-skin]) .cust-grid-empty,
+html.pg-themed:not([data-skin]) .cust-sel-empty,
+html.pg-themed:not([data-skin]) .ex-chart-empty { color: var(--pg-text-muted); font-style: italic; }
+html.pg-themed:not([data-skin]) .listings-count,
+html.pg-themed:not([data-skin]) .storage-capacity { color: var(--pg-text-muted); }
+
+/* item icons: a small slot */
+html.pg-themed:not([data-skin]) .item-img-sm,
+html.pg-themed:not([data-skin]) .ex-item-cell img,
+html.pg-themed:not([data-skin]) .ex-pc-img {
+    background: var(--pg-slot-bg);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed:not([data-skin]) .customer-container .item-img-sm,
+html.pg-themed:not([data-skin]) .customer-container .cust-sel-item .item-img-sm { border-radius: var(--pg-radius-sm); }
+
+/* ── Rows and lists ──────────────────────────────────────────────── */
+html.pg-themed:not([data-skin]) .top-seller-row:hover { background: var(--pg-surface-hover); }
+html.pg-themed:not([data-skin]) .recent-txn-row:nth-child(even) { background: var(--pg-surface); }
+html.pg-themed:not([data-skin]) .txn-item-name { color: var(--pg-text-soft); }
+html.pg-themed:not([data-skin]) .txn-amount { font-family: var(--pg-font-body); }
+html.pg-themed:not([data-skin]) .txn-time { color: var(--pg-text-muted); }
+
+html.pg-themed:not([data-skin]) .buylist-item,
+html.pg-themed:not([data-skin]) .emp-player-row,
+html.pg-themed:not([data-skin]) .ex-chart-ac-item {
+    color: var(--pg-text-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed:not([data-skin]) .emp-player-row {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-border-soft);
+    color: var(--pg-text);
+}
+html.pg-themed:not([data-skin]) .buylist-item:hover,
+html.pg-themed:not([data-skin]) .emp-player-row:hover,
+html.pg-themed:not([data-skin]) .ex-chart-ac-item:hover,
+html.pg-themed:not([data-skin]) .ex-chart-ac-item.highlighted {
+    background: var(--pg-surface-hover);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-text);
+}
+html.pg-themed:not([data-skin]) .buylist-item.selected,
+html.pg-themed:not([data-skin]) .emp-player-row.selected {
+    background: var(--pg-surface-hover);
+    border-color: var(--pg-accent-soft);
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft);
+    color: var(--pg-text);
+}
+html.pg-themed:not([data-skin]) .emp-player-id { color: var(--pg-text-muted); font-family: var(--pg-font-body); }
+html.pg-themed:not([data-skin]) .emp-hint { color: var(--pg-text-soft); }
+
+html.pg-themed:not([data-skin]) .selected-item-banner {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-accent-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed:not([data-skin]) .item-preview-name { color: var(--pg-accent); font-family: var(--pg-font-display); font-weight: 400; font-size: 15px; letter-spacing: .03em; }
+
+/* ── Pills and badges ────────────────────────────────────────────── */
+html.pg-themed:not([data-skin]) .shop-id-badge {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-border-soft);
+    color: var(--pg-text-soft);
+    border-radius: var(--pg-radius-sm);
+    font-family: var(--pg-font-body);
+}
+html.pg-themed:not([data-skin]) .txn-type-badge,
+html.pg-themed:not([data-skin]) .low-stock-qty,
+html.pg-themed:not([data-skin]) .emp-role-badge,
+html.pg-themed:not([data-skin]) .emp-source-badge,
+html.pg-themed:not([data-skin]) .ex-change,
+html.pg-themed:not([data-skin]) .ex-type-badge,
+html.pg-themed:not([data-skin]) .ex-market-badge,
+html.pg-themed:not([data-skin]) .ex-chart-ac-badge { border-radius: var(--pg-radius-sm); }
+html.pg-themed:not([data-skin]) .ex-change,
+html.pg-themed:not([data-skin]) .low-stock-qty { font-family: var(--pg-font-body); }
+
+html.pg-themed:not([data-skin]) .emp-role-badge.role-owner,
+html.pg-themed:not([data-skin]) .emp-source-job,
+html.pg-themed:not([data-skin]) .ex-type-badge.cover {
+    background: var(--pg-accent-faint);
+    color: var(--pg-accent);
+    border-color: var(--pg-accent-soft);
+}
+/* purchase and manager were blue beside an amber withdraw / manager and
+   a blue owner; with a gold accent they take the info colour so the two
+   stay apart */
+html.pg-themed:not([data-skin]) .txn-purchase { background: var(--pg-info-soft); color: var(--pg-info); border-color: rgba(var(--pg-info-rgb), 0.35); }
+html.pg-themed:not([data-skin]) .emp-role-badge.role-manager { background: var(--pg-info-soft); color: var(--pg-info); }
+html.pg-themed:not([data-skin]) .emp-role-badge.role-employee,
+html.pg-themed:not([data-skin]) .emp-source-direct { background: var(--pg-success-soft); color: var(--pg-success); }
+html.pg-themed:not([data-skin]) .ex-change.flat,
+html.pg-themed:not([data-skin]) .ex-type-badge.deliver { background: var(--pg-surface); color: var(--pg-text-muted); }
+
+/* market kinds: two quiet tints, as the inventory tints its meta boxes */
+html.pg-themed:not([data-skin]) .ex-market-badge.pelt,
+html.pg-themed:not([data-skin]) .ex-chart-ac-badge.pelt { background: var(--pg-warning-soft); color: var(--pg-warning); }
+html.pg-themed:not([data-skin]) .ex-market-badge.metal,
+html.pg-themed:not([data-skin]) .ex-chart-ac-badge.metal { background: var(--pg-info-soft); color: var(--pg-info); }
+
+/* the notes under a trade: slippage */
+html.pg-themed:not([data-skin]) .ex-modal-summary-row.note,
+html.pg-themed:not([data-skin]) .ex-ct-summary-row.note { color: var(--pg-warning); }
+
+/* ── Analytics: the revenue bars ─────────────────────────────────── */
+html.pg-themed:not([data-skin]) .chart-container { background: transparent; }
+html.pg-themed:not([data-skin]) .chart-bar {
+    background: linear-gradient(180deg, var(--pg-accent) 0%, var(--pg-accent-soft) 100%);
+    border-radius: var(--pg-radius-sm) var(--pg-radius-sm) 0 0;
+}
+html.pg-themed:not([data-skin]) .chart-bar:hover { background: linear-gradient(180deg, var(--pg-accent-hi) 0%, var(--pg-accent-glow) 100%); }
+html.pg-themed:not([data-skin]) .chart-bar-value { color: var(--pg-text-soft); font-family: var(--pg-font-body); }
+html.pg-themed:not([data-skin]) .chart-bar-label { color: var(--pg-text-muted); font-family: var(--pg-font-body); }
+
+/* ── Customer shop: grid ─────────────────────────────────────────── */
+html.pg-themed:not([data-skin]) .cust-grid-tile {
+    background: var(--pg-slot-bg);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed:not([data-skin]) .cust-grid-tile:hover {
+    background: var(--pg-slot-bg);
+    border-color: var(--pg-accent-soft);
+}
+html.pg-themed:not([data-skin]) .cust-grid-tile.selected {
+    background: var(--pg-slot-bg);
+    border-color: var(--pg-accent);
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft);
+}
+html.pg-themed:not([data-skin]) .customer-container .cust-grid-tile .item-img-sm { background: transparent; border-color: transparent; }
+html.pg-themed:not([data-skin]) .cust-grid-qty {
+    background: rgba(var(--pg-deep-rgb), 0.85);
+    color: var(--pg-text);
+    font-family: var(--pg-font-body);
+    box-shadow: 0 0 0 1px var(--pg-border);
+}
+html.pg-themed:not([data-skin]) .cust-grid-tip {
+    background: var(--pg-popup-bg);
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius-sm);
+    box-shadow: var(--pg-shadow-strong);
+}
+html.pg-themed:not([data-skin]) .cust-grid-tip::after {
+    background: var(--pg-raise);
+    border-right-color: var(--pg-border);
+    border-bottom-color: var(--pg-border);
+}
+html.pg-themed:not([data-skin]) .cust-grid-tip-name {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    font-size: 14px;
+    color: var(--pg-text);
+}
+html.pg-themed:not([data-skin]) .cust-grid-tip-price { font-family: var(--pg-font-body); }
+html.pg-themed:not([data-skin]) .cust-sel-name {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    font-size: 16px;
+    letter-spacing: .03em;
+    color: var(--pg-text);
+}
+html.pg-themed:not([data-skin]) .cust-sel-val { font-family: var(--pg-font-body); }
+html.pg-themed:not([data-skin]) .cust-stock-low,
+html.pg-themed:not([data-skin]) .cust-sel-val.cust-stock-low { color: var(--pg-warning); }
+html.pg-themed:not([data-skin]) .cust-stock-out,
+html.pg-themed:not([data-skin]) .cust-sel-val.cust-stock-out { color: var(--pg-danger); }
+
+/* ── Exchange: portfolio, chart, trade sidebar ───────────────────── */
+html.pg-themed:not([data-skin]) .ex-pc-header { border-bottom-color: var(--pg-border-soft); }
+html.pg-themed:not([data-skin]) .ex-pc-row { border-bottom-color: var(--pg-border-soft); color: var(--pg-text-soft); }
+html.pg-themed:not([data-skin]) .ex-pc-row span:last-child { font-family: var(--pg-font-body); }
+html.pg-themed:not([data-skin]) .ex-pc-tp-row.tp-hit { background: var(--pg-success-soft); border-radius: var(--pg-radius-sm); }
+html.pg-themed:not([data-skin]) .ex-pc-tp-prefix { color: var(--pg-text-muted); }
+html.pg-themed:not([data-skin]) .ex-pc-pnl-pct { font-family: var(--pg-font-body); }
+
+html.pg-themed:not([data-skin]) .ex-chart-ac {
+    background: var(--pg-popup-bg);
+    border: 1px solid var(--pg-border);
+    border-radius: 0 0 var(--pg-radius-sm) var(--pg-radius-sm);
+    box-shadow: var(--pg-shadow-strong);
+}
+html.pg-themed:not([data-skin]) .ex-chart-ac-name { font-family: var(--pg-font-display); font-weight: 400; font-size: 14px; }
+html.pg-themed:not([data-skin]) .ex-chart-ac-price { color: var(--pg-accent); }
+html.pg-themed:not([data-skin]) .ex-chart-current-price { color: var(--pg-accent); }
+html.pg-themed:not([data-skin]) .ex-ct-header,
+html.pg-themed:not([data-skin]) .ex-ct-tabs { border-bottom-color: var(--pg-border-soft); }
+html.pg-themed:not([data-skin]) .ex-ct-item-label { color: var(--pg-text-muted); font-family: var(--pg-font-body); }
+html.pg-themed:not([data-skin]) .ex-ct-summary,
+html.pg-themed:not([data-skin]) .ex-ct-summary-row.total { border-color: var(--pg-border-soft); }
+html.pg-themed:not([data-skin]) .ex-ct-summary-row { font-family: var(--pg-font-body); }
+html.pg-themed:not([data-skin]) .ex-ct-divider { background: var(--pg-border-soft); }
+html.pg-themed:not([data-skin]) .ex-modal-summary-row { font-family: var(--pg-font-body); }
+html.pg-themed:not([data-skin]) .ex-modal-summary-row.total { border-top-color: var(--pg-border-soft); }
+
+/* Colours exchange.js writes into element.style: re-pointed by the
+   colour Chromium keeps in the style attribute. */
+html.pg-themed:not([data-skin]) #ex-panel-chart [style*="34, 197, 94"] { color: var(--pg-success) !important; }
+html.pg-themed:not([data-skin]) #ex-panel-chart [style*="239, 68, 68"] { color: var(--pg-danger) !important; }
+html.pg-themed:not([data-skin]) #ex-panel-chart [style*="99, 140, 255"] { color: var(--pg-accent) !important; }
+
+/* ── Modal, prompt, toasts ───────────────────────────────────────── */
+html.pg-themed:not([data-skin]) .ex-modal-overlay,
+html.pg-themed:not([data-skin]) .pm-prompt-overlay { background: var(--pg-veil); }
+html.pg-themed:not([data-skin]) .ex-modal,
+html.pg-themed:not([data-skin]) .pm-prompt-box {
+    background: var(--pg-popup-bg);
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius);
+    box-shadow: var(--pg-shadow-strong);
+}
+html.pg-themed:not([data-skin]) .ex-modal-header,
+html.pg-themed:not([data-skin]) .ex-modal-footer { border-color: var(--pg-border-soft); }
+html.pg-themed:not([data-skin]) .ex-modal-row-label { color: var(--pg-text-soft); }
+
+html.pg-themed:not([data-skin]) .ex-toast {
+    background: var(--pg-popup-bg);
+    border-radius: var(--pg-radius-sm);
+    box-shadow: var(--pg-shadow);
+    font-family: var(--pg-font-body);
+}
+html.pg-themed:not([data-skin]) .ex-toast.success { border-color: rgba(var(--pg-success-rgb), 0.45); color: var(--pg-success); }
+html.pg-themed:not([data-skin]) .ex-toast.error   { border-color: rgba(var(--pg-danger-rgb), 0.45);  color: var(--pg-danger); }
+
+/* the page's own scrollbar rules (theme.css draws the Poggy one) */
+html.pg-themed:not([data-skin]) #exchange-container ::-webkit-scrollbar-thumb { background: var(--pg-accent-soft); border-radius: 0; }
+html.pg-themed:not([data-skin]) #exchange-container ::-webkit-scrollbar-thumb:hover { background: var(--pg-accent); }

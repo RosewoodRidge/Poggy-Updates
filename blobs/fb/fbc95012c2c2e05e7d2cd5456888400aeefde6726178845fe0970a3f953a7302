@@ -1,0 +1,194 @@
+/* ================================================================
+   poggy_banking — the Poggy skin (poggy_core ui/hub/theme.js loads it)
+
+   Covers the one page (ui/index.html): the bank counter (Counter, Wires,
+   Statement, Safe Box, Loans, Gazette, Banker's Desk, Ledger) and the
+   Treasury office (home, and the sitting: Briefing, Petitions, Ledger,
+   Decision, Signing), the toasts and the loading spinner.
+
+   Today the page is drawn in CSS, not with pictures: the counter as a
+   parchment ledger, the office in walnut. Both become the Poggy panel. The
+   script keeps its colours in variables (on :root, and again on
+   .ledger.office): those are re-pointed first, then the rules that name
+   colours directly.
+
+   Left alone on purpose, because they are pictures of things:
+   - the portraits (img/cast/<key>.png, and their initials-on-leather
+     stand-in while the art is missing);
+   - the vault door (.vault__door, .vault__wheel);
+   - the signed minute (.document: a sheet of paper) and the wax seal (.wax).
+   Kept by meaning: gains green, losses red, the verdicts (ruin red, strain
+   amber, steady accent, prosperity green, fever amber), loan stamps.
+   ================================================================ */
+
+html.pg-themed .ledger,
+html.pg-themed .ledger.office {
+    --paper:   var(--pg-panel-solid);
+    --paper-2: var(--pg-btn-bg);
+    --paper-3: var(--pg-btn-bg-hover);
+    --ink:     var(--pg-text);
+    --ink-2:   var(--pg-text-soft);
+    --ink-3:   var(--pg-text-muted);
+    --rule:    var(--pg-border);
+    --rule-2:  var(--pg-border-soft);
+    --wax:     var(--pg-accent);
+    --wax-2:   var(--pg-accent-hi);
+    --brass:   var(--pg-accent);
+    --green:   var(--pg-success);
+    --font:    var(--pg-font-body);
+}
+html.pg-themed body { font-family: var(--pg-font-body); color: var(--pg-text); }
+html.pg-themed #app::before { background: var(--pg-veil); }
+
+/* ── the panel (counter and office alike) ── */
+html.pg-themed .ledger,
+html.pg-themed .ledger.office {
+    background: var(--pg-panel-bg);
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius);
+    box-shadow: var(--pg-shadow);
+    color: var(--pg-text);
+}
+html.pg-themed .ledger::after { border-color: transparent; }
+html.pg-themed .masthead { border-bottom-color: var(--pg-border); }
+html.pg-themed .masthead h1 { font-family: var(--pg-font-display); font-weight: 400; letter-spacing: .04em; color: var(--pg-text); }
+html.pg-themed .masthead__eyebrow,
+html.pg-themed .masthead__cash .label { font-family: var(--pg-font-display); color: var(--pg-text-muted); letter-spacing: .12em; }
+html.pg-themed .masthead__holder { color: var(--pg-text-soft); }
+html.pg-themed .masthead__cash .money { color: var(--pg-accent); }
+html.pg-themed .money { font-family: var(--pg-font-body); }
+html.pg-themed .index { border-color: var(--pg-border-soft); background: var(--pg-surface); border-radius: var(--pg-radius-sm); color: var(--pg-text-soft); font-family: var(--pg-font-body); }
+html.pg-themed .verdict { font-family: var(--pg-font-display); font-weight: 400; }
+
+html.pg-themed .close {
+    background: var(--pg-btn-bg); border: 1px solid var(--pg-btn-border); color: var(--pg-text);
+    border-radius: var(--pg-radius-sm); font-family: var(--pg-font-body);
+}
+html.pg-themed .close:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); color: var(--pg-text); }
+
+/* ── tabs: the bank's, and the sitting's rooms ── */
+html.pg-themed .tabs { border-bottom-color: var(--pg-border-soft); }
+html.pg-themed .tabs button,
+html.pg-themed .sit-rail button { font-family: var(--pg-font-display); font-weight: 400; color: var(--pg-text-muted); }
+html.pg-themed .tabs button:hover,
+html.pg-themed .sit-rail button:hover { color: var(--pg-text); }
+html.pg-themed .tabs button.active,
+html.pg-themed .sit-rail button.active { color: var(--pg-accent); border-bottom-color: var(--pg-accent); }
+html.pg-themed .tabs button.staff { color: var(--pg-text-soft); }
+html.pg-themed .tabs button.staff.active { color: var(--pg-accent); }
+html.pg-themed .sit-rail button.done { color: var(--pg-text-soft); }
+html.pg-themed .sit-head { border-bottom-color: var(--pg-border-soft); }
+
+/* ── headings and labels ── */
+html.pg-themed .ledger h2 { font-family: var(--pg-font-display); font-weight: 400; color: var(--pg-text-muted); border-bottom-color: var(--pg-border-soft); letter-spacing: .12em; }
+html.pg-themed .ledger h2 .muted { font-family: var(--pg-font-body); }
+html.pg-themed .ledger h3,
+html.pg-themed .notice h4 { font-family: var(--pg-font-display); font-weight: 400; letter-spacing: .04em; }
+html.pg-themed .flows h4,
+html.pg-themed .charts figcaption,
+html.pg-themed .form label,
+html.pg-themed .statement th { font-family: var(--pg-font-display); font-weight: 400; color: var(--pg-text-muted); }
+
+/* ── accounts, wires, standings: rows ── */
+html.pg-themed .accounts li,
+html.pg-themed .wires li,
+html.pg-themed .standings li,
+html.pg-themed .flows li { border-bottom-color: var(--pg-border-soft); }
+html.pg-themed .accounts li.here { background: var(--pg-accent-faint); border-left-color: var(--pg-accent); }
+html.pg-themed .accounts li .money { color: var(--pg-accent); }
+html.pg-themed .accounts li.closed .money { color: var(--pg-text-muted); }
+html.pg-themed .wires li .money { color: var(--pg-danger); }
+html.pg-themed .wires li.in .money { color: var(--pg-success); }
+html.pg-themed .standing.low { color: var(--pg-danger); }
+html.pg-themed .standing.high { color: var(--pg-success); }
+
+/* ── inputs (counter and office) ── */
+html.pg-themed .form input, html.pg-themed .form select,
+html.pg-themed .toolbar input, html.pg-themed .toolbar select,
+html.pg-themed .ledger.office .form input, html.pg-themed .ledger.office .form select,
+html.pg-themed .ledger.office .toolbar input,
+html.pg-themed .pnote .row input {
+    background: var(--pg-input-bg); border: 1px solid var(--pg-input-border); color: var(--pg-text);
+    font-family: var(--pg-font-body); border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .form input::placeholder,
+html.pg-themed .pnote .row input::placeholder { color: var(--pg-text-dim); }
+html.pg-themed .form input:focus, html.pg-themed .form select:focus,
+html.pg-themed .toolbar input:focus, html.pg-themed .toolbar select:focus,
+html.pg-themed .pnote .row input:focus { border-color: var(--pg-accent); box-shadow: var(--pg-focus-ring); outline: none; }
+html.pg-themed .form select option,
+html.pg-themed .toolbar select option { background: var(--pg-panel-solid); color: var(--pg-text); }
+
+/* ── buttons ── */
+html.pg-themed .btn {
+    background: var(--pg-btn-bg); border: 1px solid var(--pg-btn-border); color: var(--pg-text);
+    border-radius: var(--pg-radius-sm); font-family: var(--pg-font-display); font-weight: 400; letter-spacing: .07em;
+}
+html.pg-themed .btn:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); }
+html.pg-themed .btn.primary,
+html.pg-themed .btn.seal { background: var(--pg-btn-primary-bg); border-color: var(--pg-accent-soft); color: var(--pg-text); }
+html.pg-themed .btn.primary:hover,
+html.pg-themed .btn.seal:hover { background: var(--pg-btn-primary-bg); border-color: var(--pg-accent); }
+html.pg-themed .btn.danger { color: var(--pg-danger); border-color: rgba(var(--pg-danger-rgb), 0.45); }
+html.pg-themed .btn.danger:hover { background: var(--pg-btn-danger-bg); border-color: var(--pg-danger); color: var(--pg-text); }
+html.pg-themed .btn[disabled] { opacity: .45; }
+/* A button beside an input on one line: the display font is wider, so it
+   keeps its words on one line rather than breaking "Look up" in two. */
+html.pg-themed .form.inline .btn { white-space: nowrap; }
+html.pg-themed .quick button {
+    background: var(--pg-btn-bg); border-color: var(--pg-btn-border); color: var(--pg-text-soft);
+    border-radius: var(--pg-radius-sm); font-family: var(--pg-font-body);
+}
+html.pg-themed .quick button:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); color: var(--pg-text); }
+
+/* ── the statement and the office ledger ── */
+html.pg-themed .statement th { border-bottom-color: var(--pg-border); }
+html.pg-themed .statement td { border-bottom-color: var(--pg-border-soft); }
+html.pg-themed .statement td.pos { color: var(--pg-success); }
+html.pg-themed .statement td.neg { color: var(--pg-danger); }
+html.pg-themed .statement .kind { font-family: var(--pg-font-display); color: var(--pg-text-soft); }
+
+/* ── loans (promissory notes), cards, notices, petitions, levers ── */
+html.pg-themed .pnote,
+html.pg-themed .ledger.office .pnote,
+html.pg-themed .card,
+html.pg-themed .office-call,
+html.pg-themed .petition,
+html.pg-themed .lever,
+html.pg-themed .notice,
+html.pg-themed .ledger:not(.office) .notice {
+    background: var(--pg-surface); border-color: var(--pg-border-soft); border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .pnote,
+html.pg-themed .petition { border-left-color: var(--pg-accent-soft); }
+html.pg-themed .office-call { border-left-color: var(--pg-accent); }
+html.pg-themed .petition.answered { border-left-color: var(--pg-border-strong); }
+html.pg-themed .petition .reply { border-top-color: var(--pg-border-soft); }
+html.pg-themed .notice { border-top: 3px double var(--pg-border-strong); }
+html.pg-themed .pnote .stamp { border-radius: var(--pg-radius-sm); font-family: var(--pg-font-display); }
+html.pg-themed .pnote .stamp.active { color: var(--pg-success); }
+html.pg-themed .pnote .stamp.defaulted { color: var(--pg-danger); }
+html.pg-themed .pnote .stamp.paid { color: var(--pg-text-muted); }
+html.pg-themed .tag { border-color: var(--pg-border-soft); border-radius: var(--pg-radius-sm); color: var(--pg-text-muted); background: var(--pg-surface); }
+html.pg-themed .lever__ctl b { font-family: var(--pg-font-body); }
+html.pg-themed .lever__ctl b.changed { color: var(--pg-accent); }
+
+/* ── the sitting: verdicts, charts, trends ── */
+html.pg-themed .verdict.v-ruin, html.pg-themed .v-ruin b { color: var(--pg-danger); }
+html.pg-themed .verdict.v-strain, html.pg-themed .v-strain b { color: var(--pg-warning); }
+html.pg-themed .verdict.v-steady, html.pg-themed .v-steady b { color: var(--pg-accent); }
+html.pg-themed .verdict.v-prosperity, html.pg-themed .v-prosperity b { color: var(--pg-success); }
+html.pg-themed .verdict.v-fever, html.pg-themed .v-fever b { color: var(--pg-warning); }
+html.pg-themed .charts figure { background: var(--pg-slot-bg); border-color: var(--pg-border-soft); border-radius: var(--pg-radius-sm); }
+html.pg-themed .spark path { stroke: var(--pg-accent); }
+html.pg-themed .spark__ref { stroke: var(--pg-text-dim); }
+html.pg-themed .spark__lbl,
+html.pg-themed .spark__empty { fill: var(--pg-text-muted); font-family: var(--pg-font-body); }
+html.pg-themed .figures td.dir.up { color: var(--pg-success); }
+html.pg-themed .figures td.dir.down { color: var(--pg-danger); }
+
+/* ── feedback ── */
+html.pg-themed .foot { border-top-color: var(--pg-border-soft); color: var(--pg-text-muted); }
+html.pg-themed .toast { color: var(--pg-danger); }
+html.pg-themed .toast.ok { color: var(--pg-success); }
+html.pg-themed .loading span { border-color: rgba(var(--pg-text-rgb), 0.25); border-top-color: var(--pg-accent); }

@@ -1,0 +1,279 @@
+/* ================================================================
+   Poggy theme skin: poggy_emotes (ui/index.html)
+
+   Covers the emote menu: header (mark, title, count, close), search row
+   (search, clear, Props only), the category column, the emote list (play
+   preview button, name, search highlight, Prop tag, /e command, star,
+   keyboard cursor, playing row), the Nearby list (group headings, walk
+   marks, carry / Blocked / place tags, the dev block button and its
+   in-row question), the empty text and the footer (Keep menu open switch,
+   hint, Stop emote).
+
+   The script keeps its colours in CSS variables, so those are re-pointed
+   first; the rules below fix what names a colour directly.
+
+   Left alone on purpose: nothing here is image art. The round play button,
+   the round search-clear and the pill switch keep their shape (they are
+   shapes, not corners). Meaning kept: Stop emote, block and Blocked stay
+   the danger colour.
+   ================================================================ */
+
+html.pg-themed {
+    --gold:          var(--pg-accent);
+    --gold-light:    var(--pg-accent-hi);
+    --gold-dim:      rgba(var(--pg-accent-rgb), 0.80);
+    --bg-panel:      var(--pg-panel);
+    --bg-section:    var(--pg-surface);
+    --bg-hover:      var(--pg-surface-hover);
+    --bg-input:      var(--pg-input-bg);
+    --border:        var(--pg-border-soft);
+    --border-strong: var(--pg-accent-soft);
+    --text:          var(--pg-text);
+    --text-muted:    var(--pg-text-muted);
+    --text-dim:      var(--pg-text-dim);
+    --red:           var(--pg-danger);
+    --btn-text:      var(--pg-on-accent);
+    --radius:        var(--pg-radius);
+    --radius-sm:     var(--pg-radius-sm);
+    --serif:         var(--pg-font-display);
+    --sans:          var(--pg-font-body);
+}
+
+/* ── the panel ── */
+html.pg-themed .panel {
+    background: var(--pg-panel-bg);
+    border-color: var(--pg-border);
+    box-shadow: var(--pg-shadow);
+}
+
+/* ── header ── */
+html.pg-themed .panel-header { background: transparent; }
+html.pg-themed .header-mark { color: var(--pg-accent); }
+html.pg-themed .header-title {
+    line-height: 19.3px;        /* the old line box (17px Georgia) */
+    font-weight: 400;
+    letter-spacing: .04em;
+    color: var(--pg-text);
+}
+html.pg-themed .header-count { font-family: var(--pg-font-body); }
+html.pg-themed .header-close {
+    background: var(--pg-btn-bg);
+    border-color: var(--pg-btn-border);
+    color: var(--pg-text-muted);
+}
+html.pg-themed .header-close:hover {
+    background: var(--pg-danger-soft);
+    border-color: rgba(var(--pg-danger-rgb), 0.40);
+    color: var(--pg-danger);
+}
+
+/* ── search row ── */
+html.pg-themed #search {
+    border-color: var(--pg-input-border);
+    background: var(--pg-input-bg);
+}
+html.pg-themed #search:focus {
+    border-color: var(--pg-accent);
+    background: var(--pg-input-bg);
+    box-shadow: var(--pg-focus-ring);
+}
+html.pg-themed .search-clear { background: var(--pg-surface-strong); }
+html.pg-themed .search-clear:hover { background: var(--pg-accent-faint); color: var(--pg-accent); }
+
+html.pg-themed .filter {
+    background: var(--pg-btn-bg);
+    border-color: var(--pg-btn-border);
+    color: var(--pg-text-soft);
+    font-family: var(--pg-font-display);
+    font-size: 13px;
+    line-height: 15px;
+    /* Title case, not the house uppercase: the button is a fixed 86px and
+       "PROPS ONLY" in spaced capitals filled it edge to edge. */
+    text-transform: none;
+    letter-spacing: .02em;
+}
+html.pg-themed .filter:hover {
+    background: var(--pg-btn-bg-hover);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-text);
+}
+html.pg-themed .filter.on {
+    background: var(--pg-accent-faint);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-accent);
+    font-weight: 400;
+}
+
+/* ── categories ── */
+html.pg-themed .cat {
+    font-family: var(--pg-font-display);
+    font-size: 12.5px;          /* the display font runs small */
+    line-height: 15px;        /* the old line box (11.5px Segoe UI), so nothing moves */
+    letter-spacing: .03em;
+}
+html.pg-themed .cat:hover { background: var(--pg-surface-hover); color: var(--pg-text); }
+html.pg-themed .cat.active {
+    background: var(--pg-accent-faint);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-accent);
+    font-weight: 400;
+}
+
+/* ── the list ── */
+html.pg-themed .emote:hover { background: var(--pg-surface-hover); }
+html.pg-themed .emote.cursor {
+    background: var(--pg-accent-faint);
+    border-color: var(--pg-accent-soft);
+}
+/* The name stays in the body font: emote names are full of numbers
+   (Dance 1 ... Dance 21) and the display font's old-style 1 reads as "I". */
+html.pg-themed .emote-label { font-family: var(--pg-font-body); }
+html.pg-themed .emote.playing .emote-label { color: var(--pg-accent); }
+html.pg-themed .emote-label mark {
+    background: var(--pg-accent-soft);
+    color: var(--pg-text);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .emote-cmd { font-family: var(--pg-font-mono); }
+html.pg-themed .emote:hover .emote-cmd,
+html.pg-themed .emote.cursor .emote-cmd { color: var(--pg-text-muted); }
+
+html.pg-themed .watch {
+    border-color: var(--pg-accent-soft);
+    background: var(--pg-accent-faint);
+    color: var(--pg-accent);
+}
+html.pg-themed .watch:hover,
+html.pg-themed .watch.on {
+    background: var(--pg-accent);
+    border-color: var(--pg-accent-hi);
+    color: var(--pg-on-accent);
+}
+
+html.pg-themed .tag {
+    background: var(--pg-surface);
+    border-color: var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text-muted);
+    font-family: var(--pg-font-body);
+}
+html.pg-themed .tag-prop,
+html.pg-themed .tag-nearby,
+html.pg-themed .tag-chain {
+    background: var(--pg-accent-faint);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-accent);
+}
+html.pg-themed .tag-blocked {
+    background: var(--pg-danger-soft);
+    border-color: rgba(var(--pg-danger-rgb), 0.40);
+    color: var(--pg-danger);
+}
+
+html.pg-themed .star { color: var(--pg-text-muted); }
+html.pg-themed .star:hover { background: var(--pg-surface-hover); color: var(--pg-accent); }
+html.pg-themed .star.on { color: var(--pg-accent); }
+
+/* ── nearby ── */
+html.pg-themed .group-head { border-top-color: var(--pg-border-soft); }
+html.pg-themed .group-name {
+    line-height: 13px;          /* holds the heading to its old height (12px Georgia, baseline-aligned) */
+    color: var(--pg-accent);
+    letter-spacing: .07em;
+}
+html.pg-themed .group-dist { font-family: var(--pg-font-body); color: var(--pg-text-muted); }
+html.pg-themed .walk { color: rgba(var(--pg-accent-rgb), 0.80); }
+html.pg-themed .emote:hover .walk,
+html.pg-themed .emote.cursor .walk { color: var(--pg-accent); }
+html.pg-themed .nearby-row.blocked .emote-label { color: var(--pg-text-dim); }
+html.pg-themed .nearby-row.blocked .walk { color: var(--pg-danger); }
+
+html.pg-themed .block { color: var(--pg-text-muted); }
+html.pg-themed .block:hover {
+    background: var(--pg-danger-soft);
+    border-color: rgba(var(--pg-danger-rgb), 0.40);
+    color: var(--pg-danger);
+}
+html.pg-themed .block.on { color: var(--pg-accent); }
+html.pg-themed .block.on:hover {
+    background: var(--pg-accent-faint);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-accent);
+}
+
+html.pg-themed .confirm-text { color: var(--pg-danger); font-family: var(--pg-font-body); }
+/* The block question sits in the row beside the emote's name; its three
+   buttons ran past the panel's edge. Body font and tighter padding keep
+   them inside it. */
+html.pg-themed .confirm { gap: 4px; max-width: none; min-width: 0; flex-shrink: 1; }
+html.pg-themed .emote-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.pg-themed .confirm-yes, html.pg-themed .confirm-all, html.pg-themed .confirm-no {
+    font-family: var(--pg-font-body);
+    font-size: 11px;
+    padding: 2px 6px;
+    white-space: nowrap;
+}
+html.pg-themed .confirm-yes {
+    border-color: rgba(var(--pg-danger-rgb), 0.50);
+    background: var(--pg-btn-danger-bg);
+    color: var(--pg-text);
+}
+html.pg-themed .confirm-yes:hover {
+    background: var(--pg-btn-danger-bg);
+    border-color: var(--pg-danger);
+}
+html.pg-themed .confirm-all {
+    border-color: rgba(var(--pg-danger-rgb), 0.40);
+    background: var(--pg-btn-bg);
+    color: var(--pg-danger);
+}
+html.pg-themed .confirm-all:hover { background: var(--pg-danger-soft); color: var(--pg-danger); }
+html.pg-themed .confirm-no {
+    border-color: var(--pg-btn-border);
+    background: var(--pg-btn-bg);
+    color: var(--pg-text-muted);
+}
+html.pg-themed .confirm-no:hover {
+    background: var(--pg-btn-bg-hover);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-text);
+}
+
+html.pg-themed .empty { color: var(--pg-text-muted); }
+
+/* ── footer ── */
+html.pg-themed .panel-footer {
+    background: var(--pg-surface);
+    border-top-color: var(--pg-border-soft);
+}
+html.pg-themed .btn-stop {
+    border-color: rgba(var(--pg-danger-rgb), 0.40);
+    background: var(--pg-danger-soft);
+    color: var(--pg-danger);
+    font-family: var(--pg-font-display);
+    font-size: 12.5px;
+    line-height: 15px;
+    letter-spacing: .03em;      /* mixed case: an uppercase label would take the hint's room */
+}
+html.pg-themed .btn-stop:hover {
+    background: rgba(var(--pg-danger-rgb), 0.26);
+    border-color: var(--pg-danger);
+    color: var(--pg-danger);
+}
+
+html.pg-themed .switch-track {
+    border-color: var(--pg-accent-soft);
+    background: var(--pg-input-bg);
+}
+html.pg-themed .switch-knob { background: var(--pg-text-muted); }
+html.pg-themed .switch input:checked + .switch-track {
+    background: var(--pg-accent-soft);
+    border-color: var(--pg-accent);
+}
+html.pg-themed .switch input:checked + .switch-track .switch-knob { background: var(--pg-accent-hi); }
+html.pg-themed .switch-text {
+    font-family: var(--pg-font-display);
+    font-size: 12px;
+    line-height: 15px;
+    letter-spacing: .02em;
+}

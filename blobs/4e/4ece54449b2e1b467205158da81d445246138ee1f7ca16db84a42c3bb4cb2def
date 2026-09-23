@@ -1,0 +1,584 @@
+/* ================================================================
+   Poggy theme skin: poggy_util (ui/index.html)
+
+   Covers:
+   - the /help guide (help.css): header, search, close, back, the category
+     grid and its hero tile, a category's page (sections, steps, tips,
+     commands), search results, the I'M STUCK button, the footer, and the
+     two rich section types (drug-crafting pipeline, medicine grid);
+   - the HUD (music.css, clock.css): the area-of-play lines, the duty
+     count, the clock and weather line;
+   - the armour HUD's move-mode hint and the armour repair bar (inline
+     styles in index.html, hence !important there).
+
+   Left alone on purpose:
+   - the armour durability icon and shield (img/meter, img/armor.png) and
+     the server logo in the help header: image art;
+   - item icons in the help pages (they come from the inventory);
+   - emoji (sun, moon, weather, tips' bulb, the location pin);
+   - the hidden YouTube player (music.css draws nothing visible).
+
+   Colours the config picks and this skin overrides so the page keeps one
+   accent: each help category's `color`, each drug's `color` and each
+   medicine condition's `color` (config/help.lua). Meaning is kept where the
+   page has it: law red = danger, doctor blue = info, health gains = success,
+   warnings = warning, I'M STUCK = danger.
+
+   HUD text used to float straight over the game world. Text in the theme's
+   colour cannot be read over the world on a light theme (Ledger), so the
+   area-of-play block and the repair bar get a panel behind them. It is
+   drawn with a box-shadow spread (flat panel colour, then a 1px edge), so
+   nothing moves.
+   ================================================================ */
+
+html.pg-themed {
+    --util-chip:
+        0 0 0 10px var(--pg-panel),
+        0 0 0 11px var(--pg-border),
+        var(--pg-shadow);
+}
+
+/* ── Help: overlay ───────────────────────────────────────────── */
+html.pg-themed #help-overlay {
+    background: var(--pg-panel-bg);
+    font-family: var(--pg-font-body);
+    color: var(--pg-text);
+}
+html.pg-themed #help-overlay::before,
+html.pg-themed #help-overlay::after {
+    background: none;
+}
+
+/* ── Help: header ────────────────────────────────────────────── */
+html.pg-themed #help-brand {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: 0.07em;
+    color: var(--pg-text);
+}
+
+html.pg-themed #help-search {
+    background: var(--pg-input-bg);
+    border: 1px solid var(--pg-input-border);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text);
+    font-family: var(--pg-font-body);
+}
+html.pg-themed #help-search::placeholder { color: var(--pg-text-dim); }
+html.pg-themed #help-search:focus {
+    border-color: var(--pg-accent);
+    background: var(--pg-input-bg);
+    box-shadow: var(--pg-focus-ring);
+    outline: none;
+}
+
+html.pg-themed #help-close {
+    background: var(--pg-btn-bg);
+    border: 1px solid var(--pg-btn-border);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text);
+}
+html.pg-themed #help-close:hover {
+    background: var(--pg-btn-bg-hover);
+    border-color: var(--pg-accent-soft);
+    color: var(--pg-text);
+}
+
+/* ── Help: breadcrumb ────────────────────────────────────────── */
+html.pg-themed #help-back {
+    background: var(--pg-btn-bg);
+    border: 1px solid var(--pg-btn-border);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text);
+    font-family: var(--pg-font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
+html.pg-themed #help-back:hover {
+    background: var(--pg-btn-bg-hover);
+    border-color: var(--pg-accent-soft);
+}
+html.pg-themed #help-breadcrumb-title {
+    font-family: var(--pg-font-display);
+    color: var(--pg-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
+
+/* ── Help: scrolling body ────────────────────────────────────── */
+html.pg-themed #help-body {
+    scrollbar-color: var(--pg-accent-soft) transparent;
+}
+html.pg-themed #help-body::-webkit-scrollbar-track { background: rgba(var(--pg-shade-rgb), 0.2); }
+html.pg-themed #help-body::-webkit-scrollbar-thumb { background: var(--pg-accent-soft); border-radius: 0; }
+html.pg-themed #help-body::-webkit-scrollbar-thumb:hover { background: var(--pg-accent); }
+
+/* ── Help: category tiles ────────────────────────────────────── */
+html.pg-themed .help-node {
+    background: var(--pg-slot-bg);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius);
+}
+html.pg-themed .help-node::before { border-radius: var(--pg-radius); }
+html.pg-themed .help-node:hover { background: var(--pg-slot-bg); }
+html.pg-themed .help-node:hover::before {
+    border-color: var(--pg-accent-soft);
+    box-shadow: none;
+}
+
+/* The icon's colour is the category's config colour, written inline. */
+html.pg-themed .help-node-icon,
+html.pg-themed #help-detail-icon,
+html.pg-themed .help-search-group-icon {
+    color: var(--pg-accent) !important;
+    background: var(--pg-accent-faint) !important;
+    border-radius: var(--pg-radius);
+}
+html.pg-themed .help-node:hover .help-node-icon { filter: none; }
+
+html.pg-themed .help-node-label {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-text);
+    letter-spacing: 0.07em;
+}
+html.pg-themed .help-node-subtitle {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-muted);
+}
+
+html.pg-themed .help-item mark,
+html.pg-themed .help-node-label mark,
+html.pg-themed .help-search-group-title mark,
+html.pg-themed .help-search-item mark {
+    background: none;
+    color: var(--pg-accent);
+    font-weight: 700;
+}
+
+/* ── Help: a category's page ─────────────────────────────────── */
+html.pg-themed #help-detail-title {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: var(--pg-text);
+}
+
+html.pg-themed .help-section {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius);
+}
+html.pg-themed .help-section-title {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-text-muted);
+    letter-spacing: 0.07em;
+    border-bottom: 1px solid var(--pg-border-soft);
+}
+
+html.pg-themed .help-item {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-soft);
+}
+html.pg-themed .help-item-bullet { background: var(--pg-accent-soft); }
+html.pg-themed .help-section[data-type="steps"] .help-item-bullet {
+    background: var(--pg-accent-faint);
+    border: 1px solid var(--pg-accent-soft);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-accent);
+    font-family: var(--pg-font-body);
+}
+html.pg-themed .help-section[data-type="tips"] .help-item-bullet { background: none; }
+html.pg-themed .help-section[data-type="commands"] .help-item {
+    font-family: var(--pg-font-mono);
+    color: var(--pg-text-soft);
+}
+
+/* ── Help: search results ────────────────────────────────────── */
+html.pg-themed .help-search-group-title {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-text);
+    letter-spacing: 0.07em;
+}
+html.pg-themed .help-search-item {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-soft);
+}
+html.pg-themed .help-search-item-dot { background: var(--pg-accent-soft); }
+html.pg-themed .help-empty {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-muted);
+}
+
+/* ── Help: I'M STUCK (a filled danger button) ────────────────── */
+@keyframes pgUtilUnstuckPulse {
+    0%, 100% { box-shadow: var(--pg-shadow); }
+    50%      { box-shadow: var(--pg-shadow), 0 0 0 1px rgba(var(--pg-danger-rgb), 0.45); }
+}
+html.pg-themed #help-unstuck {
+    background: var(--pg-btn-danger-bg), var(--pg-panel);
+    border-color: rgba(var(--pg-danger-rgb), 0.55);
+    border-radius: var(--pg-radius);
+    box-shadow: var(--pg-shadow);
+    animation-name: pgUtilUnstuckPulse;
+}
+html.pg-themed #help-unstuck::before {
+    border-radius: var(--pg-radius);
+    background: linear-gradient(180deg, rgba(var(--pg-text-rgb), 0.06), transparent 40%);
+}
+html.pg-themed #help-unstuck:hover {
+    background: linear-gradient(180deg, rgba(var(--pg-danger-rgb), 0.42), rgba(var(--pg-shade-rgb), 0.20)), var(--pg-panel);
+    border-color: var(--pg-danger);
+    box-shadow: var(--pg-shadow);
+}
+html.pg-themed #help-unstuck:active { box-shadow: var(--pg-shadow); }
+html.pg-themed #help-unstuck-icon {
+    color: var(--pg-danger);
+    filter: none;
+}
+html.pg-themed #help-unstuck-text {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-text);
+    text-shadow: none;
+}
+html.pg-themed #help-unstuck-hint {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-soft);
+}
+
+html.pg-themed #help-footer {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-dim);
+}
+
+/* ── Help: drug-crafting pipeline ────────────────────────────── */
+/* Each drug's config colour is written inline as --dc; one accent instead. */
+html.pg-themed .dc-drug-tab,
+html.pg-themed .dc-main,
+html.pg-themed .dc-pipeline {
+    --dc: var(--pg-accent) !important;
+}
+
+html.pg-themed .dc-note {
+    background: var(--pg-danger-soft);
+    border: 1px solid rgba(var(--pg-danger-rgb), 0.30);
+    border-left: 3px solid rgba(var(--pg-danger-rgb), 0.65);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text-soft);
+    font-family: var(--pg-font-body);
+}
+
+html.pg-themed .dc-drug-tab {
+    background: var(--pg-slot-bg);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius);
+}
+html.pg-themed .dc-drug-tab::before { border-radius: var(--pg-radius); }
+html.pg-themed .dc-drug-tab.active::before {
+    border-color: var(--pg-accent-soft);
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft);
+}
+html.pg-themed .dc-drug-tab.active { background: var(--pg-slot-bg); }
+html.pg-themed .dc-drug-tab:hover:not(.active) { background: var(--pg-slot-bg); border-color: var(--pg-accent-soft); }
+html.pg-themed .dc-drug-tab.active .dc-tab-img-wrap::after { background: none; }
+html.pg-themed .dc-tab-img-wrap img,
+html.pg-themed .dc-drug-tab.active .dc-tab-img-wrap img,
+html.pg-themed .dc-profile-img,
+html.pg-themed .dc-output-img-wrap img {
+    filter: drop-shadow(0 1px 3px rgba(var(--pg-shade-rgb), 0.7));
+}
+html.pg-themed .dc-tab-name {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-muted);
+}
+html.pg-themed .dc-drug-tab.active .dc-tab-name { color: var(--pg-accent); }
+
+html.pg-themed .dc-profile {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius);
+}
+html.pg-themed .dc-profile-glow { background: none; }
+html.pg-themed .dc-profile-glow-ring { border-color: var(--pg-border-soft); }
+html.pg-themed .dc-profile-glow-ring::after { border-color: var(--pg-border-soft); }
+html.pg-themed .dc-profile-name {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: 0.07em;
+    color: var(--pg-accent);
+    text-shadow: none;
+}
+html.pg-themed .dc-profile-desc {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text);
+}
+html.pg-themed .dc-stat {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .dc-stat-label {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-muted);
+}
+html.pg-themed .dc-stat-value {
+    font-family: var(--pg-font-body);
+    color: var(--pg-accent);
+}
+html.pg-themed .dc-profile-section {
+    background: var(--pg-deep);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .dc-profile-section-label {
+    font-family: var(--pg-font-body);
+    color: var(--pg-accent);
+}
+html.pg-themed .dc-profile-section-text {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-soft);
+}
+
+html.pg-themed .dc-step {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius);
+}
+html.pg-themed .dc-step::before {
+    background: linear-gradient(90deg, transparent, var(--pg-accent-soft) 30%, var(--pg-accent-glow) 50%, var(--pg-accent-soft) 70%, transparent);
+}
+html.pg-themed .dc-step-badge {
+    background: var(--pg-accent-faint);
+    border: 1px solid var(--pg-accent-soft);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-accent);
+    font-family: var(--pg-font-body);
+}
+html.pg-themed .dc-step-name {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-text);
+}
+html.pg-themed .dc-step-location {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-muted);
+}
+
+html.pg-themed .dc-ingredients {
+    background: var(--pg-deep);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .dc-plus { color: var(--pg-text-dim); }
+html.pg-themed .dc-ingredient-img-wrap {
+    background: var(--pg-slot-bg);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .dc-ingredient-img-wrap img { filter: drop-shadow(0 1px 3px rgba(var(--pg-shade-rgb), 0.7)); }
+html.pg-themed .dc-ingredient-count,
+html.pg-themed .dc-output-count {
+    background: var(--pg-raise);
+    border: 1px solid var(--pg-accent-soft);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-accent);
+    font-family: var(--pg-font-body);
+}
+html.pg-themed .dc-ingredient-name {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-soft);
+}
+
+html.pg-themed .dc-yield-line { background: var(--pg-border-soft); }
+html.pg-themed .dc-yield-label {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-muted);
+}
+html.pg-themed .dc-yield-arrow { color: var(--pg-accent-glow); }
+
+html.pg-themed .dc-output {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-accent-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .dc-output-glow { background: none; }
+html.pg-themed .dc-output-name {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-accent);
+    text-shadow: none;
+}
+
+html.pg-themed .dc-connector-track { background: var(--pg-border-soft); }
+html.pg-themed .dc-connector-dot {
+    background: var(--pg-accent);
+    box-shadow: none;
+}
+
+/* ── Help: medicine grid ─────────────────────────────────────── */
+html.pg-themed .med-card {
+    background: var(--pg-slot-bg);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius);
+}
+html.pg-themed .med-card::before {
+    background: linear-gradient(90deg, transparent, var(--pg-accent-soft), transparent);
+}
+html.pg-themed .med-card:hover {
+    background: var(--pg-slot-bg);
+    border-color: var(--pg-accent-soft);
+}
+html.pg-themed .med-card-doctor {
+    border-color: rgba(var(--pg-info-rgb), 0.30);
+    background: var(--pg-slot-bg);
+}
+html.pg-themed .med-card-doctor::before {
+    background: linear-gradient(90deg, transparent, rgba(var(--pg-info-rgb), 0.5), transparent);
+}
+html.pg-themed .med-card-doctor:hover { border-color: rgba(var(--pg-info-rgb), 0.55); }
+
+html.pg-themed .med-card-img-glow,
+html.pg-themed .med-card-doctor .med-card-img-glow { background: none; }
+html.pg-themed .med-card-img-wrap img,
+html.pg-themed .med-card:hover .med-card-img-wrap img,
+html.pg-themed .med-card-doctor:hover .med-card-img-wrap img {
+    filter: drop-shadow(0 2px 6px rgba(var(--pg-shade-rgb), 0.7));
+}
+
+html.pg-themed .med-doctor-badge {
+    background: var(--pg-info-soft);
+    border: 1px solid rgba(var(--pg-info-rgb), 0.35);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-info);
+    font-family: var(--pg-font-body);
+}
+html.pg-themed .med-card-name {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-text);
+}
+html.pg-themed .med-card-desc {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-muted);
+}
+
+/* Each condition's config colour is written inline as --cc. */
+html.pg-themed .med-condition {
+    --cc: var(--pg-accent) !important;
+    background: var(--pg-accent-faint);
+    border: 1px solid var(--pg-accent-soft);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-accent);
+    font-family: var(--pg-font-body);
+}
+
+html.pg-themed .med-stat {
+    background: var(--pg-deep);
+    border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .med-stat-label {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-muted);
+}
+html.pg-themed .med-stat-value {
+    font-family: var(--pg-font-body);
+    color: var(--pg-success);
+}
+html.pg-themed .med-stat-body { color: var(--pg-accent); }
+html.pg-themed .med-stat-perm { color: var(--pg-info); }
+html.pg-themed .med-stat-warn .med-stat-label,
+html.pg-themed .med-stat-warn .med-stat-value { color: var(--pg-warning); }
+
+/* ── HUD: area of play + duty count (music.css) ──────────────── */
+html.pg-themed #aop-display {
+    background: var(--pg-panel);
+    box-shadow: var(--util-chip);
+}
+html.pg-themed #aop-text,
+html.pg-themed #aop-players {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: var(--pg-text);
+    text-shadow: none;
+}
+html.pg-themed #aop-help {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-soft);
+    text-shadow: none;
+}
+html.pg-themed #duty-law,
+html.pg-themed #duty-doc,
+html.pg-themed #duty-sep {
+    font-family: var(--pg-font-body);
+    text-shadow: none;
+}
+html.pg-themed #duty-law { color: var(--pg-danger); }
+html.pg-themed #duty-doc { color: var(--pg-info); }
+html.pg-themed #duty-sep { color: var(--pg-text-muted); }
+
+/* ── HUD: clock and weather (clock.css) ──────────────────────── */
+html.pg-themed #clock-time-text,
+html.pg-themed #clock-weather-text {
+    font-family: var(--pg-font-body);
+    text-shadow: none;
+}
+html.pg-themed #clock-time-text { color: var(--pg-text); }
+html.pg-themed #clock-weather-text { color: var(--pg-text-soft); }
+html.pg-themed #clock-divider { color: var(--pg-text-dim); }
+
+/* Time of day keeps its tint, from the theme's own colours. */
+html.pg-themed #clock-widget.daytime #clock-time-text    { color: var(--pg-text); }
+html.pg-themed #clock-widget.daytime #clock-weather-text { color: var(--pg-text-soft); }
+html.pg-themed #clock-widget.daytime #clock-divider      { color: var(--pg-text-dim); }
+
+html.pg-themed #clock-widget.sunrise #clock-time-text    { color: var(--pg-warning); }
+html.pg-themed #clock-widget.sunrise #clock-weather-text { color: rgba(var(--pg-warning-rgb), 0.82); }
+html.pg-themed #clock-widget.sunrise #clock-divider      { color: rgba(var(--pg-warning-rgb), 0.35); }
+
+html.pg-themed #clock-widget.sunset #clock-time-text     { color: var(--pg-accent); }
+html.pg-themed #clock-widget.sunset #clock-weather-text  { color: rgba(var(--pg-accent-rgb), 0.82); }
+html.pg-themed #clock-widget.sunset #clock-divider       { color: var(--pg-accent-soft); }
+
+html.pg-themed #clock-widget.nighttime #clock-time-text    { color: var(--pg-info); }
+html.pg-themed #clock-widget.nighttime #clock-weather-text { color: rgba(var(--pg-info-rgb), 0.82); }
+html.pg-themed #clock-widget.nighttime #clock-divider      { color: rgba(var(--pg-info-rgb), 0.35); }
+
+/* ── Armour: move-mode hint (inline styles in index.html) ────── */
+html.pg-themed #armor-move-hint {
+    background: var(--pg-popup-bg) !important;
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius-sm) !important;
+    box-shadow: var(--pg-shadow-strong);
+    color: var(--pg-text) !important;
+    font-family: var(--pg-font-display) !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.07em !important;
+    text-shadow: none !important;
+}
+
+/* ── Armour: repair bar (inline styles in index.html) ────────── */
+html.pg-themed #armor-repair-wrapper {
+    background: var(--pg-panel);
+    box-shadow: var(--util-chip);
+}
+html.pg-themed #armor-repair-label {
+    color: var(--pg-text) !important;
+    font-family: var(--pg-font-display) !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.12em !important;
+    text-shadow: none !important;
+}
+html.pg-themed #armor-repair-track {
+    background: var(--pg-deep) !important;
+    border-radius: var(--pg-radius-sm) !important;
+    box-shadow: inset 0 0 0 1px var(--pg-border-soft), 0 2px 8px rgba(var(--pg-shade-rgb), 0.4) !important;
+}
+html.pg-themed #armor-repair-fill {
+    background-image: linear-gradient(90deg, var(--pg-accent) 0%, var(--pg-accent-hi) 50%, var(--pg-accent) 100%) !important;
+    border-radius: var(--pg-radius-sm) !important;
+}

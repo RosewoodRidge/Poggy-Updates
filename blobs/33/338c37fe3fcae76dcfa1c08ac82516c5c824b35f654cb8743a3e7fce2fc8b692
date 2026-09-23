@@ -1,0 +1,55 @@
+/* ================================================================
+   Poggy theme skin: poggy_skillcheck (ui/index.html)
+
+   Covers the skill check's chrome: the key label in the ring, the
+   streak counter, and the hit flashes (good = success, great = accent,
+   fail = danger) and the fail tint.
+
+   Left alone on purpose: the ring itself. It is a <canvas> painted by
+   skillcheck.js with fixed colours (grey track, white hit zone, gold
+   great zone, red needle, dark hub), which CSS cannot reach. The zone
+   colours are the game's meaning (hit here, hit here for a great), so
+   they stay as they are either way. The heavy black drop shadow round
+   the ring stays too: it is a shadow, black on every theme.
+
+   The ring is always dark (canvas + black shadow), so the streak counter
+   gets a small chip of its own, drawn with a box-shadow spread so nothing
+   moves; text in the theme's colour would vanish into the ring on Ledger.
+   ================================================================ */
+
+html.pg-themed #skillcheck-key {
+    background: var(--pg-popup-bg);
+    border: 1px solid var(--pg-border-strong);
+    border-radius: var(--pg-radius-sm);
+    box-shadow: var(--pg-shadow);
+    color: var(--pg-text);
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: 0.07em;
+    text-shadow: none;
+}
+
+html.pg-themed #skillcheck-streak {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-soft);
+    text-shadow: none;
+    background: var(--pg-raise);
+    box-shadow:
+        0 0 0 3px var(--pg-raise),
+        0 0 0 4px var(--pg-border);
+}
+html.pg-themed #skillcheck-streak:empty {
+    background: none;
+    box-shadow: none;
+}
+
+html.pg-themed #skillcheck-flash.flash-good  { box-shadow: inset 0 0 40px rgba(var(--pg-success-rgb), 0.45); }
+html.pg-themed #skillcheck-flash.flash-great { box-shadow: inset 0 0 40px rgba(var(--pg-accent-rgb), 0.55); }
+html.pg-themed #skillcheck-flash.flash-fail  { box-shadow: inset 0 0 60px rgba(var(--pg-danger-rgb), 0.60); }
+
+html.pg-themed #skillcheck-fail-tint {
+    background: radial-gradient(circle,
+        rgba(var(--pg-danger-rgb), 0.35) 0%,
+        rgba(var(--pg-danger-rgb), 0.18) 70%,
+        transparent 100%);
+}

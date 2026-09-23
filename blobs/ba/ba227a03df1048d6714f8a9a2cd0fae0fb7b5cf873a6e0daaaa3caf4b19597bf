@@ -1,0 +1,295 @@
+/* ================================================================
+   Poggy theme skin: poggy_animtool (ui/index.html)
+
+   Covers: the top bar (project bar, save/open/new/import, undo/redo,
+   export), the project dropdown, the Library panel (search, breadcrumb,
+   preview bar, animation list, favourites), the Inspector (props list,
+   add-prop dialog, project overview, clip editor, prop editor: sliders,
+   keyframe list), the timeline chrome (transport, ruler, lane labels,
+   animation clip blocks, hold/trim handles), the export / import /
+   confirm / help modals, toasts and the loading veil.
+
+   Left alone on purpose (they encode something):
+   - each prop's colour (dot, lane dot, bar: set inline by the script
+     from its PROP_COLORS list; it tells props apart);
+   - keyframe diamonds and their easing shapes/colours (--kf orange,
+     hold grey, ease-in/out pale), and the orange edge/tint of the
+     Auto-key button and the "on keyframe" status line: orange means
+     "keyframe" everywhere (only keyframe TEXT takes --pg-warning, to
+     stay readable on Ledger);
+   - the red playhead;
+   - meaning colours: toasts' ok / warn / error edge, errors, the
+     unsaved-changes dot (now the theme's success/warning/danger).
+   The animation clip blocks were the script's accent (blue): they take
+   the theme's accent.
+   ================================================================ */
+
+/* ── the script's own variables, re-pointed ──────────────────────── */
+html.pg-themed {
+    --bg:        var(--pg-panel);
+    --bg-2:      var(--pg-raise);
+    --bg-3:      linear-gradient(var(--pg-surface-hover), var(--pg-surface-hover)), var(--pg-raise);
+    --bg-input:  var(--pg-input-bg);
+    --line:      var(--pg-border-soft);
+    --line-2:    var(--pg-border);
+    --text:      var(--pg-text);
+    --text-dim:  var(--pg-text-muted);
+    --text-faint:var(--pg-text-dim);
+    --accent:    var(--pg-accent);
+    --accent-2:  var(--pg-accent-hi);
+    --accent-bg: var(--pg-accent-faint);
+    --ok:        var(--pg-success);
+    --warn:      var(--pg-warning);
+    --err:       var(--pg-danger);
+    --radius:    var(--pg-radius-sm);
+    --font:      var(--pg-font-body);
+    --mono:      var(--pg-font-mono);
+}
+
+/* the script's scrollbar has a 2px transparent border: the theme's thin bar needs it gone */
+html.pg-themed ::-webkit-scrollbar-thumb { border: 0; background-clip: border-box; }
+
+html.pg-themed select option { background: var(--pg-panel-solid); color: var(--pg-text); }
+
+/* ── buttons ─────────────────────────────────────────────────────── */
+html.pg-themed .btn {
+    border-radius: var(--pg-radius-sm);
+    font-family: var(--pg-font-display); font-weight: 400;
+    text-transform: uppercase; letter-spacing: .07em;
+}
+html.pg-themed .btn-ghost { background: var(--pg-btn-bg); border-color: var(--pg-btn-border); color: var(--pg-text); }
+html.pg-themed .btn-ghost:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); color: var(--pg-text); }
+html.pg-themed .btn-accent { background: var(--pg-btn-primary-bg); border-color: var(--pg-accent-soft); color: var(--pg-text); }
+html.pg-themed .btn-accent:hover { background: var(--pg-btn-primary-bg); border-color: var(--pg-accent); color: var(--pg-text); }
+html.pg-themed .btn-danger { background: var(--pg-btn-danger-bg); border-color: rgba(var(--pg-danger-rgb), 0.35); color: var(--pg-danger); }
+html.pg-themed .btn-danger:hover { background: var(--pg-btn-danger-bg); border-color: var(--pg-danger); color: var(--pg-text); }
+html.pg-themed button:disabled { opacity: .45; }
+
+html.pg-themed .mini { border-radius: var(--pg-radius-sm); }
+html.pg-themed .mini:hover { background: var(--pg-surface-hover); }
+
+html.pg-themed .badge {
+    background: var(--pg-surface); color: var(--pg-text-soft);
+    box-shadow: inset 0 0 0 1px var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm); font-family: var(--pg-font-body);
+}
+
+/* ── top bar ─────────────────────────────────────────────────────── */
+html.pg-themed #topbar { background: var(--pg-panel-bg); border-bottom-color: var(--pg-border); }
+html.pg-themed .logo { font-family: var(--pg-font-display); font-weight: 400; letter-spacing: .14em; color: var(--pg-text); }
+html.pg-themed .logo b { font-weight: 400; color: var(--pg-accent); }
+html.pg-themed .project-bar { background: var(--pg-surface); border-color: var(--pg-border-soft); border-radius: var(--pg-radius-sm); }
+html.pg-themed .dirty-dot { border-color: var(--pg-border-strong); }
+html.pg-themed .dirty-dot.on { background: var(--pg-warning); border-color: var(--pg-warning); box-shadow: 0 0 6px rgba(var(--pg-warning-rgb), 0.6); }
+
+html.pg-themed #projectName,
+html.pg-themed .search-wrap input,
+html.pg-themed .add-dialog input,
+html.pg-themed .insp-row select,
+html.pg-themed .insp-row input[type=number],
+html.pg-themed .insp-row input[type=text],
+html.pg-themed .slider-row input[type=number],
+html.pg-themed .kf-actions select {
+    background: var(--pg-input-bg); border: 1px solid var(--pg-input-border);
+    color: var(--pg-text); font-family: var(--pg-font-body); border-radius: var(--pg-radius-sm);
+}
+html.pg-themed #projectName:focus,
+html.pg-themed .search-wrap input:focus,
+html.pg-themed .add-dialog input:focus,
+html.pg-themed .insp-row input:focus,
+html.pg-themed .insp-row select:focus,
+html.pg-themed .slider-row input[type=number]:focus,
+html.pg-themed .kf-actions select:focus { border-color: var(--pg-accent); box-shadow: var(--pg-focus-ring); outline: none; }
+html.pg-themed input::placeholder,
+html.pg-themed textarea::placeholder { color: var(--pg-text-dim); }
+
+html.pg-themed .dropdown {
+    background: var(--pg-popup-bg); border-color: var(--pg-border);
+    border-radius: var(--pg-radius); box-shadow: var(--pg-shadow-strong);
+}
+html.pg-themed .dd-item { border-radius: var(--pg-radius-sm); }
+html.pg-themed .dd-item:hover { background: var(--pg-surface-hover); box-shadow: inset 0 0 0 1px var(--pg-accent-soft); }
+
+/* ── panels ──────────────────────────────────────────────────────── */
+html.pg-themed .panel { background: var(--pg-panel-bg); }
+html.pg-themed #leftPanel { border-right-color: var(--pg-border); }
+html.pg-themed #rightPanel { border-left-color: var(--pg-border); }
+html.pg-themed .panel-handle { border-color: var(--pg-border); color: var(--pg-text-muted); }
+html.pg-themed #leftPanel .panel-handle { border-radius: 0 var(--pg-radius-sm) var(--pg-radius-sm) 0; }
+html.pg-themed #rightPanel .panel-handle { border-radius: var(--pg-radius-sm) 0 0 var(--pg-radius-sm); }
+html.pg-themed .panel-handle:hover { color: var(--pg-accent); border-color: var(--pg-accent-soft); }
+
+html.pg-themed .panel-title,
+html.pg-themed .section-toggle,
+html.pg-themed .section-label {
+    font-family: var(--pg-font-display); font-weight: 400; letter-spacing: .07em; color: var(--pg-text-muted);
+}
+html.pg-themed .section-toggle:hover { color: var(--pg-text); }
+html.pg-themed .section-label .insp-hint { font-family: var(--pg-font-body); }
+
+/* ── library ─────────────────────────────────────────────────────── */
+html.pg-themed .result-count { font-family: var(--pg-font-body); }
+html.pg-themed .bc-segment, html.pg-themed .bc-clear { border-radius: var(--pg-radius-sm); }
+html.pg-themed .bc-segment:hover { background: var(--pg-surface-hover); }
+html.pg-themed .bc-clear:hover { background: var(--pg-surface-hover); color: var(--pg-danger); }
+
+html.pg-themed .preview-bar { background: var(--pg-accent-faint); border-color: var(--pg-accent-soft); border-radius: var(--pg-radius-sm); }
+html.pg-themed .preview-icon { color: var(--pg-accent); }
+html.pg-themed .preview-bar.idle { background: var(--pg-surface); border-color: var(--pg-border-soft); }
+
+html.pg-themed .anim-list { background: rgba(var(--pg-deep-rgb), 0.55); border-color: var(--pg-border-soft); border-radius: var(--pg-radius-sm); }
+html.pg-themed .anim-folder:hover,
+html.pg-themed .anim-dict:hover { background: var(--pg-surface-hover); }
+html.pg-themed .anim-dict.open { background: var(--pg-accent-faint); border-left-color: var(--pg-accent); }
+html.pg-themed .anim-clip:hover { background: var(--pg-surface-hover); }
+html.pg-themed .anim-clip.previewing { background: rgba(var(--pg-accent-rgb), 0.22); color: var(--pg-text); }
+html.pg-themed .anim-clip.previewing .anim-clip-icon { color: var(--pg-accent); }
+html.pg-themed .anim-score {
+    color: var(--pg-accent); background: var(--pg-accent-faint);
+    border-radius: var(--pg-radius-sm); font-family: var(--pg-font-body);
+}
+html.pg-themed .fav-item { border-radius: var(--pg-radius-sm); }
+html.pg-themed .fav-item:hover { background: var(--pg-surface-hover); }
+
+/* ── inspector ───────────────────────────────────────────────────── */
+html.pg-themed .add-dialog { background: var(--pg-surface); border-color: var(--pg-border-soft); border-radius: var(--pg-radius-sm); }
+html.pg-themed .prop-sug-item { border-radius: var(--pg-radius-sm); }
+html.pg-themed .prop-sug-item:hover,
+html.pg-themed .prop-sug-item.active { background: var(--pg-surface-hover); box-shadow: inset 0 0 0 1px var(--pg-accent-soft); color: var(--pg-text); }
+
+html.pg-themed .prop-item { background: var(--pg-surface); border-radius: var(--pg-radius-sm); }
+html.pg-themed .prop-item:hover { background: var(--pg-surface-hover); }
+html.pg-themed .prop-item.selected { background: var(--pg-accent-faint); border-left-color: var(--pg-accent); box-shadow: inset 0 0 0 1px var(--pg-accent-soft); }
+
+html.pg-themed .insp-title { font-family: var(--pg-font-display); font-weight: 400; letter-spacing: .04em; color: var(--pg-text); }
+html.pg-themed .insp-kind {
+    font-family: var(--pg-font-display); font-weight: 400; letter-spacing: .07em;
+    color: var(--pg-accent); background: var(--pg-accent-faint);
+    box-shadow: inset 0 0 0 1px var(--pg-accent-soft); border-radius: var(--pg-radius-sm);
+}
+html.pg-themed .insp-val,
+html.pg-themed .insp-hint,
+html.pg-themed .insp-name { font-family: var(--pg-font-body); }
+html.pg-themed .insp-error {
+    color: var(--pg-danger); background: var(--pg-danger-soft);
+    border-color: rgba(var(--pg-danger-rgb), 0.35); border-radius: var(--pg-radius-sm);
+}
+html.pg-themed #peStepLabel { color: var(--pg-accent); font-family: var(--pg-font-body); }
+
+html.pg-themed .kf-status { background: var(--pg-surface); border-radius: var(--pg-radius-sm); }
+html.pg-themed .kf-row { border-radius: var(--pg-radius-sm); }
+html.pg-themed .kf-row:hover { background: var(--pg-surface-hover); }
+html.pg-themed .kf-row.selected { background: var(--pg-accent-faint); }
+html.pg-themed .tips b { color: var(--pg-text); }
+
+/* Keyframe orange stays on the diamonds, edges and backgrounds; where it
+   colours TEXT it takes the theme's warning colour, so it stays readable on
+   a light theme. */
+html.pg-themed .kf-time,
+html.pg-themed .kf-status.on-kf,
+html.pg-themed .mini.on,
+html.pg-themed #tpAutoKey.on { color: var(--pg-warning); }
+
+html.pg-themed input[type=range] { background: rgba(var(--pg-text-rgb), 0.14); }
+html.pg-themed input[type=range]::-webkit-slider-thumb { background: var(--pg-accent); box-shadow: 0 0 0 2px rgba(var(--pg-shade-rgb), 0.35); }
+html.pg-themed input[type=range]::-webkit-slider-thumb:hover { background: var(--pg-accent-hi); }
+
+/* ── modals ──────────────────────────────────────────────────────── */
+html.pg-themed .modal-backdrop { background: var(--pg-veil); }
+html.pg-themed .modal-card {
+    background: var(--pg-popup-bg); border-color: var(--pg-border);
+    border-radius: var(--pg-radius); box-shadow: var(--pg-shadow-strong);
+}
+html.pg-themed .modal-header { font-family: var(--pg-font-display); font-weight: 400; letter-spacing: .04em; color: var(--pg-text); font-size: 14px; }
+html.pg-themed .modal-body { font-family: var(--pg-font-body); color: var(--pg-text); }
+html.pg-themed .modal-card textarea { background: var(--pg-input-bg); color: var(--pg-text); font-family: var(--pg-font-mono); }
+html.pg-themed .export-tabs { background: transparent; border-radius: 0; }
+html.pg-themed .export-tab {
+    font-family: var(--pg-font-display); font-weight: 400; letter-spacing: .04em;
+    color: var(--pg-text-muted); background: transparent; border-radius: 0;
+}
+html.pg-themed .export-tab:hover { color: var(--pg-text); }
+html.pg-themed .export-tab.active { color: var(--pg-accent); background: transparent; box-shadow: inset 0 -2px 0 var(--pg-accent); }
+html.pg-themed .help-grid b { color: var(--pg-accent); }
+
+/* ── toasts / loading ────────────────────────────────────────────── */
+html.pg-themed .toast {
+    background: var(--pg-popup-bg); border-color: var(--pg-border); color: var(--pg-text);
+    border-radius: var(--pg-radius-sm); box-shadow: var(--pg-shadow);
+    font-family: var(--pg-font-body);
+}
+html.pg-themed .toast,
+html.pg-themed .toast.info { border-left-color: var(--pg-accent); }
+html.pg-themed .toast.ok { border-left-color: var(--pg-success); }
+html.pg-themed .toast.warn { border-left-color: var(--pg-warning); }
+html.pg-themed .toast.error { border-left-color: var(--pg-danger); }
+html.pg-themed .toast-btn {
+    background: var(--pg-btn-primary-bg); border-color: var(--pg-accent-soft); color: var(--pg-text);
+    border-radius: var(--pg-radius-sm); font-family: var(--pg-font-display); font-weight: 400;
+    text-transform: uppercase; letter-spacing: .07em;
+}
+html.pg-themed .toast-btn:hover { background: var(--pg-btn-primary-bg); border-color: var(--pg-accent); color: var(--pg-text); }
+html.pg-themed #loading { background: var(--pg-veil); color: var(--pg-text); font-family: var(--pg-font-display); }
+html.pg-themed .spinner { border-color: var(--pg-border-strong); border-top-color: var(--pg-accent); }
+
+/* ── timeline chrome ─────────────────────────────────────────────── */
+html.pg-themed #timeline { background: var(--pg-panel-bg); border-top-color: var(--pg-border); }
+html.pg-themed .tl-resize::after { background: var(--pg-border-strong); border-radius: 0; }
+html.pg-themed .tl-resize:hover::after { background: var(--pg-accent); }
+
+html.pg-themed .tbtn { border-radius: var(--pg-radius-sm); }
+html.pg-themed .tbtn:hover { background: var(--pg-surface-hover); }
+html.pg-themed .tbtn.play { background: var(--pg-btn-bg); border-color: var(--pg-btn-border); color: var(--pg-text); }
+html.pg-themed .tbtn.play:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); }
+html.pg-themed .tbtn.play.on { background: var(--pg-btn-primary-bg); border-color: var(--pg-accent); color: var(--pg-accent); }
+html.pg-themed .tbtn.toggle.on { color: var(--pg-accent); background: var(--pg-accent-faint); border-color: var(--pg-accent-soft); }
+html.pg-themed #tpFit { font-family: var(--pg-font-display); text-transform: uppercase; letter-spacing: .07em; }
+html.pg-themed .tl-slider b { color: var(--pg-accent); font-family: var(--pg-font-body); }
+
+html.pg-themed .tl-body { background: rgba(var(--pg-deep-rgb), 0.45); }
+html.pg-themed .tl-ruler,
+html.pg-themed .tl-ruler-corner { background: var(--pg-raise); }
+html.pg-themed .tl-tick { background: rgba(var(--pg-text-rgb), 0.14); }
+html.pg-themed .tl-tick.major { background: rgba(var(--pg-text-rgb), 0.30); }
+html.pg-themed .tl-tick.end { background: rgba(var(--pg-text-rgb), 0.25); }
+
+html.pg-themed .tl-lane.anim-lane { background: rgba(var(--pg-accent-rgb), 0.03); }
+html.pg-themed .tl-lane.prop-lane.selected { background: rgba(var(--pg-accent-rgb), 0.06); }
+html.pg-themed .tl-lane-label { background: var(--pg-raise); }
+html.pg-themed .prop-lane .tl-lane-label:hover { background: linear-gradient(var(--pg-surface-hover), var(--pg-surface-hover)), var(--pg-raise); }
+html.pg-themed .tl-lane-track { background-image: linear-gradient(to right, rgba(var(--pg-text-rgb), 0.03) 1px, transparent 1px); }
+
+/* animation clip blocks: the script's accent, now the theme's */
+html.pg-themed .tl-clip {
+    background: linear-gradient(180deg, rgba(var(--pg-accent-rgb), 0.38), rgba(var(--pg-accent-rgb), 0.24));
+    border-color: rgba(var(--pg-accent-rgb), 0.70);
+    border-radius: var(--pg-radius-sm);
+    box-shadow: 0 1px 3px rgba(var(--pg-shade-rgb), 0.35);
+}
+html.pg-themed .tl-clip.selected { border-color: var(--pg-text); box-shadow: 0 0 0 1px rgba(var(--pg-text-rgb), 0.7), 0 2px 8px rgba(var(--pg-shade-rgb), 0.5); }
+html.pg-themed .tl-clip.pending {
+    background: repeating-linear-gradient(45deg, rgba(var(--pg-text-rgb), 0.05) 0 8px, rgba(var(--pg-text-rgb), 0.10) 8px 16px);
+    border-color: var(--pg-border-strong);
+}
+html.pg-themed .tl-clip.error { background: rgba(var(--pg-danger-rgb), 0.25); border-color: rgba(var(--pg-danger-rgb), 0.7); }
+html.pg-themed .tl-clip.disabled { background: var(--pg-surface-strong); border-color: var(--pg-border-strong); }
+html.pg-themed .tl-clip-name { color: var(--pg-text); }
+html.pg-themed .tl-clip-dict { color: var(--pg-text-muted); font-family: var(--pg-font-body); }
+html.pg-themed .tl-clip-meta { color: var(--pg-text-soft); font-family: var(--pg-font-body); }
+html.pg-themed .tl-clip.error .tl-clip-meta { color: var(--pg-danger); }
+html.pg-themed .tl-clip-hold {
+    background: repeating-linear-gradient(-45deg, rgba(var(--pg-text-rgb), 0.08) 0 6px, rgba(var(--pg-text-rgb), 0.16) 6px 12px);
+    border-left-color: rgba(var(--pg-text-rgb), 0.5); color: var(--pg-text-soft);
+}
+html.pg-themed .tl-clip-handle { background: rgba(var(--pg-text-rgb), 0.08); }
+html.pg-themed .tl-clip-handle::after { background: rgba(var(--pg-text-rgb), 0.5); }
+html.pg-themed .tl-clip-handle:hover { background: rgba(var(--pg-text-rgb), 0.3); }
+
+html.pg-themed .tl-prop-bar.selected { box-shadow: 0 0 0 1px rgba(var(--pg-text-rgb), 0.6); }
+html.pg-themed .tl-prop-handle:hover { background: var(--pg-text); }
+html.pg-themed .tl-kf.selected { background: var(--pg-text); box-shadow: 0 0 8px rgba(var(--pg-text-rgb), 0.8); }
+html.pg-themed .tl-insert { background: var(--pg-text); box-shadow: 0 0 8px rgba(var(--pg-text-rgb), 0.9); }
+html.pg-themed .tl-ghost {
+    background: var(--pg-popup-bg); border-color: var(--pg-accent); color: var(--pg-accent);
+    border-radius: var(--pg-radius-sm);
+}

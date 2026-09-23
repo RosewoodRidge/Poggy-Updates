@@ -1,0 +1,312 @@
+/* ================================================================
+   Poggy theme skin: poggy_fishing (ui/index.html)
+
+   Covers: the fishing HUD (zone label, zone fish slots and their
+   tooltips, status line, fish name and weight, progress bar, the
+   Tension / Interest bars and the E prompt, the Pro Rod pull bar's
+   track and labels, controls bar, now-playing strip, bait indicator,
+   time-of-day footer), the bait menu, and the result flash.
+
+   Only when no image skin is active: poggy_fishing has its own skins
+   (Config.UI.skin; ui/skin.js puts data-skin on <html> for any skin
+   but "default"), and an image skin such as "brass" always wins. So
+   every selector here is html.pg-themed:not([data-skin]).
+
+   Left alone on purpose:
+   - the reel in the corner (img/overlay.png, gear.png, reelhandle.png):
+     picture art;
+   - the fish window's water scene (#approach-view inside its frame:
+     the water gradient, light shafts, line, hook, bait, fish, glows,
+     ripples, splash, "!" badge, the label under the water): an
+     illustration, drawn in the script's own water colours, whose
+     glows mean tension (red) and interest (blue);
+   - the Pro Rod needle, the target zone and the active direction
+     label: app.js writes their colour (--pull-rgb, green when the
+     pull is right, red when wrong) inline on #pull-direction;
+   - the wave texture on every bar fill (a white SVG at low opacity);
+   - item and fish icons, emoji status icons.
+   Meaning kept: tension and danger in --pg-danger, interest in
+   --pg-info, caught / complete / equipped in --pg-success, a bite
+   in --pg-warning.
+   ================================================================ */
+
+/* ── the script's own variables, re-pointed ─────────────────────── */
+html.pg-themed:not([data-skin]) {
+    --font:          var(--pg-font-body);
+    --hud-radius:    var(--pg-radius);
+
+    --text-rgb:      var(--pg-text-rgb);
+    --text:          var(--pg-text);
+    --text-soft:     var(--pg-text-soft);
+
+    --hud-bg:        var(--pg-panel-bg);
+    --hud-border:    var(--pg-border);
+    --hud-shadow:    var(--pg-shadow);
+    --row-border:    var(--pg-border-soft);
+    --row-bg:        var(--pg-surface);
+
+    --track-bg:      var(--pg-deep);
+    --track-border:  var(--pg-border-soft);
+    --track-radius:  var(--pg-radius-sm);
+
+    --kbd-bg:        var(--pg-surface-strong);
+    --kbd-border:    var(--pg-btn-border);
+    --kbd-text:      var(--pg-text);
+
+    --window-border: var(--pg-border-soft);
+
+    /* bar fills: the same three-band "water" shading, in theme colours */
+    --fill-water:    linear-gradient(180deg, rgba(var(--pg-accent-hi-rgb), 0.95) 0%, rgba(var(--pg-accent-rgb), 0.95) 40%, rgba(var(--pg-accent-rgb), 0.78) 100%);
+    --fill-danger:   linear-gradient(180deg, rgba(var(--pg-danger-rgb), 0.75) 0%, rgba(var(--pg-danger-rgb), 0.95) 40%, rgba(var(--pg-danger-rgb), 0.78) 100%);
+    --fill-complete: linear-gradient(180deg, rgba(var(--pg-success-rgb), 0.75) 0%, rgba(var(--pg-success-rgb), 0.95) 40%, rgba(var(--pg-success-rgb), 0.78) 100%);
+    --fill-interest: linear-gradient(270deg, rgba(var(--pg-info-rgb), 1) 0%, rgba(var(--pg-info-rgb), 0.9) 45%, rgba(var(--pg-info-rgb), 0.7) 100%);
+    --fill-tension:  linear-gradient(90deg, rgba(var(--pg-danger-rgb), 1) 0%, rgba(var(--pg-danger-rgb), 0.9) 45%, rgba(var(--pg-danger-rgb), 0.7) 100%);
+}
+
+/* ── the HUD panel ──────────────────────────────────────────────── */
+html.pg-themed:not([data-skin]) .wave-accent-path { stroke: var(--pg-border-strong); }
+
+html.pg-themed:not([data-skin]) #zone-label {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    color: var(--pg-text-soft);
+}
+
+/* zone fish: slots */
+html.pg-themed:not([data-skin]) .zone-fish-icon {
+    background: var(--pg-slot-bg);
+    border-color: var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed:not([data-skin]) .zone-fish-icon img,
+html.pg-themed:not([data-skin]) .zone-fish-icon.undiscovered::after { border-radius: var(--pg-radius-sm); }
+html.pg-themed:not([data-skin]) .zone-fish-icon.undiscovered::after {
+    background: rgba(var(--pg-deep-rgb), 0.92);
+    color: var(--pg-text-dim);
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+}
+html.pg-themed:not([data-skin]) .zone-fish-icon .zf-tooltip {
+    background: var(--pg-popup-bg);
+    border-color: var(--pg-border);
+    border-radius: var(--pg-radius-sm);
+    box-shadow: var(--pg-shadow);
+    color: var(--pg-text);
+    font-family: var(--pg-font-body);
+}
+/* the fish a hovered bait catches: the selection highlight, in the accent */
+html.pg-themed:not([data-skin]) .zone-fish-icon.bait-highlight {
+    border-color: var(--pg-accent);
+    animation-name: pgFishShimmer;
+}
+html.pg-themed:not([data-skin]) .zone-fish-icon.bait-highlight img {
+    filter: grayscale(0) brightness(1.1) drop-shadow(0 0 3px var(--pg-accent-glow));
+}
+html.pg-themed:not([data-skin]) .zone-fish-icon.bait-highlight::before {
+    border-radius: var(--pg-radius-sm);
+    background: conic-gradient(
+        from var(--shimmer-angle, 0deg),
+        transparent 0%,
+        rgba(var(--pg-accent-rgb), 0.6) 10%,
+        rgba(var(--pg-accent-rgb), 0.85) 15%,
+        rgba(var(--pg-accent-hi-rgb), 0.95) 20%,
+        rgba(var(--pg-accent-rgb), 0.85) 25%,
+        rgba(var(--pg-accent-rgb), 0.6) 30%,
+        transparent 40%
+    );
+}
+@keyframes pgFishShimmer {
+    0%, 100% { box-shadow: 0 0 8px var(--pg-accent-soft), inset 0 0 6px var(--pg-accent-faint); }
+    50%      { box-shadow: 0 0 14px var(--pg-accent-glow), inset 0 0 10px var(--pg-accent-soft); }
+}
+
+/* the fish window: only its frame (the water inside is left alone) */
+html.pg-themed:not([data-skin]) #approach-view { border-radius: var(--pg-radius-sm); }
+
+/* status line */
+html.pg-themed:not([data-skin]) #status-text {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: var(--pg-text);
+}
+html.pg-themed:not([data-skin]) #status-text.bite      { color: var(--pg-warning); }
+html.pg-themed:not([data-skin]) #status-text.fighting  { color: var(--pg-accent); }
+html.pg-themed:not([data-skin]) #status-text.caught    { color: var(--pg-success); }
+html.pg-themed:not([data-skin]) #status-text.scared,
+html.pg-themed:not([data-skin]) #status-text.escaped,
+html.pg-themed:not([data-skin]) #status-text.lineBreak { color: var(--pg-danger); }
+
+/* keys: E, LMB, G, Bksp, D */
+html.pg-themed:not([data-skin]) #status-text kbd,
+html.pg-themed:not([data-skin]) .ctrl kbd,
+html.pg-themed:not([data-skin]) .interest-prompt kbd {
+    font-family: var(--pg-font-body);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text);
+    text-shadow: none;
+}
+
+/* fish caught / fighting */
+html.pg-themed:not([data-skin]) #fish-name {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: var(--pg-text);
+}
+html.pg-themed:not([data-skin]) #fish-weight {
+    font-family: var(--pg-font-body);
+    color: var(--pg-accent);
+}
+
+/* progress bar */
+html.pg-themed:not([data-skin]) #progress-track { border-color: var(--pg-border-soft); }
+html.pg-themed:not([data-skin]) #progress-fill { box-shadow: inset 0 1px 0 rgba(var(--pg-text-rgb), 0.18); }
+html.pg-themed:not([data-skin]) #progress-fill.complete { box-shadow: inset 0 0 8px rgba(var(--pg-success-rgb), 0.45); }
+html.pg-themed:not([data-skin]) #progress-label {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-muted);
+}
+
+/* Tension / Interest */
+html.pg-themed:not([data-skin]) .ibar-label,
+html.pg-themed:not([data-skin]) .interest-prompt span {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-text-muted);
+}
+html.pg-themed:not([data-skin]) .ibar-icon { filter: none; }
+html.pg-themed:not([data-skin]) .ibar-icon svg line,
+html.pg-themed:not([data-skin]) .ibar-icon svg path { stroke: var(--pg-danger); }
+html.pg-themed:not([data-skin]) .ibar-icon svg circle { fill: var(--pg-danger); }
+html.pg-themed:not([data-skin]) .ibar-fill-blue       { box-shadow: inset 0 0 8px rgba(var(--pg-info-rgb), 0.3); }
+html.pg-themed:not([data-skin]) .ibar-fill-blue.high  { box-shadow: inset 0 0 12px rgba(var(--pg-info-rgb), 0.5); }
+html.pg-themed:not([data-skin]) .ibar-fill-red        { box-shadow: inset 0 0 8px rgba(var(--pg-danger-rgb), 0.3); }
+html.pg-themed:not([data-skin]) .ibar-fill-red.danger { box-shadow: inset 0 0 12px rgba(var(--pg-danger-rgb), 0.55); }
+
+/* Pro Rod pull bar: the track and its marks (the needle and the target
+   zone keep the colour app.js gives them) */
+html.pg-themed:not([data-skin]) .pull-track        { border-radius: var(--pg-radius-sm); }
+html.pg-themed:not([data-skin]) .pull-zone-left    { border-radius: var(--pg-radius-sm) 0 0 var(--pg-radius-sm); }
+html.pg-themed:not([data-skin]) .pull-zone-right   { border-radius: 0 var(--pg-radius-sm) var(--pg-radius-sm) 0; }
+html.pg-themed:not([data-skin]) .pull-center-mark  { background: var(--pg-border-strong); }
+html.pg-themed:not([data-skin]) .pull-dir-label {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+}
+html.pg-themed:not([data-skin]) .pull-dir-label:not(.active) { color: var(--pg-text-dim); }
+
+/* controls bar */
+html.pg-themed:not([data-skin]) .ctrl {
+    font-family: var(--pg-font-display);
+    color: var(--pg-text-muted);
+}
+
+/* now playing */
+html.pg-themed:not([data-skin]) .np-icon { color: var(--pg-text-muted); }
+html.pg-themed:not([data-skin]) #np-track-name {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-text-muted);
+}
+html.pg-themed:not([data-skin]) #now-playing.playing .np-icon { color: var(--pg-success); }
+html.pg-themed:not([data-skin]) #now-playing.playing #np-track-name { color: var(--pg-text-soft); }
+
+/* bait indicator */
+html.pg-themed:not([data-skin]) #bait-indicator-img {
+    background: var(--pg-slot-bg);
+    border-color: var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed:not([data-skin]) #bait-indicator-name {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    color: var(--pg-text);
+}
+html.pg-themed:not([data-skin]) #bait-indicator-qty {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-muted);
+}
+
+/* time-of-day footer */
+html.pg-themed:not([data-skin]) #footer-time-label {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-text-muted);
+}
+html.pg-themed:not([data-skin]) #footer-time-clock {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-dim);
+}
+
+/* ── the bait menu: a popup ─────────────────────────────────────── */
+html.pg-themed:not([data-skin]) #bait-menu {
+    background: var(--pg-popup-bg);
+    border-color: var(--pg-border);
+    border-radius: var(--pg-radius);
+    box-shadow: var(--pg-shadow-strong);
+}
+html.pg-themed:not([data-skin]) .bait-menu-header {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: 0.07em;
+    color: var(--pg-text);
+    border-bottom-color: var(--pg-border-soft);
+}
+html.pg-themed:not([data-skin]) .bait-menu-close { color: var(--pg-text-muted); }
+html.pg-themed:not([data-skin]) .bait-menu-close:hover { color: var(--pg-danger); }
+html.pg-themed:not([data-skin]) #bait-list::-webkit-scrollbar-thumb { background: var(--pg-accent-soft); border-radius: 0; }
+
+html.pg-themed:not([data-skin]) .bait-item:hover { background: var(--pg-surface-hover); }
+html.pg-themed:not([data-skin]) .bait-item.active {
+    background: var(--pg-accent-faint);
+    border-left-color: var(--pg-accent);
+}
+html.pg-themed:not([data-skin]) .bait-item-img {
+    background: var(--pg-slot-bg);
+    border-color: var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed:not([data-skin]) .bait-item-name {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    color: var(--pg-text);
+}
+html.pg-themed:not([data-skin]) .bait-item-desc,
+html.pg-themed:not([data-skin]) .bait-item-qty {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-muted);
+}
+html.pg-themed:not([data-skin]) .bait-item-active-tag {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    color: var(--pg-success);
+}
+html.pg-themed:not([data-skin]) .bait-empty {
+    font-family: var(--pg-font-body);
+    color: var(--pg-text-muted);
+}
+html.pg-themed:not([data-skin]) #btn-remove-bait {
+    font-family: var(--pg-font-display);
+    font-weight: 400;
+    letter-spacing: 0.07em;
+    color: var(--pg-danger);
+    background: var(--pg-btn-bg);
+    border-color: rgba(var(--pg-danger-rgb), 0.35);
+    border-radius: var(--pg-radius-sm);
+}
+html.pg-themed:not([data-skin]) #btn-remove-bait:hover {
+    background: var(--pg-btn-danger-bg);
+    border-color: rgba(var(--pg-danger-rgb), 0.55);
+}
+
+/* ── result flash (text over the world) ─────────────────────────── */
+html.pg-themed:not([data-skin]) #result-flash { font-family: var(--pg-font-display); font-weight: 400; }
+html.pg-themed:not([data-skin]) #result-flash.good,
+html.pg-themed:not([data-skin]) #result-flash.caught { color: var(--pg-success); text-shadow: 0 0 16px rgba(var(--pg-shade-rgb), 0.8); }
+html.pg-themed:not([data-skin]) #result-flash.great  { color: var(--pg-accent);  text-shadow: 0 0 16px rgba(var(--pg-shade-rgb), 0.8); }
+html.pg-themed:not([data-skin]) #result-flash.fail   { color: var(--pg-danger);  text-shadow: 0 0 16px rgba(var(--pg-shade-rgb), 0.8); }
+html.pg-themed:not([data-skin]) #result-flash.scared { color: var(--pg-warning); text-shadow: 0 0 16px rgba(var(--pg-shade-rgb), 0.8); }
