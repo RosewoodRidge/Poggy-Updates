@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scavenger Hunt</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cfx-nui-poggy_core/ui/hub/theme.js"></script>
+</head>
+<body>
+    <div id="scavenger-container">
+        <div id="hunt-card">
+            <div class="header">
+                <h1 id="hunt-title">Scavenger Hunt</h1>
+                <span id="close-button">&times;</span>
+            </div>
+            
+            <div class="content">
+                <div class="image-container">
+                    <img id="hunt-image" src="images/bardscrossingbridge.jpg" alt="Location Image">
+                </div>
+                
+                <div class="clue-section">
+                    <div id="clue-blurred" class="clue-box blur">
+                        <p id="clue-text">The clue will appear here when revealed...</p>
+                    </div>
+                    
+                    <div class="clue-controls">
+                        <p id="penalty-text">Warning: Revealing the clue will reduce your reward by 30%</p>
+                        <button id="reveal-clue">SHOW CLUE</button>
+                    </div>
+                </div>
+                
+                <div class="reward-section">
+                    <h3>REWARD</h3>
+                    <p id="reward-value">$0.00</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add image modal -->
+    <div id="image-modal" class="image-modal">
+        <span class="modal-close">&times;</span>
+        <div class="modal-content">
+            <div class="modal-image-container">
+                <div class="magnifier"></div>
+                <img id="modal-image" src="" alt="Hunt Location">
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
