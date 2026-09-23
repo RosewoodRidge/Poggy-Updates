@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fishing Journal</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cfx-nui-poggy_core/ui/hub/theme.js"></script>
+</head>
+<body>
+    <div id="journalContainer" class="journal-container hidden">
+
+        <!-- ===== LEFT SIDEBAR ===== -->
+        <aside id="sidebar" class="sidebar">
+            <!-- Header -->
+            <div class="sidebar-header">
+                <h1 class="journal-title">Fishing Journal</h1>
+                <div class="header-right">
+                    <div class="time-display">
+                        <span class="time-icon">&#9788;</span>
+                        <span id="gameTime" class="game-time">12:00</span>
+                    </div>
+                    <button id="closeBtn" class="close-btn">&times;</button>
+                </div>
+            </div>
+
+            <!-- Tab Bar -->
+            <div class="tab-bar">
+                <button class="tab-btn active" data-tab="journal">Journal</button>
+                <button class="tab-btn" data-tab="discoveries">Discoveries</button>
+                <button class="tab-btn" data-tab="records">Records</button>
+                <button class="tab-btn" data-tab="pbs">PBs</button>
+            </div>
+
+            <!-- ===== JOURNAL TAB ===== -->
+            <div id="journalTabContent" class="tab-content">
+                <!-- Season Status -->
+                <div class="season-section">
+                    <div class="season-row">
+                        <div class="season-pill in">
+                            <span id="inSeasonCount" class="season-count">0</span>
+                            <span class="season-label">In Season</span>
+                        </div>
+                        <div class="season-pill out">
+                            <span id="outOfSeasonCount" class="season-count">0</span>
+                            <span class="season-label">Out of Season</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Discovery Progress -->
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <span class="progress-title">Discovery</span>
+                        <span id="progressText" class="progress-text">0 / 0</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div id="progressBar" class="progress-bar"></div>
+                    </div>
+                </div>
+
+                <!-- Active Fish -->
+                <div class="active-fish-section">
+                    <h2 class="section-title">Active Now</h2>
+                    <div class="season-legend">
+                        <span class="season-legend-item"><span class="season-legend-dot in"></span> In Season</span>
+                        <span class="season-legend-item"><span class="season-legend-dot out"></span> Out of Season</span>
+                    </div>
+                    <div id="activeFishList" class="fish-grid">
+                        <!-- populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== DISCOVERIES TAB ===== -->
+            <div id="discoveriesTabContent" class="tab-content hidden">
+                <!-- Discovery Summary -->
+                <div class="discoveries-header">
+                    <div class="discoveries-progress-ring" id="discoveryRing">
+                        <svg viewBox="0 0 48 48">
+                            <circle class="ring-bg" cx="24" cy="24" r="20"/>
+                            <circle class="ring-fill" id="discoveryRingFill" cx="24" cy="24" r="20"/>
+                        </svg>
+                        <span id="discoveryPct" class="discovery-pct">0%</span>
+                    </div>
+                    <div class="discoveries-header-info">
+                        <span id="discoveryCount" class="discoveries-count">0 / 0</span>
+                        <span class="discoveries-subtitle">Species Discovered</span>
+                    </div>
+                </div>
+
+                <!-- Discovery Grid -->
+                <div id="discoveryGrid" class="discovery-grid">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+
+            <!-- ===== RECORDS TAB ===== -->
+            <div id="recordsTabContent" class="tab-content hidden">
+                <!-- Summary Cards -->
+                <div class="records-summary">
+                    <div class="records-stat-card">
+                        <span id="totalCatches" class="records-stat-value">0</span>
+                        <span class="records-stat-label">Catches</span>
+                    </div>
+                    <div class="records-stat-card">
+                        <span id="uniqueSpecies" class="records-stat-value">0</span>
+                        <span class="records-stat-label">Species</span>
+                    </div>
+                    <div class="records-stat-card">
+                        <span id="totalWeight" class="records-stat-value">0</span>
+                        <span class="records-stat-label">Lbs</span>
+                    </div>
+                </div>
+
+                <!-- Sort Controls -->
+                <div class="records-sort">
+                    <span class="records-sort-label">Sort:</span>
+                    <button class="sort-btn active" data-sort="count">Count</button>
+                    <button class="sort-btn" data-sort="name">Name</button>
+                    <button class="sort-btn" data-sort="weight">Weight</button>
+                </div>
+
+                <!-- Records List -->
+                <div id="recordsList" class="records-list">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+
+            <!-- ===== PB TAB ===== -->
+            <div id="pbsTabContent" class="tab-content hidden">
+                <div class="pbs-header">
+                    <span class="pbs-title">🏆 Personal Bests</span>
+                    <span class="pbs-subtitle">Your heaviest catch for every species</span>
+                </div>
+                <div class="pbs-sort">
+                    <span class="records-sort-label">Sort:</span>
+                    <button class="pb-sort-btn active" data-pbsort="weight">Weight</button>
+                    <button class="pb-sort-btn" data-pbsort="name">Name</button>
+                    <button class="pb-sort-btn" data-pbsort="date">Date</button>
+                </div>
+                <div id="pbsList" class="pbs-list">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+        </aside>
+
+        <!-- ===== MAP AREA ===== -->
+        <div id="mapArea" class="map-area">
+            <div id="mapContainer" class="map-container">
+                <img id="mapImage" class="map-image" src="" alt="RDR2 Map" draggable="false">
+                <div id="mapPins" class="map-pins">
+                    <!-- pins injected by JS -->
+                </div>
+            </div>
+            <div id="mapLegend" class="map-legend">
+                <div class="map-legend-item"><span class="map-legend-dot" style="background:#e28080"></span>Lake</div>
+                <div class="map-legend-item"><span class="map-legend-dot" style="background:#f7de9a"></span>River</div>
+                <div class="map-legend-item"><span class="map-legend-dot" style="background:#7D8B4E"></span>Swamp</div>
+                <div class="map-legend-item"><span class="map-legend-dot" style="background:#82f1b0"></span>Creek</div>
+                <div class="map-legend-item"><span class="map-legend-dot" style="background:#5767c5"></span>Pond</div>
+                <div class="map-legend-item"><span class="map-legend-dot" style="background:#da52c3"></span>Ocean</div>
+            </div>
+        </div>
+
+        <!-- ===== RIGHT SIDEBAR (fish lore) ===== -->
+        <aside id="fishLorePanel" class="lore-sidebar hidden">
+            <button id="loreCloseBtn" class="lore-close-btn">&times;</button>
+            <div class="lore-scroll">
+                <div class="lore-icon-area">
+                    <img id="loreFishIcon" class="lore-fish-icon" src="" alt="">
+                </div>
+                <h2 id="loreFishName" class="lore-fish-name"></h2>
+                <span id="loreScientific" class="lore-scientific"></span>
+                <span id="loreFamily" class="lore-family"></span>
+
+                <div class="lore-stats-row">
+                    <div class="lore-stat">
+                        <span class="lore-stat-label">Size</span>
+                        <span id="loreSizeBadge" class="fish-size-badge"></span>
+                    </div>
+                    <div class="lore-stat">
+                        <span class="lore-stat-label">Weight</span>
+                        <span id="loreWeight" class="lore-stat-value"></span>
+                    </div>
+                    <div class="lore-stat">
+                        <span class="lore-stat-label">Value</span>
+                        <span id="lorePrice" class="lore-stat-value"></span>
+                    </div>
+                    <div class="lore-stat">
+                        <span class="lore-stat-label">Active</span>
+                        <span id="loreHours" class="lore-stat-value"></span>
+                    </div>
+                </div>
+
+                <p id="loreSummary" class="lore-summary"></p>
+
+                <div class="lore-section">
+                    <h3 class="lore-section-title">History</h3>
+                    <p id="loreHistory" class="lore-text"></p>
+                </div>
+                <div class="lore-section">
+                    <h3 class="lore-section-title">Habitat</h3>
+                    <p id="loreHabitat" class="lore-text"></p>
+                </div>
+                <div class="lore-section">
+                    <h3 class="lore-section-title">Behavior</h3>
+                    <p id="loreBehavior" class="lore-text"></p>
+                </div>
+                <div class="lore-section lore-funfact-section">
+                    <h3 class="lore-section-title">Did You Know?</h3>
+                    <p id="loreFunFact" class="lore-text lore-funfact"></p>
+                </div>
+                <div class="lore-locations">
+                    <h3 class="lore-section-title">Known Locations</h3>
+                    <div id="loreLocations" class="lore-location-list"></div>
+                </div>
+                <div class="lore-voice-credit">Voice by OHPY Voice Overs</div>
+            </div>
+        </aside>
+
+        <!-- ===== WATER BODY MODAL ===== -->
+        <div id="waterBodyModal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <button id="modalCloseBtn" class="modal-close">&times;</button>
+                <div class="modal-header">
+                    <h2 id="modalWaterName" class="modal-water-name"></h2>
+                    <span id="modalWaterType" class="modal-water-type"></span>
+                </div>
+                <p id="modalWaterLore" class="modal-lore"></p>
+                <div class="modal-divider"></div>
+                <h3 class="modal-section-title">Fish in these Waters</h3>
+                <div id="modalFishList" class="modal-fish-list">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MUSIC MUTE BUTTON ===== -->
+        <button id="muteBtn" class="mute-btn" title="Toggle Music">
+            <span id="muteIcon">&#9835;</span>
+        </button>
+
+    </div>
+
+    <!-- ===== DISCOVERY TOAST (outside journal so it's always visible) ===== -->
+    <div id="discoveryToast" class="discovery-toast hidden">
+        <div class="discovery-toast-inner">
+            <img id="discoveryIcon" class="discovery-icon" src="" alt="">
+            <div class="discovery-content">
+                <span class="discovery-title">Journal Discovery!</span>
+                <span id="discoveryFishLabel" class="discovery-fish-label"></span>
+                <span id="discoveryLocation" class="discovery-location"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PERSONAL RECORD TOAST ===== -->
+    <div id="recordToast" class="record-toast hidden">
+        <div class="record-toast-inner">
+            <span class="record-trophy">🏆</span>
+            <div class="record-content">
+                <span class="record-title">New Personal Record!</span>
+                <span id="recordFishLabel" class="record-fish-label"></span>
+                <span id="recordWeight" class="record-weight"></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
