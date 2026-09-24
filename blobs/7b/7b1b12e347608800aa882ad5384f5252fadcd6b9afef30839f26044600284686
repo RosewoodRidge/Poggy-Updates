@@ -1,0 +1,104 @@
+fx_version "cerulean"
+games { "rdr3" }
+rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
+lua54 "yes"
+
+-- The product id the update feed knows this resource by. Never changes.
+poggy_id 'poggy_core'
+author "Poggy"
+description "Poggy Core — one documented framework API for RedM (VORP Core, RSG Core, QBCore RedM)"
+version "0.23.1"
+
+-- VORP, RSG and QBR adapters + standalone fallback. See README.md for what is
+-- and is not implemented yet. Adding a framework means adding one file under
+-- server/adapters/ and one entry in shared/sh_detect.lua.
+
+shared_scripts {
+    "config.lua",
+    "shared/sh_api.lua",
+    "shared/sh_frameworks.lua",   -- this game's framework table; before sh_detect.lua
+    "shared/sh_detect.lua",
+    "shared/sh_verbs.lua",
+    "shared/sh_theme.lua",           -- the Poggy theme's presets (0.23.0)
+}
+
+client_scripts {
+    "client/cl_core.lua",
+    "client/cl_dispatch.lua",
+    "client/cl_callbacks.lua",
+    "client/cl_notify_native.lua",   -- the RDR2 notification natives; before cl_notify.lua
+    "client/cl_notify.lua",
+    "client/cl_prompt.lua",
+    "client/cl_menu.lua",            -- the menu and text input (ui/); after cl_callbacks.lua, which it registers with
+    "client/cl_hub.lua",             -- the settings hub, /poggy (0.18.0); after cl_callbacks.lua and cl_menu.lua
+    "client/cl_theme.lua",           -- the Poggy theme: answers every script's page (0.23.0); after the shared files
+}
+
+server_scripts {
+    "server/sv_util.lua",
+    "server/sv_identity.lua",        -- poggy_id -> folder; before everything that looks a script up
+    "server/sv_dependents.lua",      -- restarts the scripts that stopped with poggy_core; after sv_identity.lua
+    "server/sv_sql.lua",
+    "server/adapters/standalone.lua",
+    "server/adapters/vorp.lua",
+    "server/adapters/rsg.lua",
+    "server/adapters/qbr.lua",
+    "server/sv_notify.lua",
+    "server/sv_storage.lua",
+    "server/sv_usables.lua",         -- usable-item registry; before sv_core.lua, which binds it
+    "server/sv_providers.lua",       -- bank / treasury providers (0.17.0); before sv_core.lua, which routes to them
+    "server/sv_core.lua",
+    "server/sv_dispatch.lua",
+    "server/sv_callbacks.lua",
+    "server/sv_ui.lua",              -- menu / input round trip to a client; after sv_callbacks.lua
+    "server/sv_selftest.lua",
+    "server/sv_configmerge.lua",
+    "server/sv_settings_model.lua",  -- config files as editable settings (0.18.0); after sv_configmerge.lua
+    "server/sv_updates.lua",
+    "server/sv_hub.lua",             -- the settings hub, server side (0.18.0); after sv_settings_model.lua
+    "server/sv_hub_save.lua",        -- the hub's saving, history, roles, restarts; after sv_hub.lua
+    "server/sv_theme.lua",           -- the Poggy theme, live from config.lua (0.23.0); after sv_util.lua
+    "server/sv_bans.lua",            -- account bans and the connect check (0.19.0); after sv_sql.lua and sv_util.lua
+    "server/sv_bannet.lua",          -- the shared ban network (0.20.0); after sv_bans.lua
+    "server/sv_nettest.lua",
+    "server/sv_commands.lua",
+}
+
+-- The menu and text input every Poggy script uses (menu.open, input.text),
+-- and the settings hub (/poggy). Hidden until asked for; nothing in either
+-- needs the internet.
+ui_page "ui/index.html"
+
+files {
+    "template/poggy.lua",
+    -- Included by other resources as @poggy_core/client/lib/prompts.lua;
+    -- deliberately not a client_script here, it does nothing in poggy_core itself.
+    "client/lib/prompts.lua",
+    "ui/index.html",
+    "ui/style.css",
+    "ui/script.js",
+    -- The settings hub (/poggy). Its browser mock for development lives in
+    -- tools\hub-mock on the development machine, not here.
+    "ui/hub/*.js",
+    "ui/hub/*.css",
+    "ui/hub/fonts/*",
+    "ui/hub/img/*",
+    -- Every Poggy script's icon, shown on its card when the script's own
+    -- manifest does not list a docs/icon.png (older installs) (hub spec §8.8).
+    "ui/hub/img/icons/*.png",
+    "docs/icon.png",
+}
+
+-- Everything in this resource is meant to be readable by the people building
+-- against it. Nothing is escrowed.
+escrow_ignore {
+    "config.lua",
+    "shared/*.lua",
+    "client/*.lua",
+    "client/lib/*.lua",
+    "server/*.lua",
+    "server/adapters/*.lua",
+    "template/*.lua",
+    "ui/*",
+    "ui/hub/**",
+}
