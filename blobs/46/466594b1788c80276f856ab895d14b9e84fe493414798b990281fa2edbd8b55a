@@ -1,0 +1,793 @@
+{
+  "label": "Poggy Core",
+  "tagline": "The engine behind every Poggy script: one framework layer, updates and this settings hub",
+  "category": "Framework",
+  "description": "poggy_core connects every Poggy script to your framework (VORP, RSG or QBR), keeps the scripts up to date from the Poggy update feed, and runs this settings hub. Every other Poggy script needs it running. Restart poggy_core by hand: restarting it restarts every Poggy script.",
+  "readme": "README.md",
+  "help": [
+    {"title": "Using the settings hub", "file": "docs/help/settings-hub.md"},
+    {"title": "Roles and job lists", "file": "docs/help/roles.md"},
+    {"title": "Diagnostics commands", "file": "docs/help/diagnostics.md"},
+    {"title": "Bans", "file": "docs/help/bans.md"},
+    {"title": "Theme", "file": "docs/help/theme.md"}
+  ],
+
+  "commands": [
+    {
+      "command": "/poggy",
+      "configPath": "PoggyCoreConfig.Hub.Command",
+      "who": "Admins",
+      "description": "Opens this settings hub. Allowed for players with the ACE poggy.settings or anyone your framework counts as an admin. Taking over a script someone else is editing needs the ACE poggy.settings.takeover.",
+      "usage": "/poggy",
+      "examples": ["/poggy"]
+    },
+    {
+      "command": "/poggyui",
+      "who": "Everyone",
+      "description": "Opens a small panel where each player sets how every Poggy screen looks on their own screen: the size (50% to 200%, with Fit my screen and Reset to 100%), Light (easier to read) or the server's theme, and less motion. It shows each change as it is made and is kept for that player on this server. The name can be changed with a PlayerCommand line in the Theme block.",
+      "usage": "/poggyui",
+      "examples": ["/poggyui"]
+    },
+    {
+      "command": "poggycore",
+      "who": "Admins",
+      "description": "Status: framework, version, capabilities and registered containers. Works in the server console, or in chat as /poggycore for players with the ACE command or poggycore, or a framework admin.",
+      "usage": "poggycore",
+      "examples": ["poggycore", "/poggycore"]
+    },
+    {
+      "command": "poggycore test",
+      "who": "Admins",
+      "description": "Read-only smoke test against your own character: character, money, inventory. Changes nothing. Run it in chat, in game.",
+      "usage": "/poggycore test",
+      "examples": ["/poggycore test"]
+    },
+    {
+      "command": "poggycore selftest",
+      "who": "Admins",
+      "description": "Exercises every verb and reports pass or fail. 'full' also runs the verbs that change things, then undoes them.",
+      "usage": "poggycore selftest [full]",
+      "examples": ["/poggycore selftest", "/poggycore selftest full"]
+    },
+    {
+      "command": "poggycore verbs",
+      "who": "Admins",
+      "description": "Lists the verbs scripts call through poggy_core, with the side they run on and what they need. Add a word to filter the list.",
+      "usage": "poggycore verbs [filter]",
+      "examples": ["poggycore verbs", "poggycore verbs money"]
+    },
+    {
+      "command": "poggycore do",
+      "who": "Admins",
+      "description": "Runs one verb for real and prints the answer. src=me means you. Careful: verbs that give money or items really do it.",
+      "usage": "poggycore do <verb> [key=value ...]",
+      "examples": ["/poggycore do money.get src=me", "/poggycore do jobs.list"]
+    },
+    {
+      "command": "poggycore caps",
+      "who": "Admins",
+      "description": "The full capability map: what the detected framework can and cannot do.",
+      "usage": "poggycore caps",
+      "examples": ["poggycore caps"]
+    },
+    {
+      "command": "poggycore detect",
+      "who": "Admins",
+      "description": "Explains why the framework did or did not resolve: forced framework, detection order, and what each core answered.",
+      "usage": "poggycore detect",
+      "examples": ["poggycore detect"]
+    },
+    {
+      "command": "poggycore resolve",
+      "who": "Admins",
+      "description": "Runs framework detection again without restarting, then shows the detect report.",
+      "usage": "poggycore resolve",
+      "examples": ["poggycore resolve"]
+    },
+    {
+      "command": "poggycore scripts",
+      "who": "Admins",
+      "description": "Every registered Poggy script: product id, folder (when renamed) and version.",
+      "usage": "poggycore scripts",
+      "examples": ["poggycore scripts"]
+    },
+    {
+      "command": "poggycore usables",
+      "who": "Admins",
+      "description": "Usable items registered through poggy_core, and which script owns each one.",
+      "usage": "poggycore usables",
+      "examples": ["poggycore usables"]
+    },
+    {
+      "command": "poggycore dependents",
+      "who": "Admins",
+      "description": "Resources that stop when poggy_core stops, their state, and the record used to start them again.",
+      "usage": "poggycore dependents",
+      "examples": ["poggycore dependents"]
+    },
+    {
+      "command": "poggycore catalog",
+      "who": "Admins",
+      "description": "Published Poggy scripts this server does not have, with store links.",
+      "usage": "poggycore catalog",
+      "examples": ["poggycore catalog"]
+    },
+    {
+      "command": "poggycore update",
+      "who": "Console",
+      "description": "Checks for, or installs, updates from the Poggy feed. check only reports; apply installs (config files are merged, your values kept, backups made). A script only updates when the published version is higher. Server console only.",
+      "usage": "poggycore update <resource|all> [check|stage|apply] [force]",
+      "examples": ["poggycore update all", "poggycore update all apply", "poggycore update poggy_markets apply"]
+    },
+    {
+      "command": "poggycore update nettest",
+      "who": "Console",
+      "description": "Tests whether the server can reach the update feed, and explains any failure. Server console only.",
+      "usage": "poggycore update nettest",
+      "examples": ["poggycore update nettest"]
+    },
+    {
+      "command": "poggycore update <resource> writetest",
+      "who": "Console",
+      "description": "Tests whether poggy_core can write files into a script's folder, which updates and the settings hub both need. Server console only.",
+      "usage": "poggycore update <resource> writetest",
+      "examples": ["poggycore update poggy_markets writetest"]
+    },
+    {
+      "command": "poggycore sql",
+      "who": "Console",
+      "description": "check shows what a script's sql/install.sql would change in the database; install runs it now. Server console only.",
+      "usage": "poggycore sql <check|install> <resource|all>",
+      "examples": ["poggycore sql check all", "poggycore sql install poggy_markets"]
+    },
+    {
+      "command": "poggycore settings",
+      "who": "Admins",
+      "description": "Lists every script the hub knows, who is editing which, and each config file's fingerprint.",
+      "usage": "poggycore settings",
+      "examples": ["poggycore settings"]
+    },
+    {
+      "command": "poggycore settings show",
+      "who": "Admins",
+      "description": "Prints every setting of one script with its value and file:line.",
+      "usage": "poggycore settings show <id>",
+      "examples": ["poggycore settings show poggy_markets"]
+    },
+    {
+      "command": "poggycore settings set",
+      "who": "Console",
+      "description": "Changes one setting the same way the hub does (backup, checks, history), logged as 'console'. The value is JSON: numbers and true/false as they are, text in double quotes.",
+      "usage": "poggycore settings set <id> <path> <json value>",
+      "examples": [
+        "poggycore settings set poggy_core PoggyCoreConfig.NotifyDuration 5000",
+        "poggycore settings set poggy_core PoggyCoreConfig.Ui.Position \"left\""
+      ]
+    },
+    {
+      "command": "poggycore settings unlock",
+      "who": "Console",
+      "description": "Frees a script that someone is editing in the hub, for example after a crash. Their unsaved changes are lost.",
+      "usage": "poggycore settings unlock <id>",
+      "examples": ["poggycore settings unlock poggy_markets"]
+    },
+    {
+      "command": "poggycore ban",
+      "who": "Admins",
+      "description": "Bans a player's account, so it follows them across characters, and removes them at once. Give a server id for someone online, or an identifier (license:...) for someone who has left. The word cheat marks a cheating ban; leave it out for a rule break. Console, or chat for players with the ACE command or poggycore, or a framework admin.",
+      "usage": "poggycore ban <server id | identifier> <30m|2h|7d|1w|perm> [cheat] <reason>",
+      "examples": ["poggycore ban 12 7d combat logging", "poggycore ban 12 perm cheat aimbot, clip in ticket 41", "poggycore ban license:1a2b3c perm cheat left before the ban"]
+    },
+    {
+      "command": "poggycore unban",
+      "who": "Admins",
+      "description": "Lifts a ban. The ban stays on record, marked as lifted, with who lifted it and why.",
+      "usage": "poggycore unban <ban number> <reason>",
+      "examples": ["poggycore unban 14 appeal accepted"]
+    },
+    {
+      "command": "poggycore baninfo",
+      "who": "Admins",
+      "description": "With nothing after it, lists the active bans. With a server id, an identifier or a ban number, shows every ban on record for it.",
+      "usage": "poggycore baninfo [server id | identifier | ban number]",
+      "examples": ["poggycore baninfo", "poggycore baninfo 12", "poggycore baninfo license:1a2b3c"]
+    },
+    {
+      "command": "poggycore bannet",
+      "who": "Admins",
+      "description": "The ban network's status on this server: whether it refuses and shares, how many players the network knows, when the list was last read, and whether this server is registered and its votes count yet (a new server's votes wait 14 days). Add refresh to read the list now.",
+      "usage": "poggycore bannet [refresh]",
+      "examples": ["poggycore bannet", "poggycore bannet refresh"]
+    },
+    {
+      "command": "poggycore banallow",
+      "who": "Admins",
+      "description": "A second chance: lets one player the network has blocked into YOUR server, and counts your server as one voice for them on the network. Needs their identifier (the console prints it when they are refused) and a reason. With nothing after it, lists who you have allowed. remove puts them back under the network.",
+      "usage": "poggycore banallow <identifier> <reason>  |  poggycore banallow remove <identifier>",
+      "examples": ["poggycore banallow", "poggycore banallow license:1a2b3c cleared on appeal", "poggycore banallow remove license:1a2b3c"]
+    }
+  ],
+
+  "tabs": [
+    {"id": "general", "label": "Framework", "icon": "cpu"},
+    {"id": "access", "label": "Access & permissions", "icon": "shield"},
+    {"id": "bans", "label": "Bans", "icon": "shield"},
+    {"id": "hub", "label": "Settings hub", "icon": "sliders"},
+    {"id": "storage", "label": "Storage & items", "icon": "box"},
+    {"id": "interface", "label": "Menus & notifications", "icon": "chat"},
+    {"id": "theme", "label": "Theme", "icon": "palette"},
+    {"id": "updates", "label": "Updates", "icon": "download"},
+    {"id": "advanced", "label": "Advanced", "icon": "cog"}
+  ],
+
+  "panels": [
+    {
+      "id": "bans",
+      "label": "Ban list",
+      "tab": "bans",
+      "export": "HubPanel",
+      "itemLabel": "ban",
+      "tooltip": "Everyone banned from this server. A ban is on the player's account, so it follows them across characters. Lifting a ban keeps it in the list."
+    }
+  ],
+
+  "settings": {
+    "PoggyCoreConfig.Bans.Enabled": {
+      "label": "Bans on",
+      "tooltip": "Off: nobody is refused at connect and nothing can be banned. Bans already made stay in the database and work again when this is turned back on.",
+      "tab": "bans",
+      "group": "Bans"
+    },
+    "PoggyCoreConfig.Bans.Network.Enforce": {
+      "label": "Refuse network-banned players",
+      "tooltip": "On: a player banned for CHEATING on 3 or more servers running poggy_core is refused here too. Off: nobody is refused because of the network. Your own bans always work. If the network cannot be reached, nobody is refused by it.",
+      "tab": "bans",
+      "group": "Ban network"
+    },
+    "PoggyCoreConfig.Bans.Network.Submit": {
+      "label": "Share my cheating bans",
+      "tooltip": "On: a ban you mark as Cheating counts as one vote on the network. Only scrambled identifiers and your player count are sent: never a name or a reason. Rule-break (Local) bans never leave your server. Lifting a ban takes your vote back.",
+      "tab": "bans",
+      "group": "Ban network"
+    },
+    "PoggyCoreConfig.Bans.Network.BlockAt": {
+      "label": "Votes needed to refuse someone",
+      "tooltip": "How many servers must have banned a player for cheating before YOUR server refuses them. The network's own number is 3; you can ask for more, never fewer.",
+      "tab": "bans",
+      "group": "Ban network",
+      "min": 3,
+      "max": 20
+    },
+    "PoggyCoreConfig.Bans.Network.FlagStaff": {
+      "label": "Tell staff about flagged players",
+      "tooltip": "When someone joins who is banned for cheating on 1 or 2 other servers (not enough to be refused), say so in the console and, with Poggy Tickets, in a pop-up to mods and admins.",
+      "tab": "bans",
+      "group": "Ban network"
+    },
+    "PoggyCoreConfig.Bans.Network.ServerName": {
+      "label": "Your server's name on the appeal page",
+      "tooltip": "A player you banned for cheating can see which servers banned them, so they know where to appeal. Blank uses your server's project name.",
+      "tab": "bans",
+      "group": "Ban network"
+    },
+    "PoggyCoreConfig.Bans.Network.AppealLink": {
+      "label": "Where players appeal to you",
+      "tooltip": "Shown beside your server's name on the appeal page, for example your Discord invite.",
+      "tab": "bans",
+      "group": "Ban network"
+    },
+    "PoggyCoreConfig.Bans.Network.HideName": {
+      "label": "Hide my server's name",
+      "tooltip": "On: your vote still counts, but banned players are shown 'a server that prefers not to be named' instead of your name.",
+      "tab": "bans",
+      "group": "Ban network"
+    },
+    "PoggyCoreConfig.Bans.AppealText": {
+      "label": "Appeal line",
+      "tooltip": "The last line a banned player reads when they are refused. Say where they can appeal, for example your Discord.",
+      "tab": "bans",
+      "group": "Bans"
+    },
+    "PoggyCoreConfig.ForceFramework": {
+      "label": "Force a framework",
+      "tooltip": "Leave on 'Detect automatically'. Only set a framework when two framework cores are running at once (for example mid-migration). A forced framework that is not running leaves every Poggy script without a framework.",
+      "tab": "general",
+      "group": "Detection",
+      "options": [
+        {"value": false, "label": "Detect automatically"},
+        {"value": "vorp", "label": "VORP (RedM)"},
+        {"value": "rsg", "label": "RSG (RedM)"},
+        {"value": "qbr", "label": "QBR (RedM)"},
+        {"value": "esx", "label": "ESX (FiveM)"},
+        {"value": "qbcore", "label": "QBCore (FiveM)"},
+        {"value": "standalone", "label": "No framework (standalone)"}
+      ]
+    },
+    "PoggyCoreConfig.DetectionOrder": {
+      "label": "Detection order",
+      "tooltip": "When detecting, the first framework in this list whose core is running wins. Only matters when more than one framework core is running. Names: vorp, rsg, qbr, redem, rpx on RedM; esx, qbcore on FiveM. The other game's names are simply skipped.",
+      "tab": "general",
+      "group": "Detection",
+      "advanced": true
+    },
+    "PoggyCoreConfig.FrameworkTimeout": {
+      "label": "Framework wait",
+      "tooltip": "How long poggy_core waits at start for the framework core to answer, in milliseconds. After that it carries on without one and framework calls fail. Raise it only if your framework starts very slowly.",
+      "tab": "general",
+      "group": "Detection",
+      "min": 5000,
+      "max": 120000,
+      "step": 1000,
+      "unit": "ms",
+      "advanced": true
+    },
+    "PoggyCoreConfig.RestartDependents": {
+      "label": "Restart Poggy scripts with poggy_core",
+      "tooltip": "Restarting poggy_core stops every Poggy script. When on, poggy_core starts the ones that were running again once it is back. Needs 'add_ace resource.poggy_core command.ensure allow' in server.cfg. Never touches a fresh server start.",
+      "tab": "general",
+      "group": "Restarting"
+    },
+    "PoggyCoreConfig.Hub.Command": {
+      "label": "Settings hub command",
+      "tooltip": "The chat command that opens this settings hub (default poggy, typed as /poggy), without the slash. Pick a name no other resource uses.",
+      "tab": "general",
+      "group": "Commands"
+    },
+    "PoggyCoreConfig.Sql": {"label": "Database", "tab": "general"},
+    "PoggyCoreConfig.Sql.AutoInstall": {
+      "label": "Set up database tables automatically",
+      "tooltip": "When a Poggy script starts, its missing tables, columns and indexes are added. Nothing is dropped or overwritten. Off: run 'poggycore sql install <resource|all>' in the console yourself.",
+      "tab": "general",
+      "group": "Database"
+    },
+    "PoggyCoreConfig.LawJobs": {
+      "label": "Law jobs",
+      "tooltip": "Jobs that Poggy scripts treat as law enforcement (for example who gets lawman options). Names must match your framework's job names exactly.",
+      "tab": "access",
+      "group": "Job types",
+      "picker": "job"
+    },
+    "PoggyCoreConfig.MedicalJobs": {
+      "label": "Medical jobs",
+      "tooltip": "Jobs that Poggy scripts treat as medical. Names must match your framework's job names exactly.",
+      "tab": "access",
+      "group": "Job types",
+      "picker": "job"
+    },
+    "PoggyCoreConfig.Hub": {"label": "Settings hub", "tab": "hub"},
+    "PoggyCoreConfig.Hub.IdleMinutes": {
+      "label": "Release an idle script after",
+      "tooltip": "Only one person edits a script at a time. If they do nothing for this many minutes, the script is freed and their unsaved changes are dropped.",
+      "tab": "hub",
+      "group": "Editing locks",
+      "min": 2,
+      "max": 120,
+      "step": 1,
+      "unit": "minutes"
+    },
+    "PoggyCoreConfig.Hub.IdleWarnMinutes": {
+      "label": "Warn the editor after",
+      "tooltip": "The editor is warned after this many idle minutes, so they can carry on before the script is freed. Keep it below the release time.",
+      "tab": "hub",
+      "group": "Editing locks",
+      "min": 1,
+      "max": 119,
+      "step": 1,
+      "unit": "minutes"
+    },
+    "PoggyCoreConfig.Hub.HistoryDays": {
+      "label": "Keep change history for",
+      "tooltip": "Change history older than this many days is deleted when poggy_core starts. Older changes can no longer be seen or undone.",
+      "tab": "hub",
+      "group": "History",
+      "min": 1,
+      "max": 3650,
+      "step": 1,
+      "unit": "days"
+    },
+    "PoggyCoreConfig.StoragePrefix": {
+      "label": "Container id prefix",
+      "tooltip": "Put in front of every storage container id Poggy scripts create. Do not change it on a server with stored items: every existing stash would look empty (the items stay under the old ids).",
+      "tab": "storage",
+      "group": "Containers",
+      "advanced": true
+    },
+    "PoggyCoreConfig.StorageDefaults": {
+      "label": "Default container options",
+      "tooltip": "Used for any option a script does not set when it creates a storage container.",
+      "tab": "storage"
+    },
+    "PoggyCoreConfig.StorageDefaults.slots": {
+      "label": "Slots",
+      "tooltip": "How many slots a container has when the script does not say.",
+      "tab": "storage",
+      "group": "Default container options",
+      "min": 1,
+      "max": 1000,
+      "step": 1
+    },
+    "PoggyCoreConfig.StorageDefaults.maxWeight": {
+      "label": "Maximum weight",
+      "tooltip": "Weight limit of a container when the script does not say, in the inventory's own units (grams on RSG and QBR: 200000 = 200 kg). VORP ignores it and uses the slots.",
+      "tab": "storage",
+      "group": "Default container options",
+      "min": 0,
+      "max": 10000000,
+      "step": 1000
+    },
+    "PoggyCoreConfig.StorageDefaults.shared": {
+      "label": "Shared",
+      "tooltip": "On: everyone who opens a container sees the same contents. Off: each character has their own contents. VORP only; on RSG and QBR a container is always shared.",
+      "tab": "storage",
+      "group": "Default container options"
+    },
+    "PoggyCoreConfig.StorageDefaults.allowWeapons": {
+      "label": "Allow weapons",
+      "tooltip": "Whether weapons can be put in a container when the script does not say. VORP only; RSG and QBR ignore it.",
+      "tab": "storage",
+      "group": "Default container options"
+    },
+    "PoggyCoreConfig.NotifyRenderers": {
+      "label": "Notification style order",
+      "tooltip": "Where notifications are drawn, tried in order until one works: native (Poggy's own RDR2-style notes), framework (your framework's notifications), chat (a chat line, last resort).",
+      "tab": "interface",
+      "group": "Notifications",
+      "advanced": true
+    },
+    "PoggyCoreConfig.NotifyDuration": {
+      "label": "Notification time",
+      "tooltip": "How long a notification stays on screen when the script does not say, in milliseconds.",
+      "tab": "interface",
+      "group": "Notifications",
+      "min": 1000,
+      "max": 30000,
+      "step": 500,
+      "unit": "ms"
+    },
+    "PoggyCoreConfig.Ui": {"label": "Menus and text boxes", "tab": "interface"},
+    "PoggyCoreConfig.Ui.Position": {
+      "label": "Menu position",
+      "tooltip": "Where every Poggy menu and text box sits on the screen.",
+      "tab": "interface",
+      "group": "Menus and text boxes",
+      "options": [
+        {"value": "center", "label": "Centre"},
+        {"value": "left", "label": "Left"},
+        {"value": "right", "label": "Right"},
+        {"value": "top-left", "label": "Top left"},
+        {"value": "top-right", "label": "Top right"},
+        {"value": "bottom-left", "label": "Bottom left"},
+        {"value": "bottom-right", "label": "Bottom right"}
+      ]
+    },
+    "PoggyCoreConfig.Ui.Margin": {
+      "label": "Distance from the edge",
+      "tooltip": "Gap between the menu and the screen edge for the side, top and bottom positions, in pixels.",
+      "tab": "interface",
+      "group": "Menus and text boxes",
+      "min": 0,
+      "max": 400,
+      "step": 5,
+      "unit": "px"
+    },
+    "PoggyCoreConfig.Ui.Cursor": {
+      "label": "Show mouse cursor",
+      "tooltip": "Shows the mouse cursor in menus and text boxes, unless a script asks otherwise.",
+      "tab": "interface",
+      "group": "Menus and text boxes"
+    },
+    "PoggyCoreConfig.Ui.Sounds": {
+      "label": "Menu sounds",
+      "tooltip": "Plays the game's menu sounds when moving, selecting and closing.",
+      "tab": "interface",
+      "group": "Menus and text boxes"
+    },
+    "PoggyCoreConfig.Theme": {
+      "label": "Theme",
+      "tab": "theme"
+    },
+    "PoggyCoreConfig.Theme.Preset": {
+      "label": "Theme",
+      "tooltip": "The look of every Poggy script's own screens (shops, the market, the auction house, tickets, transform and the rest) and of these menus. Screens drawn with pictures keep their art. poggy_core's menus and /poggy change at once; a script's screens change the next time they open.",
+      "tab": "theme",
+      "group": "Theme",
+      "options": [
+        {
+          "value": "rosewood",
+          "label": "Rosewood: black and gold"
+        },
+        {
+          "value": "blackwater",
+          "label": "Blackwater Steel: slate and steel blue"
+        },
+        {
+          "value": "lemoyne",
+          "label": "Lemoyne Moss: dark green and moss"
+        },
+        {
+          "value": "saint_denis",
+          "label": "Saint Denis Wine: burgundy and rose"
+        },
+        {
+          "value": "ambarino",
+          "label": "Ambarino Frost: midnight and ice"
+        },
+        {
+          "value": "tumbleweed",
+          "label": "Tumbleweed Copper: leather and copper"
+        },
+        {
+          "value": "outlaw",
+          "label": "Outlaw Crimson: black and blood red"
+        },
+        {
+          "value": "silver",
+          "label": "Silver Dollar: charcoal and silver"
+        },
+        {
+          "value": "ledger",
+          "label": "Ledger: light parchment and dark ink"
+        },
+        {
+          "value": "custom",
+          "label": "Custom: the colours below"
+        }
+      ],
+      "live": true
+    },
+    "PoggyCoreConfig.Theme.OwnLook": {
+      "label": "Scripts that keep their own colours",
+      "tooltip": "Product ids of Poggy scripts that should not follow the theme, e.g. poggy_supplydrops. Their screens look as they did before the theme existed.",
+      "tab": "theme",
+      "group": "Theme",
+      "live": true
+    },
+    "PoggyCoreConfig.Theme.PlayerThemes": {
+      "label": "Players may pick a theme",
+      "tooltip": "Every player can already set their own screen size, Light (easier to read) and less motion with /poggyui. On: they can also pick one of the ready-made themes for themselves (never Custom). Only their own screens change. Scripts that keep their own colours stay as they are.",
+      "tab": "theme",
+      "group": "Theme",
+      "live": true
+    },
+    "PoggyCoreConfig.Theme.Custom": {
+      "label": "Custom theme",
+      "tab": "theme",
+      "group": "Colours for the custom theme"
+    },
+    "PoggyCoreConfig.Theme.Custom.Background": {
+      "label": "Panels",
+      "tooltip": "The colour of every panel. Dark colours give a dark theme, light ones a light theme.",
+      "tab": "theme",
+      "group": "Colours for the custom theme",
+      "picker": "color",
+      "live": true
+    },
+    "PoggyCoreConfig.Theme.Custom.Text": {
+      "label": "Writing",
+      "tooltip": "The main text colour. Pick something that reads clearly on the panel colour.",
+      "tab": "theme",
+      "group": "Colours for the custom theme",
+      "picker": "color",
+      "live": true
+    },
+    "PoggyCoreConfig.Theme.Custom.Accent": {
+      "label": "Accent",
+      "tooltip": "Highlights: the selected thing, the active tab, the main button, prices.",
+      "tab": "theme",
+      "group": "Colours for the custom theme",
+      "picker": "color",
+      "live": true
+    },
+    "PoggyCoreConfig.Theme.Custom.Success": {
+      "label": "Success",
+      "tooltip": "Good news: done, gained, available.",
+      "tab": "theme",
+      "group": "Colours for the custom theme",
+      "picker": "color",
+      "live": true
+    },
+    "PoggyCoreConfig.Theme.Custom.Danger": {
+      "label": "Danger",
+      "tooltip": "Bad news and destructive buttons: remove, lost, refused.",
+      "tab": "theme",
+      "group": "Colours for the custom theme",
+      "picker": "color",
+      "live": true
+    },
+    "PoggyCoreConfig.Theme.Custom.Warning": {
+      "label": "Warning",
+      "tooltip": "Take care: low, expiring, pending.",
+      "tab": "theme",
+      "group": "Colours for the custom theme",
+      "picker": "color",
+      "live": true
+    },
+    "PoggyCoreConfig.Theme.Custom.Info": {
+      "label": "Information",
+      "tooltip": "Neutral notes and information.",
+      "tab": "theme",
+      "group": "Colours for the custom theme",
+      "picker": "color",
+      "live": true
+    },
+    "PoggyCoreConfig.Theme.Custom.Opacity": {
+      "label": "Panel solidity",
+      "tooltip": "How solid a panel is: 1 hides the world behind it, 0.5 lets it show through.",
+      "tab": "theme",
+      "group": "Colours for the custom theme",
+      "min": 0.5,
+      "max": 1,
+      "step": 0.01,
+      "live": true
+    },
+    "PoggyCoreConfig.Theme.Custom.Font": {
+      "label": "Lettering",
+      "tooltip": "Old style: a period serif for titles and labels, plain letters for numbers (the Poggy look). Book: one serif throughout. Clean: plain sans-serif throughout.",
+      "tab": "theme",
+      "group": "Colours for the custom theme",
+      "options": [
+        {
+          "value": "fell",
+          "label": "Old style"
+        },
+        {
+          "value": "serif",
+          "label": "Book"
+        },
+        {
+          "value": "clean",
+          "label": "Clean"
+        }
+      ],
+      "live": true
+    },
+    "PoggyCoreConfig.Theme.Custom.Corners": {
+      "label": "Corner rounding",
+      "tooltip": "0 keeps every corner square, as the Poggy look has it.",
+      "tab": "theme",
+      "group": "Colours for the custom theme",
+      "min": 0,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "live": true
+    },
+    "PoggyCoreConfig.Ui.Timeout": {
+      "label": "Menu answer time limit",
+      "tooltip": "How long the server waits for a player to answer a menu or text box it opened, in milliseconds (300000 = 5 minutes). After that the menu closes and counts as no answer.",
+      "tab": "interface",
+      "group": "Menus and text boxes",
+      "min": 10000,
+      "max": 3600000,
+      "step": 10000,
+      "unit": "ms",
+      "advanced": true
+    },
+    "PoggyCoreConfig.Updates": {"label": "Updates", "tab": "updates"},
+    "PoggyCoreConfig.Updates.AutoUpdate": {
+      "label": "Automatic updates",
+      "tooltip": "On: new versions of your Poggy scripts are installed on their own when the server starts. Your config values are kept and backups are made. Off: the console only tells you what is available.",
+      "tab": "updates",
+      "group": "Automatic updates"
+    },
+    "PoggyCoreConfig.Updates.ApplyOnStart": {
+      "label": "Install updates at start",
+      "tooltip": "Installs available updates when the server starts, even with automatic updates off.",
+      "tab": "updates",
+      "group": "Automatic updates"
+    },
+    "PoggyCoreConfig.Updates.CheckOnStart": {
+      "label": "Check at start",
+      "tooltip": "Lists every Poggy script with a newer version in the console when the server starts.",
+      "tab": "updates",
+      "group": "Automatic updates"
+    },
+    "PoggyCoreConfig.Updates.StartDelaySeconds": {
+      "label": "Start check delay",
+      "tooltip": "How long after start the first check waits, in seconds, so every script has started first.",
+      "tab": "updates",
+      "group": "Automatic updates",
+      "min": 0,
+      "max": 600,
+      "step": 5,
+      "unit": "seconds",
+      "advanced": true
+    },
+    "PoggyCoreConfig.Updates.RestartUpdated": {
+      "label": "Restart updated scripts",
+      "tooltip": "After installing, restarts each updated script so the new version runs. Needs 'add_ace resource.poggy_core command.refresh allow' and '... command.ensure allow' in server.cfg. poggy_core itself only updates on the next server restart.",
+      "tab": "updates",
+      "group": "After installing"
+    },
+    "PoggyCoreConfig.Updates.ShowCatalog": {
+      "label": "Show scripts you do not have",
+      "tooltip": "After the start check, lists up to ten published Poggy scripts this server does not have, with store links. Printed once per boot.",
+      "tab": "updates",
+      "group": "After installing"
+    },
+    "PoggyCoreConfig.Updates.Source": {
+      "label": "Feed source",
+      "tooltip": "Where updates come from. Leave on GitHub. The website option cannot use a .xyz address (FXServer refuses them).",
+      "tab": "updates",
+      "group": "Feed",
+      "advanced": true,
+      "options": [
+        {"value": "github", "label": "GitHub (recommended)"},
+        {"value": "website", "label": "Website (Url below)"}
+      ]
+    },
+    "PoggyCoreConfig.Updates.Repo": {
+      "label": "GitHub repository",
+      "tooltip": "The GitHub repository the feed is read from, as Owner/Name. Leave it as it is unless you run a private copy of the feed.",
+      "tab": "updates",
+      "group": "Feed",
+      "advanced": true
+    },
+    "PoggyCoreConfig.Updates.Branch": {
+      "label": "GitHub branch",
+      "tooltip": "The branch of that repository to read. Normally main.",
+      "tab": "updates",
+      "group": "Feed",
+      "advanced": true
+    },
+    "PoggyCoreConfig.Updates.Url": {
+      "label": "Website address",
+      "tooltip": "Only used when Feed source is Website. Must not be a .xyz address.",
+      "tab": "updates",
+      "group": "Feed",
+      "advanced": true
+    },
+    "PoggyCoreConfig.VorpReloadSkinCommand": {
+      "label": "VORP reload-skin command",
+      "tooltip": "VORP only. The command poggy_core runs to reload a character's clothes: vorp_character's ReloadCharCommand. Change it only if you changed it there.",
+      "tab": "advanced",
+      "group": "VORP",
+      "advanced": true
+    },
+    "PoggyCoreConfig.CallbackTimeout": {
+      "label": "Framework call time limit",
+      "tooltip": "How long to wait for the framework to answer a call (for example an inventory check) before treating it as failed, in milliseconds.",
+      "tab": "advanced",
+      "group": "Timeouts",
+      "min": 1000,
+      "max": 60000,
+      "step": 500,
+      "unit": "ms",
+      "advanced": true
+    },
+    "PoggyCoreConfig.RpcTimeout": {
+      "label": "Server ⇄ player call time limit",
+      "tooltip": "How long a request between the server and a player's game may take before it counts as no answer, in milliseconds.",
+      "tab": "advanced",
+      "group": "Timeouts",
+      "min": 1000,
+      "max": 120000,
+      "step": 500,
+      "unit": "ms",
+      "advanced": true
+    },
+    "PoggyCoreConfig.WarnUnsupported": {
+      "label": "Warn about unsupported calls",
+      "tooltip": "Prints one warning the first time a script asks for something your framework cannot do. Leave it on.",
+      "tab": "advanced",
+      "group": "Diagnostics",
+      "advanced": true
+    },
+    "PoggyCoreConfig.Debug": {
+      "label": "Debug output",
+      "tooltip": "Prints every framework call to the server console. Very noisy; for development only. Leave off on a live server.",
+      "tab": "advanced",
+      "group": "Diagnostics",
+      "advanced": true
+    },
+    "PoggyCoreConfig.Roles": {
+      "hidden": true,
+      "tooltip": "Edited on the hub's Roles page, which also updates every setting linked to a role."
+    },
+    "PoggyCoreConfig.Roles.*": {"hidden": true},
+    "PoggyCoreConfig.Updates.Repos": {
+      "hidden": true,
+      "tooltip": "Development only: per-script source repositories for 'poggycore update <resource> repo=Owner/Name', which reads a source repository instead of the published feed. The default for repo= (SourceRepo) is commented out in the file; leave both unset unless you develop the scripts."
+    }
+  }
+}

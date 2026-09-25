@@ -1,0 +1,1581 @@
+{
+  "label": "Witnesses",
+  "tagline": "Every crime has a witness: stop them before they reach the law",
+  "category": "Roleplay",
+  "description": "When a player shoots, fights, lassos, tramples, steals a horse, carries a hostage, loots a body or poaches in town, a nearby NPC reacts, flees and tries to report it. If the witness gets away, on-duty law gets an alert with a blip and a waypoint. The same alert system gives players commands like /callpolice and /calldoctor and gives other scripts a police alert export, and an NPC law posse can ride out when no player lawmen are on duty.",
+  "readme": "README.md",
+  "help": [
+    {
+      "title": "Duty and police alerts",
+      "file": "docs/help/duty-and-alerts.md"
+    },
+    {
+      "title": "Adding an alert command",
+      "file": "docs/help/alert-commands.md"
+    },
+    {
+      "title": "Where witnesses work",
+      "file": "docs/help/towns-and-zones.md"
+    },
+    {
+      "title": "NPC law response",
+      "file": "docs/help/npc-law.md"
+    }
+  ],
+  "commands": [
+    {
+      "command": "/callpolice",
+      "who": "Everyone",
+      "description": "Sends a 'NEED POLICE' alert with a blip at the player's position to every law job in the law job list. 120 second cooldown per player. The name is set in that alert's row of the Job alerts list; this is the name it ships with.",
+      "usage": "/callpolice",
+      "examples": [
+        "/callpolice"
+      ]
+    },
+    {
+      "command": "/calldoctor",
+      "who": "Everyone",
+      "description": "Sends a 'NEED DOCTOR' alert to the doctor job. The blip stays until a doctor reaches the spot. 120 second cooldown per player. The name is set in that alert's row of the Job alerts list; this is the name it ships with.",
+      "usage": "/calldoctor",
+      "examples": [
+        "/calldoctor"
+      ]
+    },
+    {
+      "command": "/undertaker",
+      "who": "Everyone",
+      "description": "Sends an 'UNDERTAKER' alert to the undertaker job. /alertundertaker does the same. The name is set in that alert's row of the Job alerts list; this is the name it ships with.",
+      "usage": "/undertaker",
+      "examples": [
+        "/undertaker",
+        "/alertundertaker"
+      ]
+    },
+    {
+      "command": "/calltrain",
+      "who": "Everyone",
+      "description": "Sends a 'PASSENGER PICKUP' alert to the conductor job. The name is set in that alert's row of the Job alerts list; this is the name it ships with.",
+      "usage": "/calltrain",
+      "examples": [
+        "/calltrain"
+      ]
+    },
+    {
+      "command": "/robbery198sd99720",
+      "who": "Everyone",
+      "description": "One of the hidden alert commands (robbery, break-in, bounty, drug sale, explosives, kidnapping, prisoner escape, train robbery, grave robbing and more). They are meant to be fired by other scripts; the odd names stop players guessing them, but anyone who knows a name can type it. Other scripts can also use exports.poggy_witnesses:TriggerAlertForPlayer(src, command).",
+      "usage": "/<alert command>",
+      "examples": [
+        "/robbery198sd99720",
+        "/graverobbing8x2kp19"
+      ]
+    },
+    {
+      "command": "/witness_shooting_alert",
+      "configPath": "Config.Checks.Shooting.Command",
+      "who": "Everyone",
+      "description": "Fired by the script itself when a witness reports a shooting. The other crimes have their own: witness_threatening_alert, witness_melee_alert, witness_lassoing_alert, witness_trampling_alert, witness_hijacking_alert and witness_carrying_hostage_alert. A player who types one only reports themselves.",
+      "usage": "/witness_shooting_alert",
+      "examples": [
+        "/witness_shooting_alert"
+      ]
+    },
+    {
+      "command": "/clearalerts",
+      "who": "Everyone",
+      "description": "Removes every alert blip on your map, including blips that wait for you to arrive, and clears your waypoint.",
+      "usage": "/clearalerts",
+      "examples": [
+        "/clearalerts"
+      ]
+    },
+    {
+      "command": "/cleanalertblips",
+      "who": "Everyone",
+      "description": "Removes every alert blip on your map and tells you how many were removed. Your waypoint stays.",
+      "usage": "/cleanalertblips",
+      "examples": [
+        "/cleanalertblips"
+      ]
+    },
+    {
+      "command": "/clearwaypoint",
+      "who": "Everyone",
+      "description": "Clears your GPS route and waypoint. /clearmarker does the same.",
+      "usage": "/clearwaypoint",
+      "examples": [
+        "/clearwaypoint",
+        "/clearmarker"
+      ]
+    },
+    {
+      "command": "/clearmarker",
+      "who": "Everyone",
+      "description": "Same as /clearwaypoint: clears your GPS route and waypoint.",
+      "usage": "/clearmarker",
+      "examples": [
+        "/clearmarker"
+      ]
+    },
+    {
+      "command": "/getmyweaponhash_cl",
+      "who": "Everyone",
+      "description": "Diagnostic: prints the weapon you are holding, as the script sees it, to your F8 console. Useful when a weapon is or is not treated as threatening.",
+      "usage": "/getmyweaponhash_cl",
+      "examples": [
+        "/getmyweaponhash_cl"
+      ]
+    },
+    {
+      "command": "/witnesscheck",
+      "who": "Everyone",
+      "description": "Prints to the F8 console, whatever the debug setting, every check that decides whether a crime where you stand would be witnessed: poggy_core ready, the town or blacklist, the crimes switched on, your weapon, the cooldown, the townsfolk who could see you, your job, duty and law immunity. The first thing to run when nothing is ever witnessed.",
+      "usage": "/witnesscheck",
+      "examples": [
+        "/witnesscheck"
+      ]
+    },
+    {
+      "command": "/witnessduty",
+      "who": "ACE: command.witnessduty",
+      "description": "Shows which duty script Witnesses reads (Duty script), the fallback, what jails after an NPC arrest, and every player with a law job with their duty state (and anyone in jail). Works from the server console too.",
+      "usage": "/witnessduty",
+      "examples": [
+        "/witnessduty"
+      ]
+    },
+    {
+      "command": "/witnesstestalert",
+      "who": "ACE: command.witnesstestalert",
+      "description": "Test: sends one real crime alert (the Job alerts row for that crime, Shooting when none is named) to your own screen only, exactly as an on-duty lawman gets it: the popup, the blip, the area circle, the route, where and when. Your job and duty do not matter, nobody else is alerted, and no posse rides out. From the server console, name the player first.",
+      "usage": "/witnesstestalert [crime]",
+      "examples": [
+        "/witnesstestalert",
+        "/witnesstestalert Melee",
+        "witnesstestalert 3 Hijacking"
+      ]
+    },
+    {
+      "command": "/jail",
+      "who": "ACE: command.jail",
+      "description": "Sends a player to the built-in Sisika jail for the given minutes (up to 240), in the prison uniform with the time left on screen. A player already inside gets the new time. Needs Use the built-in Sisika jail on. 'me' jails yourself, to try it. Works from the server console too.",
+      "usage": "/jail <id|me> <minutes> [reason]",
+      "examples": [
+        "/jail 12 15",
+        "/jail me 1"
+      ]
+    },
+    {
+      "command": "/unjail",
+      "who": "ACE: command.unjail",
+      "description": "Releases a player from the built-in Sisika jail at once: their own clothes back and faded to the release point across the river. Works from the server console too.",
+      "usage": "/unjail <id|me>",
+      "examples": [
+        "/unjail 12",
+        "/unjail me"
+      ]
+    },
+    {
+      "command": "/dumpalertgroups",
+      "who": "ACE: command.dumpalertgroups",
+      "description": "Lists every player with a loaded character: their job and grade, whether it is a law job, and whether they are on duty (so whether law alerts reach them). Also shows which duty script is in use. Works from the server console too.",
+      "usage": "/dumpalertgroups",
+      "examples": [
+        "/dumpalertgroups"
+      ]
+    },
+    {
+      "command": "/debugalertsgroups",
+      "who": "ACE: command.debugalertsgroups",
+      "description": "The same list as /dumpalertgroups, printed to the server console.",
+      "usage": "/debugalertsgroups",
+      "examples": [
+        "/debugalertsgroups"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "id": "general",
+      "label": "General",
+      "icon": "sliders"
+    },
+    {
+      "id": "access",
+      "label": "Access & permissions",
+      "icon": "shield"
+    },
+    {
+      "id": "locations",
+      "label": "Locations",
+      "icon": "map"
+    },
+    {
+      "id": "crimes",
+      "label": "Crimes",
+      "icon": "target"
+    },
+    {
+      "id": "alerts",
+      "label": "Alerts",
+      "icon": "bell"
+    },
+    {
+      "id": "npclaw",
+      "label": "NPC law response",
+      "icon": "users"
+    },
+    {
+      "id": "text",
+      "label": "Text & language",
+      "icon": "globe"
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced",
+      "icon": "cog"
+    }
+  ],
+  "settings": {
+    "Config.Debug": {
+      "label": "Debug output",
+      "tooltip": "Prints witness and alert details to the F8 and server consoles, and draws the town zones in the world. Leave off on a live server.",
+      "tab": "advanced",
+      "group": "Diagnostics",
+      "advanced": true
+    },
+    "Config.DetailedWitnessDebug": {
+      "label": "Detailed witness debug",
+      "tooltip": "Not read by this version of the script. Use Debug output instead.",
+      "tab": "advanced",
+      "group": "Diagnostics",
+      "advanced": true
+    },
+    "Config.WitnessCooldown": {
+      "label": "Cooldown between reports",
+      "tooltip": "After a witness report starts, no new one can start for this long. Also the pause after someone reacts to a gun being pointed at them. Lower means more witnesses in a busy fight.",
+      "tab": "general",
+      "group": "Witnesses",
+      "min": 0,
+      "max": 600000,
+      "step": 1000,
+      "unit": "ms"
+    },
+    "Config.MaxActiveWitnesses": {
+      "label": "Most witnesses at once",
+      "tooltip": "How many NPCs can be fleeing to report at the same time. More witnesses are harder to stop. 1 keeps it simple.",
+      "tab": "general",
+      "group": "Witnesses",
+      "min": 1,
+      "max": 10,
+      "step": 1
+    },
+    "Config.WitnessSearchRadius": {
+      "label": "Witness search radius",
+      "tooltip": "How far from the crime the script looks for an NPC to become the witness. Bigger means crimes are seen from further away.",
+      "tab": "general",
+      "group": "Witnesses",
+      "min": 5,
+      "max": 150,
+      "step": 1,
+      "unit": "m"
+    },
+    "Config.AllowPlayersAsVictims": {
+      "label": "Players can be victims",
+      "tooltip": "When on, crimes against other players (aiming at, fighting, lassoing, trampling them) can be witnessed. Players are never witnesses themselves.",
+      "tab": "general",
+      "group": "Witnesses"
+    },
+    "Config.DisableTopNotifications": {
+      "label": "Hide the big WITNESS messages",
+      "tooltip": "Turns off the large top-of-screen messages such as 'Someone saw what you did!' and the NPC law 'defeated' or 'escaped' notices. Alerts to law jobs still show.",
+      "tab": "general",
+      "group": "On-screen messages"
+    },
+    "Config.Checks": {
+      "label": "Crimes witnesses notice",
+      "tab": "crimes",
+      "tooltip": "Each crime type can be switched on or off and given a chance of starting a witness event."
+    },
+    "Config.Checks.*": {
+      "tab": "crimes"
+    },
+    "Config.Checks.Shooting": {
+      "label": "Shooting and aiming",
+      "tooltip": "Shooting at people, and aiming a threatening weapon at someone until they react. This switch also controls threatening detection."
+    },
+    "Config.Checks.Shooting.Enabled": {
+      "label": "Enabled",
+      "tooltip": "Switches detection of this crime on or off."
+    },
+    "Config.Checks.Shooting.Probability": {
+      "label": "Chance to be witnessed",
+      "tooltip": "Percent chance that this crime starts a witness event. 100 = every time, 0 = never.",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Checks.Shooting.Command": {
+      "label": "Alert command",
+      "tooltip": "The alert this crime sends when a witness reports it. It must match an alert in Job alerts; the shipped alerts read this value, so renaming it here renames the alert too.",
+      "advanced": true
+    },
+    "Config.Checks.Threatening": {
+      "label": "Threatening with a weapon",
+      "tooltip": "Aiming a threatening weapon at someone without shooting."
+    },
+    "Config.Checks.Threatening.Enabled": {
+      "label": "Enabled",
+      "tooltip": "Not read by this version: threatening is detected whenever Shooting is on. Its chance below is still used."
+    },
+    "Config.Checks.Threatening.Probability": {
+      "label": "Chance to be witnessed",
+      "tooltip": "Percent chance that this crime starts a witness event. 100 = every time, 0 = never.",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Checks.Threatening.Command": {
+      "label": "Alert command",
+      "tooltip": "The alert this crime sends when a witness reports it. It must match an alert in Job alerts; the shipped alerts read this value, so renaming it here renames the alert too.",
+      "advanced": true
+    },
+    "Config.Checks.Melee": {
+      "label": "Fist fights and melee",
+      "tooltip": "Punching or hitting someone with a melee weapon."
+    },
+    "Config.Checks.Melee.Enabled": {
+      "label": "Enabled",
+      "tooltip": "Switches detection of this crime on or off."
+    },
+    "Config.Checks.Melee.Probability": {
+      "label": "Chance to be witnessed",
+      "tooltip": "Percent chance that this crime starts a witness event. 100 = every time, 0 = never.",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Checks.Melee.Command": {
+      "label": "Alert command",
+      "tooltip": "The alert this crime sends when a witness reports it. It must match an alert in Job alerts; the shipped alerts read this value, so renaming it here renames the alert too.",
+      "advanced": true
+    },
+    "Config.Checks.Lassoing": {
+      "label": "Lassoing and hogtying",
+      "tooltip": "Lassoing someone."
+    },
+    "Config.Checks.Lassoing.Enabled": {
+      "label": "Enabled",
+      "tooltip": "Switches detection of this crime on or off."
+    },
+    "Config.Checks.Lassoing.Probability": {
+      "label": "Chance to be witnessed",
+      "tooltip": "Percent chance that this crime starts a witness event. 100 = every time, 0 = never.",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Checks.Lassoing.Command": {
+      "label": "Alert command",
+      "tooltip": "The alert this crime sends when a witness reports it. It must match an alert in Job alerts; the shipped alerts read this value, so renaming it here renames the alert too.",
+      "advanced": true
+    },
+    "Config.Checks.Trampling": {
+      "label": "Trampling",
+      "tooltip": "Riding someone down on a horse."
+    },
+    "Config.Checks.Trampling.Enabled": {
+      "label": "Enabled",
+      "tooltip": "Switches detection of this crime on or off."
+    },
+    "Config.Checks.Trampling.Probability": {
+      "label": "Chance to be witnessed",
+      "tooltip": "Percent chance that this crime starts a witness event. 100 = every time, 0 = never.",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Checks.Trampling.Command": {
+      "label": "Alert command",
+      "tooltip": "The alert this crime sends when a witness reports it. It must match an alert in Job alerts; the shipped alerts read this value, so renaming it here renames the alert too.",
+      "advanced": true
+    },
+    "Config.Checks.Hijacking": {
+      "label": "Horse and wagon theft",
+      "tooltip": "Pulling someone off their horse or wagon."
+    },
+    "Config.Checks.Hijacking.Enabled": {
+      "label": "Enabled",
+      "tooltip": "Switches detection of this crime on or off."
+    },
+    "Config.Checks.Hijacking.Probability": {
+      "label": "Chance to be witnessed",
+      "tooltip": "Percent chance that this crime starts a witness event. 100 = every time, 0 = never.",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Checks.Hijacking.Command": {
+      "label": "Alert command",
+      "tooltip": "The alert this crime sends when a witness reports it. It must match an alert in Job alerts; the shipped alerts read this value, so renaming it here renames the alert too.",
+      "advanced": true
+    },
+    "Config.Checks.CarryingHostage": {
+      "label": "Riding with a hostage",
+      "tooltip": "Riding with a hogtied person on your horse."
+    },
+    "Config.Checks.CarryingHostage.Enabled": {
+      "label": "Enabled",
+      "tooltip": "Switches detection of this crime on or off."
+    },
+    "Config.Checks.CarryingHostage.Probability": {
+      "label": "Chance to be witnessed",
+      "tooltip": "Percent chance that this crime starts a witness event. 100 = every time, 0 = never.",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Checks.CarryingHostage.Command": {
+      "label": "Alert command",
+      "tooltip": "The alert this crime sends when a witness reports it. It must match an alert in Job alerts; the shipped alerts read this value, so renaming it here renames the alert too.",
+      "advanced": true
+    },
+    "Config.Checks.Looting": {
+      "label": "Looting a body",
+      "tooltip": "Going through a dead person's pockets."
+    },
+    "Config.Checks.Looting.Enabled": {
+      "label": "Enabled",
+      "tooltip": "Switches detection of this crime on or off."
+    },
+    "Config.Checks.Looting.Probability": {
+      "label": "Chance to be witnessed",
+      "tooltip": "Percent chance that this crime starts a witness event. 100 = every time, 0 = never.",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Checks.Looting.Command": {
+      "label": "Alert command",
+      "tooltip": "The alert this crime sends when a witness reports it. With no matching row in Job alerts, a standard law alert with this crime's own text is sent.",
+      "advanced": true
+    },
+    "Config.Checks.Poaching": {
+      "label": "Poaching",
+      "tooltip": "Killing one of the animals in Poaching: protected animals."
+    },
+    "Config.Checks.Poaching.Enabled": {
+      "label": "Enabled",
+      "tooltip": "Switches detection of this crime on or off."
+    },
+    "Config.Checks.Poaching.Probability": {
+      "label": "Chance to be witnessed",
+      "tooltip": "Percent chance that this crime starts a witness event. 100 = every time, 0 = never.",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.Checks.Poaching.Command": {
+      "label": "Alert command",
+      "tooltip": "The alert this crime sends when a witness reports it. With no matching row in Job alerts, a standard law alert with this crime's own text is sent.",
+      "advanced": true
+    },
+    "Config.PoachingAnimals": {
+      "label": "Poaching: protected animals",
+      "tooltip": "Animal model names whose killing counts as poaching (when Poaching is on), e.g. a_c_buffalo_01.",
+      "tab": "crimes",
+      "group": "Poaching"
+    },
+    "Config.Checks.Trampling.MinSpeed": {
+      "label": "Minimum horse speed",
+      "tooltip": "The horse must be moving faster than this for a collision to count as trampling. Higher ignores slow bumps.",
+      "min": 0,
+      "max": 15,
+      "step": 0.5,
+      "unit": "m/s"
+    },
+    "Config.VictimDetectionRadius": {
+      "label": "Trampling victim radius",
+      "tooltip": "How close to your horse someone must be to count as trampled.",
+      "tab": "crimes",
+      "group": "Trampling",
+      "min": 0.5,
+      "max": 10,
+      "step": 0.5,
+      "unit": "m"
+    },
+    "Config.NonThreateningAimItems": {
+      "label": "Items that are not threatening",
+      "tooltip": "Aiming these (lassos, cameras, binoculars, lanterns, fishing rods and so on) never counts as a threat. Use weapon names such as WEAPON_LASSO.",
+      "tab": "crimes",
+      "group": "Weapons that do not threaten"
+    },
+    "Config.BlacklistNPCs": {
+      "label": "NPCs that never witness",
+      "tooltip": "Ped models that are never picked as witnesses: lawmen, guards, bandits, job NPCs from other scripts. Use the model name, e.g. s_m_m_bankclerk_01.",
+      "tab": "crimes",
+      "group": "NPCs that never witness"
+    },
+    "Config.WitnessEscape": {
+      "label": "Fleeing and reporting",
+      "tab": "general",
+      "tooltip": "How a witness flees and when their report counts."
+    },
+    "Config.WitnessEscape.*": {
+      "tab": "general"
+    },
+    "Config.WitnessEscape.RequiredDistance": {
+      "label": "Escape distance",
+      "tooltip": "How much further away than where they started a witness must get before they begin reporting. Higher gives players more time to stop them.",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "unit": "m"
+    },
+    "Config.WitnessEscape.CheckInterval": {
+      "label": "Check interval",
+      "tooltip": "How often each witness's position and state is checked. Lower is more precise but costs more.",
+      "min": 50,
+      "max": 2000,
+      "step": 50,
+      "unit": "ms",
+      "advanced": true
+    },
+    "Config.WitnessEscape.MaxEscapeTime": {
+      "label": "Give-up time",
+      "tooltip": "A witness who has not reported after this long gives up and the crime goes unreported.",
+      "min": 10000,
+      "max": 600000,
+      "step": 1000,
+      "unit": "ms"
+    },
+    "Config.WitnessEscape.ReportGracePeriod": {
+      "label": "Time to report",
+      "tooltip": "A witness must stay escaped for this long before the report is made. This is the player's last chance to catch them.",
+      "min": 0,
+      "max": 60000,
+      "step": 500,
+      "unit": "ms"
+    },
+    "Config.WitnessEscape.ForcedReportMultiplier": {
+      "label": "Instant report multiplier",
+      "tooltip": "If a witness gets this many times the escape distance away, they report at once without waiting.",
+      "min": 1,
+      "max": 10,
+      "step": 0.5
+    },
+    "Config.WitnessEscape.EnableBlips": {
+      "label": "Show witness blips",
+      "tooltip": "Shows a blip on each witness for the player they saw. The colour shows their state: green, yellow when escaping, orange when reporting, red when reported."
+    },
+    "Config.WitnessEscape.BlipType": {
+      "label": "Blip sprite",
+      "tooltip": "The blip icon on a witness, e.g. blip_ambient_eyewitness.",
+      "advanced": true
+    },
+    "Config.WitnessEscape.BlipScale": {
+      "label": "Blip size",
+      "tooltip": "Size of the blip on a witness. 1.0 is normal size.",
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.1
+    },
+    "Config.WitnessEscape.ReactionDelay": {
+      "label": "Reaction delay",
+      "tooltip": "How long a witness stops and turns toward the player before running. 0 makes them flee at once.",
+      "min": 0,
+      "max": 10000,
+      "step": 100,
+      "unit": "ms"
+    },
+    "Config.EnforceTownLimits": {
+      "label": "Only in towns",
+      "tooltip": "When on, crimes are only noticed inside the enabled towns in the Towns list. When off, crimes are noticed everywhere except blacklisted areas.",
+      "tab": "locations",
+      "group": "Where witnesses work"
+    },
+    "Config.EnforceBlacklistTowns": {
+      "label": "Use blacklisted areas",
+      "tooltip": "When on, nothing is noticed inside the Blacklisted areas list, even if it overlaps a town.",
+      "tab": "locations",
+      "group": "Where witnesses work"
+    },
+    "Config.PoliceJobList": {
+      "label": "Law jobs",
+      "tooltip": "The jobs that count as law: they get most alerts, witnesses ignore their crimes while they are on duty (with law immunity on), duty checks apply to them, and NPC law stands down when they are on duty. Exact job names, case-sensitive.",
+      "tab": "access",
+      "group": "Law jobs",
+      "picker": "job"
+    },
+    "Config.PoliceJobRanks": {
+      "label": "Law grades that get alerts",
+      "tooltip": "For each law job, the grades that receive the alerts that use this table. A grade missing here gets no alert.",
+      "tab": "access",
+      "group": "Law jobs"
+    },
+    "Config.PoliceJobRanks.*": {
+      "tab": "access",
+      "group": "Law jobs",
+      "tooltip": "Job grades (numbers) of this job that receive alerts."
+    },
+    "Config.LawImmunityEnabled": {
+      "label": "Law immunity",
+      "tooltip": "When on, witnesses ignore crimes committed by lawmen ON DUTY (as the duty script says). An off-duty lawman is witnessed like anyone else.",
+      "tab": "access",
+      "group": "Law jobs"
+    },
+    "Config.DutyCheckEnabled": {
+      "label": "Only alert on-duty law",
+      "tooltip": "When on, law jobs only get law alerts while on duty, as the duty script chosen in Duty script says. Other jobs, such as doctors, are always alerted.",
+      "tab": "access",
+      "group": "Duty"
+    },
+    "Config.DutyExportCall": {
+      "label": "Custom duty check",
+      "tooltip": "Older way to plug in a duty script: Lua code, run on the server, that returns true when a player is on duty. Used only while Duty script is Automatic or Custom. Prefer Your own duty script. It runs as code, so it can only be changed in config/config.lua.",
+      "tab": "access",
+      "group": "Duty",
+      "readonly": true,
+      "advanced": true
+    },
+    "Config.Duty": {
+      "label": "Duty script",
+      "tooltip": "Which duty script decides who is an on-duty lawman.",
+      "tab": "access",
+      "group": "Duty"
+    },
+    "Config.Duty.Preset": {
+      "label": "Duty script",
+      "tooltip": "Where the on-duty answer comes from. Automatic uses the first one it finds running: outsider_policeman, vorp_police, rsg-lawman, qbr-policejob, bcc-law, then your framework through poggy_core. /witnessduty shows which one is in use. The same script says who is in jail (outsider_policeman, rsg-lawman): a jailed player is never reported or chased.",
+      "options": [
+        {
+          "value": "auto",
+          "label": "Automatic (first one found)"
+        },
+        {
+          "value": "outsider_policeman",
+          "label": "outsider_policeman"
+        },
+        {
+          "value": "vorp_police",
+          "label": "vorp_police"
+        },
+        {
+          "value": "rsg_lawman",
+          "label": "rsg-lawman"
+        },
+        {
+          "value": "qbr_policejob",
+          "label": "qbr-policejob"
+        },
+        {
+          "value": "bcc_law",
+          "label": "bcc-law / bcc-society"
+        },
+        {
+          "value": "framework",
+          "label": "My framework (through poggy_core)"
+        },
+        {
+          "value": "job_only",
+          "label": "Everyone with a law job"
+        },
+        {
+          "value": "custom",
+          "label": "Custom (Your own duty script)"
+        }
+      ]
+    },
+    "Config.Duty.Fallback": {
+      "label": "When the duty script cannot say",
+      "tooltip": "Everyone with a law job: law jobs count as on duty when no duty script can answer (none running). Nobody: they count as off duty and get no law alerts.",
+      "options": [
+        {
+          "value": "job_only",
+          "label": "Everyone with a law job"
+        },
+        {
+          "value": "off_duty",
+          "label": "Nobody"
+        }
+      ]
+    },
+    "Config.Duty.Custom": {
+      "label": "Your own duty script",
+      "tooltip": "Used when Duty script is Custom: a server export and/or a state bag of your duty script. Jail keys (JailExport, IsJailedExport, JailedStateBag) can be added in config/config.lua; see the README.",
+      "advanced": true
+    },
+    "Config.Duty.Custom.Resource": {
+      "label": "Resource name",
+      "tooltip": "Your duty script's resource (folder) name, e.g. my_duty.",
+      "placeholder": "my_duty"
+    },
+    "Config.Duty.Custom.Export": {
+      "label": "Server export",
+      "tooltip": "Its server export that takes (source, job) and returns true when the player is on duty, e.g. IsOnDuty.",
+      "placeholder": "IsOnDuty"
+    },
+    "Config.Duty.Custom.StateBag": {
+      "label": "Player state bag",
+      "tooltip": "A player state bag key that is true when the player is on duty, e.g. onDuty.",
+      "placeholder": "onDuty"
+    },
+    "Config.AlertCooldown": {
+      "label": "Alert cooldown",
+      "tooltip": "Seconds before the same crime by the same player alerts the law again, so one shoot-out does not send a dozen alerts. 0 turns it off. Player calls such as /callpolice use their own cooldown.",
+      "tab": "alerts",
+      "group": "Delivery",
+      "min": 0,
+      "max": 600,
+      "step": 5,
+      "unit": "s"
+    },
+    "Config.BlipRadius": {
+      "label": "Alert area size",
+      "tooltip": "Radius of the shaded circle drawn around every alert on the map.",
+      "tab": "alerts",
+      "group": "Alert blips",
+      "min": 5,
+      "max": 300,
+      "step": 5,
+      "unit": "m"
+    },
+    "Config.PersistentBlipEnabled": {
+      "label": "Blips that wait for you",
+      "tooltip": "Lets alerts marked 'Stay until reached' keep their blip until the responder arrives. When off, they vanish after their time like the others.",
+      "tab": "alerts",
+      "group": "Alert blips"
+    },
+    "Config.PersistentBlipClearDistance": {
+      "label": "Arrival distance",
+      "tooltip": "How close the responder must get for a waiting blip to clear.",
+      "tab": "alerts",
+      "group": "Alert blips",
+      "min": 2,
+      "max": 200,
+      "step": 1,
+      "unit": "m"
+    },
+    "Config.PersistentBlipCheckInterval": {
+      "label": "Arrival check interval",
+      "tooltip": "How often the responder's distance to a waiting blip is checked.",
+      "tab": "alerts",
+      "group": "Alert blips",
+      "min": 100,
+      "max": 10000,
+      "step": 100,
+      "unit": "ms",
+      "advanced": true
+    },
+    "Config.LawResponseDebugging": {
+      "label": "NPC law debug",
+      "tooltip": "Prints NPC law response details to the consoles. Leave off on a live server.",
+      "tab": "advanced",
+      "group": "Diagnostics",
+      "advanced": true
+    },
+    "Config.LawResponse": {
+      "label": "Posse",
+      "tab": "npclaw",
+      "tooltip": "A posse of NPC lawmen that rides out when a witness reports certain crimes."
+    },
+    "Config.LawResponse.*": {
+      "tab": "npclaw"
+    },
+    "Config.LawResponse.Enabled": {
+      "label": "Enabled",
+      "tooltip": "Master switch. When off, only players with law jobs respond to crimes.",
+      "group": "Posse"
+    },
+    "Config.LawResponse.ResponseTime": {
+      "label": "Response time",
+      "tooltip": "How long after the witness report the posse sets out. The player is warned at once.",
+      "group": "Posse",
+      "min": 0,
+      "max": 120000,
+      "step": 1000,
+      "unit": "ms"
+    },
+    "Config.LawResponse.Duration": {
+      "label": "Response duration",
+      "tooltip": "The longest a posse keeps hunting. After this the player has got away.",
+      "group": "Posse",
+      "min": 60000,
+      "max": 1800000,
+      "step": 30000,
+      "unit": "ms"
+    },
+    "Config.LawResponse.MinOfficers": {
+      "label": "Fewest officers (fallback)",
+      "tooltip": "Used only when a severity below does not set its own number.",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "group": "Posse"
+    },
+    "Config.LawResponse.MaxOfficers": {
+      "label": "Most officers (fallback)",
+      "tooltip": "Used only when a severity below does not set its own number.",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "group": "Posse"
+    },
+    "Config.LawResponse.SpawnDistance": {
+      "label": "Spawn distance",
+      "tooltip": "How far from the player the officers appear. Anything under 70 m is raised to 70 m.",
+      "min": 70,
+      "max": 300,
+      "step": 5,
+      "unit": "m",
+      "group": "Posse"
+    },
+    "Config.LawResponse.DespawnDistance": {
+      "label": "Escape distance",
+      "tooltip": "Get this far from every officer, and stay that far for about 10 seconds, and the player has escaped.",
+      "min": 50,
+      "max": 500,
+      "step": 5,
+      "unit": "m",
+      "group": "Posse"
+    },
+    "Config.LawResponse.EnableBlips": {
+      "label": "Officer blips",
+      "tooltip": "Shows each NPC officer on the map.",
+      "group": "Officer blips"
+    },
+    "Config.LawResponse.BlipSprite": {
+      "label": "Officer blip sprite",
+      "tooltip": "The blip sprite name used for NPC officers, e.g. blip_ambient_law.",
+      "advanced": true,
+      "group": "Officer blips"
+    },
+    "Config.LawResponse.BlipScale": {
+      "label": "Officer blip size",
+      "tooltip": "Size of the officer blips. 1.0 is normal.",
+      "min": 0.2,
+      "max": 3,
+      "step": 0.1,
+      "group": "Officer blips"
+    },
+    "Config.LawResponse.PlayerLEOPriority": {
+      "label": "Player lawmen first",
+      "tooltip": "When on, NPC law only rides out while no player lawman is on duty (as Duty script says), so player lawmen answer first.",
+      "group": "Posse"
+    },
+    "Config.LawResponse.EngagedCrimes": {
+      "label": "Crimes that send NPC law",
+      "tooltip": "Only these crimes bring an NPC posse. Others still alert player lawmen. Names: Shooting, Threatening, Melee, Lassoing, Trampling, Hijacking, CarryingHostage, Looting, Poaching, and any crime another script sends with the police alert export.",
+      "group": "Posse"
+    },
+    "Config.LawResponse.AllowSurrender": {
+      "label": "Allow surrender",
+      "tooltip": "Lets a wanted player surrender to the posse and be arrested instead of fighting.",
+      "group": "Surrender and jail"
+    },
+    "Config.LawResponse.JailTime": {
+      "label": "Jail time by severity",
+      "tooltip": "Minutes in jail after surrendering, by crime severity. Used only when something can jail: the Jail call below, a jail export under Your own duty script, or the built-in Sisika jail."
+    },
+    "Config.LawResponse.JailTime.*": {
+      "min": 0,
+      "max": 240,
+      "step": 1,
+      "unit": "minutes"
+    },
+    "Config.LawResponse.SurrenderMovementTolerance": {
+      "label": "Surrender movement tolerance",
+      "tooltip": "How far a surrendering player can move before the surrender counts as broken and the posse opens fire.",
+      "group": "Surrender and jail",
+      "min": 0.5,
+      "max": 10.0,
+      "step": 0.5,
+      "unit": "m"
+    },
+    "Config.LawResponse.JailExportCall": {
+      "label": "Jail call",
+      "tooltip": "Lua code, run on the server, that jails an arrested player through your jail script. It wins over a jail export under Your own duty script and over the built-in Sisika jail. None of the known law scripts can jail from another script. It runs as code, so it can only be changed in config/npc.lua.",
+      "readonly": true,
+      "advanced": true,
+      "group": "Surrender and jail"
+    },
+    "Config.LawResponse.BuiltinJail": {
+      "label": "Built-in jail (Sisika)",
+      "tooltip": "Witnesses' own jail at Sisika Penitentiary, used after an NPC arrest when the Jail call is empty and no jail export is set. More settings (coordinates, escapes, most minutes) can be added in config/npc.lua; see the README.",
+      "group": "Surrender and jail"
+    },
+    "Config.LawResponse.BuiltinJail.Enabled": {
+      "label": "Use the built-in Sisika jail",
+      "tooltip": "Off by default so it never fights a jail script you already run. On: an arrested player is taken to Sisika Penitentiary for Jail time by severity minutes, put in the prison uniform, kept on the grounds and shown the time left. The time counts only while they are online and carries over a relog. Their own clothes come back on release. Also turns on /jail.",
+      "group": "Surrender and jail"
+    },
+    "Config.LawResponse.HorseModels": {
+      "label": "Officer horses",
+      "tooltip": "Horse models mounted officers ride. One is picked at random.",
+      "advanced": true,
+      "group": "Officer horses and weapons"
+    },
+    "Config.LawResponse.Weapons": {
+      "label": "Officer weapons",
+      "tooltip": "Weapons officers may carry. One is picked at random for each officer.",
+      "advanced": true,
+      "group": "Officer horses and weapons"
+    },
+    "Config.LawResponse.CrimeSeverity": {
+      "label": "Crime severity",
+      "tooltip": "How serious each crime is. The severity picks the posse size and jail time. A crime missing here counts as MEDIUM."
+    },
+    "Config.LawResponse.CrimeSeverity.Shooting": {
+      "options": [
+        {
+          "value": "LOW",
+          "label": "Low"
+        },
+        {
+          "value": "MEDIUM",
+          "label": "Medium"
+        },
+        {
+          "value": "HIGH",
+          "label": "High"
+        }
+      ]
+    },
+    "Config.LawResponse.CrimeSeverity.Threatening": {
+      "options": [
+        {
+          "value": "LOW",
+          "label": "Low"
+        },
+        {
+          "value": "MEDIUM",
+          "label": "Medium"
+        },
+        {
+          "value": "HIGH",
+          "label": "High"
+        }
+      ]
+    },
+    "Config.LawResponse.CrimeSeverity.Melee": {
+      "options": [
+        {
+          "value": "LOW",
+          "label": "Low"
+        },
+        {
+          "value": "MEDIUM",
+          "label": "Medium"
+        },
+        {
+          "value": "HIGH",
+          "label": "High"
+        }
+      ]
+    },
+    "Config.LawResponse.CrimeSeverity.Lassoing": {
+      "options": [
+        {
+          "value": "LOW",
+          "label": "Low"
+        },
+        {
+          "value": "MEDIUM",
+          "label": "Medium"
+        },
+        {
+          "value": "HIGH",
+          "label": "High"
+        }
+      ]
+    },
+    "Config.LawResponse.CrimeSeverity.Trampling": {
+      "options": [
+        {
+          "value": "LOW",
+          "label": "Low"
+        },
+        {
+          "value": "MEDIUM",
+          "label": "Medium"
+        },
+        {
+          "value": "HIGH",
+          "label": "High"
+        }
+      ]
+    },
+    "Config.LawResponse.CrimeSeverity.Hijacking": {
+      "options": [
+        {
+          "value": "LOW",
+          "label": "Low"
+        },
+        {
+          "value": "MEDIUM",
+          "label": "Medium"
+        },
+        {
+          "value": "HIGH",
+          "label": "High"
+        }
+      ]
+    },
+    "Config.LawResponse.ResponseTypes": {
+      "label": "Posse by severity",
+      "tooltip": "How big and how aggressive the posse is for each severity."
+    },
+    "Config.LawResponse.ResponseTypes.LOW": {
+      "label": "Low severity posse"
+    },
+    "Config.LawResponse.ResponseTypes.LOW.MinOfficers": {
+      "label": "Fewest officers",
+      "tooltip": "The smallest posse for this severity.",
+      "min": 1,
+      "max": 20,
+      "step": 1
+    },
+    "Config.LawResponse.ResponseTypes.LOW.MaxOfficers": {
+      "label": "Most officers",
+      "tooltip": "The largest posse for this severity. If lower than the fewest, it is raised to match.",
+      "min": 1,
+      "max": 20,
+      "step": 1
+    },
+    "Config.LawResponse.ResponseTypes.LOW.Aggressiveness": {
+      "label": "Aggressiveness",
+      "tooltip": "The game's law behaviour level given to each officer. Higher is more aggressive.",
+      "min": 0,
+      "max": 10,
+      "step": 1
+    },
+    "Config.LawResponse.ResponseTypes.LOW.MountedPercent": {
+      "label": "Mounted officers",
+      "tooltip": "Percent of officers who ride in on horseback. The rest come on foot.",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%"
+    },
+    "Config.LawResponse.ResponseTypes.LOW.Probability": {
+      "label": "Chance to respond",
+      "tooltip": "Percent chance that a posse rides out at all for a crime of this severity.",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.LawResponse.ResponseTypes.MEDIUM": {
+      "label": "Medium severity posse"
+    },
+    "Config.LawResponse.ResponseTypes.MEDIUM.MinOfficers": {
+      "label": "Fewest officers",
+      "tooltip": "The smallest posse for this severity.",
+      "min": 1,
+      "max": 20,
+      "step": 1
+    },
+    "Config.LawResponse.ResponseTypes.MEDIUM.MaxOfficers": {
+      "label": "Most officers",
+      "tooltip": "The largest posse for this severity. If lower than the fewest, it is raised to match.",
+      "min": 1,
+      "max": 20,
+      "step": 1
+    },
+    "Config.LawResponse.ResponseTypes.MEDIUM.Aggressiveness": {
+      "label": "Aggressiveness",
+      "tooltip": "The game's law behaviour level given to each officer. Higher is more aggressive.",
+      "min": 0,
+      "max": 10,
+      "step": 1
+    },
+    "Config.LawResponse.ResponseTypes.MEDIUM.MountedPercent": {
+      "label": "Mounted officers",
+      "tooltip": "Percent of officers who ride in on horseback. The rest come on foot.",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%"
+    },
+    "Config.LawResponse.ResponseTypes.MEDIUM.Probability": {
+      "label": "Chance to respond",
+      "tooltip": "Percent chance that a posse rides out at all for a crime of this severity.",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.LawResponse.ResponseTypes.HIGH": {
+      "label": "High severity posse"
+    },
+    "Config.LawResponse.ResponseTypes.HIGH.MinOfficers": {
+      "label": "Fewest officers",
+      "tooltip": "The smallest posse for this severity.",
+      "min": 1,
+      "max": 20,
+      "step": 1
+    },
+    "Config.LawResponse.ResponseTypes.HIGH.MaxOfficers": {
+      "label": "Most officers",
+      "tooltip": "The largest posse for this severity. If lower than the fewest, it is raised to match.",
+      "min": 1,
+      "max": 20,
+      "step": 1
+    },
+    "Config.LawResponse.ResponseTypes.HIGH.Aggressiveness": {
+      "label": "Aggressiveness",
+      "tooltip": "The game's law behaviour level given to each officer. Higher is more aggressive.",
+      "min": 0,
+      "max": 10,
+      "step": 1
+    },
+    "Config.LawResponse.ResponseTypes.HIGH.MountedPercent": {
+      "label": "Mounted officers",
+      "tooltip": "Percent of officers who ride in on horseback. The rest come on foot.",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%"
+    },
+    "Config.LawResponse.ResponseTypes.HIGH.Probability": {
+      "label": "Chance to respond",
+      "tooltip": "Percent chance that a posse rides out at all for a crime of this severity.",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "Config.LawResponse.Notifications": {
+      "label": "Law response notices",
+      "tooltip": "Not read by this version: the defeated and escaped messages come from the translation keys directly.",
+      "advanced": true
+    },
+    "Config.LawResponse.Notifications.*": {
+      "advanced": true,
+      "tooltip": "Not read by this version: the defeated and escaped messages come from the translation keys directly."
+    },
+    "Config.DefaultLawModels": {
+      "label": "Posse models outside towns",
+      "tooltip": "Ped models used for the posse when the crime is not inside a town from the Towns list.",
+      "tab": "npclaw",
+      "group": "Officer horses and weapons",
+      "advanced": true
+    },
+    "Config.Language": {
+      "label": "Language",
+      "tooltip": "The language for every message. Add a language by copying a block in translations.lua.",
+      "tab": "text",
+      "group": "Language",
+      "options": [
+        {
+          "value": "en",
+          "label": "English"
+        },
+        {
+          "value": "es",
+          "label": "Spanish"
+        },
+        {
+          "value": "fr",
+          "label": "French"
+        }
+      ]
+    },
+    "Translations.*": {
+      "tab": "text",
+      "tooltip": "Text players see. %s is replaced by a number or a name: keep the same count of %s."
+    },
+    "Translations.en": {
+      "label": "English"
+    },
+    "Translations.es": {
+      "label": "Spanish"
+    },
+    "Translations.fr": {
+      "label": "French"
+    }
+  },
+  "lists": {
+    "Config.Towns": {
+      "label": "Towns",
+      "itemLabel": "town",
+      "tab": "locations",
+      "kind": "list",
+      "titleField": "name",
+      "subtitleField": "detectionRadius",
+      "columns": [
+        {
+          "field": "name",
+          "label": "Town"
+        },
+        {
+          "field": "detectionRadius",
+          "label": "Radius"
+        },
+        {
+          "field": "enabled",
+          "label": "On"
+        }
+      ],
+      "search": [
+        "name"
+      ],
+      "fields": {
+        "name": {
+          "label": "Name",
+          "tooltip": "Shown in debug output and used to pick the posse's officer models."
+        },
+        "coords": {
+          "label": "Centre",
+          "tooltip": "The middle of the area.",
+          "picker": "coords"
+        },
+        "detectionRadius": {
+          "label": "Radius",
+          "tooltip": "How far the area reaches from its centre.",
+          "min": 10,
+          "max": 1500,
+          "step": 5,
+          "unit": "m"
+        },
+        "enabled": {
+          "label": "Enabled",
+          "tooltip": "Switch this area off without deleting it."
+        }
+      },
+      "template": {
+        "name": "New town",
+        "coords": {
+          "__type": "vec3",
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "detectionRadius": 150.0,
+        "enabled": true
+      }
+    },
+    "Config.BlacklistedTowns": {
+      "label": "Blacklisted areas",
+      "itemLabel": "area",
+      "tab": "locations",
+      "kind": "list",
+      "titleField": "name",
+      "subtitleField": "detectionRadius",
+      "columns": [
+        {
+          "field": "name",
+          "label": "Area"
+        },
+        {
+          "field": "detectionRadius",
+          "label": "Radius"
+        },
+        {
+          "field": "enabled",
+          "label": "On"
+        }
+      ],
+      "search": [
+        "name"
+      ],
+      "fields": {
+        "name": {
+          "label": "Name",
+          "tooltip": "A name for your own reference."
+        },
+        "coords": {
+          "label": "Centre",
+          "tooltip": "The middle of the area.",
+          "picker": "coords"
+        },
+        "detectionRadius": {
+          "label": "Radius",
+          "tooltip": "How far the area reaches from its centre.",
+          "min": 10,
+          "max": 1500,
+          "step": 5,
+          "unit": "m"
+        },
+        "enabled": {
+          "label": "Enabled",
+          "tooltip": "Switch this area off without deleting it."
+        }
+      },
+      "template": {
+        "name": "New area",
+        "coords": {
+          "__type": "vec3",
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "detectionRadius": 100.0,
+        "enabled": true
+      }
+    },
+    "Config.Alerts": {
+      "label": "Job alerts",
+      "itemLabel": "alert",
+      "tab": "alerts",
+      "kind": "list",
+      "titleField": "name",
+      "subtitleField": "command",
+      "columns": [
+        {
+          "field": "name",
+          "label": "Alert"
+        },
+        {
+          "field": "command",
+          "label": "Command"
+        },
+        {
+          "field": "blipName",
+          "label": "Blip"
+        },
+        {
+          "field": "cooldown",
+          "label": "Cooldown"
+        }
+      ],
+      "search": [
+        "name",
+        "command",
+        "message"
+      ],
+      "fields": {
+        "name": {
+          "label": "Title",
+          "tooltip": "The heading of the alert law jobs see. The crime alerts take theirs from translations.lua, so they show as read-only here."
+        },
+        "command": {
+          "label": "Command",
+          "tooltip": "The chat command that fires this alert, without the slash. Anyone can type it, so use an odd name for alerts only other scripts should fire. The crime alerts take theirs from Crime detection."
+        },
+        "message": {
+          "label": "Message to responders",
+          "tooltip": "The text law jobs (or the listed jobs) see.",
+          "picker": "multiline"
+        },
+        "alerterNotification": {
+          "label": "Message to the caller",
+          "tooltip": "The text the player who triggered the alert sees.",
+          "picker": "multiline"
+        },
+        "messageTime": {
+          "label": "Message time",
+          "tooltip": "How long the alert stays on screen.",
+          "min": 1000,
+          "max": 30000,
+          "step": 500,
+          "unit": "ms"
+        },
+        "jobs": {
+          "label": "Jobs alerted",
+          "tooltip": "Jobs that receive this alert. Rows that use the Law jobs list show as read-only here: change the Law jobs list instead.",
+          "picker": "job"
+        },
+        "jobgrade": {
+          "label": "Grades alerted",
+          "tooltip": "For each job, the grades that receive it, e.g. doctor = 0,1,2. A job with no grades listed only alerts grade 0. Rows that use the law grades table show as read-only here."
+        },
+        "icon": {
+          "label": "Icon",
+          "tooltip": "Texture name of the icon in the alert, from the texture dictionary below (e.g. star, tick, lock)."
+        },
+        "color": {
+          "label": "Colour",
+          "tooltip": "Colour of the icon, blip and GPS route.",
+          "options": [
+            {
+              "value": "COLOR_RED",
+              "label": "Red"
+            },
+            {
+              "value": "COLOR_ORANGE",
+              "label": "Orange"
+            },
+            {
+              "value": "COLOR_YELLOW",
+              "label": "Yellow"
+            },
+            {
+              "value": "COLOR_YELLOWSTRONG",
+              "label": "Strong yellow"
+            },
+            {
+              "value": "COLOR_GREEN",
+              "label": "Green"
+            },
+            {
+              "value": "COLOR_BLUE",
+              "label": "Blue"
+            },
+            {
+              "value": "COLOR_PURPLE",
+              "label": "Purple"
+            },
+            {
+              "value": "COLOR_PINK",
+              "label": "Pink"
+            },
+            {
+              "value": "COLOR_WHITE",
+              "label": "White"
+            },
+            {
+              "value": "COLOR_GRAY",
+              "label": "Grey"
+            }
+          ]
+        },
+        "texturedict": {
+          "label": "Texture dictionary",
+          "tooltip": "Where the icon comes from. generic_textures has most icons.",
+          "advanced": true
+        },
+        "blipName": {
+          "label": "Blip sprite",
+          "tooltip": "Blip sprite name for the alert on the map, e.g. blip_ambient_sheriff."
+        },
+        "radius": {
+          "label": "Radius",
+          "tooltip": "Not read by this version: every alert uses the Alert area size setting.",
+          "advanced": true
+        },
+        "blipTime": {
+          "label": "Blip time",
+          "tooltip": "How long the blip stays on the map. Blips that wait for the responder use this only if they cannot be kept.",
+          "min": 5000,
+          "max": 1800000,
+          "step": 5000,
+          "unit": "ms"
+        },
+        "blipDelay": {
+          "label": "Delay",
+          "tooltip": "Wait this long after the alert is fired before responders are told. Gives the caller a head start.",
+          "min": 0,
+          "max": 120000,
+          "step": 500,
+          "unit": "ms"
+        },
+        "waypoint": {
+          "label": "Set waypoint",
+          "tooltip": "Sets a GPS route to the alert for every responder."
+        },
+        "cooldown": {
+          "label": "Cooldown",
+          "tooltip": "Seconds a player must wait before using this command again. Leave out or 0 for none. Crime alerts never have one.",
+          "min": 0,
+          "max": 3600,
+          "step": 5,
+          "unit": "seconds"
+        },
+        "persistentBlip": {
+          "label": "Stay until reached",
+          "tooltip": "Keeps the blip until the responder gets close, instead of for a fixed time. Needs 'Blips that wait for you' on."
+        },
+        "triggerWitness": {
+          "label": "Needs a witness",
+          "tooltip": "When on, typing the command first runs a witness event and the alert follows it. Used by the crime alerts."
+        },
+        "witnessType": {
+          "label": "Witness crime type",
+          "tooltip": "The crime the witness event is for, when 'Needs a witness' is on.",
+          "options": [
+            {
+              "value": "Shooting",
+              "label": "Shooting"
+            },
+            {
+              "value": "Threatening",
+              "label": "Threatening"
+            },
+            {
+              "value": "Melee",
+              "label": "Melee"
+            },
+            {
+              "value": "Lassoing",
+              "label": "Lassoing"
+            },
+            {
+              "value": "Trampling",
+              "label": "Trampling"
+            },
+            {
+              "value": "Hijacking",
+              "label": "Hijacking"
+            },
+            {
+              "value": "CarryingHostage",
+              "label": "CarryingHostage"
+            }
+          ]
+        },
+        "probability": {
+          "label": "Chance",
+          "tooltip": "Optional. Percent chance the command does anything; on a miss the caller is told nobody noticed. Leave out for 100.",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%"
+        },
+        "overrideDutyCheck": {
+          "label": "Ignore duty",
+          "tooltip": "Optional. When on, law jobs get this alert even when off duty."
+        }
+      },
+      "template": {
+        "name": "NEW ALERT",
+        "command": "newalert",
+        "message": "Someone needs help. Respond to the location.",
+        "alerterNotification": "Your call has been sent.",
+        "messageTime": 5000,
+        "jobs": [
+          "sheriff"
+        ],
+        "jobgrade": {
+          "sheriff": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        "icon": "star",
+        "color": "COLOR_BLUE",
+        "texturedict": "generic_textures",
+        "blipName": "blip_ambient_sheriff",
+        "radius": 5.0,
+        "blipTime": 120000,
+        "blipDelay": 0,
+        "waypoint": true,
+        "cooldown": 120
+      },
+      "group": "Alert commands"
+    },
+    "Config.TownLawModels": {
+      "label": "Posse models by town",
+      "itemLabel": "town",
+      "tab": "npclaw",
+      "kind": "map",
+      "tooltip": "The ped models the NPC posse uses in each town. The key must match a name in the Towns list exactly; outside those towns the 'Posse models outside towns' list is used.",
+      "template": [
+        "s_m_m_valdeputy_01"
+      ]
+    }
+  }
+}

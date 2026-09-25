@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>poggy_core UI</title>
+    <!--
+        poggy_core — the menu and the text input every Poggy script uses
+        (menu.open, menu.close, input.text), the player's screen settings (/poggyui)
+        and the settings hub. One page, hidden until asked for,
+        no external scripts or images. The theme's title font (IM Fell English)
+        comes from Google Fonts; offline, the Source Serif 4 in hub/fonts stands in.
+        Driven by client/cl_menu.lua; see the message shapes at the top of script.js.
+    -->
+    <link rel="stylesheet" href="style.css">
+    <!-- The settings hub (/poggy, 0.18.0): client/cl_hub.lua drives it. -->
+    <link rel="stylesheet" href="hub/hub.css">
+    <!-- The Poggy theme (0.23.0): the same file every Poggy script's page loads. -->
+    <script src="hub/theme.js"></script>
+</head>
+<body>
+
+    <!-- ── list menu ─────────────────────────────────────────────────────── -->
+    <div id="pg-menu" class="pg-panel pg-menu hidden" role="menu">
+        <div class="pg-head">
+            <div class="pg-title" id="pg-menu-title"></div>
+            <div class="pg-subtitle" id="pg-menu-subtitle"></div>
+            <div class="pg-rule"></div>
+        </div>
+        <div class="pg-items" id="pg-menu-items"></div>
+        <div class="pg-desc"><div class="pg-desc-text" id="pg-menu-desc"></div></div>
+        <div class="pg-foot">
+            <div class="pg-count" id="pg-menu-count"></div>
+            <button type="button" class="pg-btn pg-btn-close" id="pg-menu-close">Close</button>
+            <div class="pg-hint"><span>&uarr;&darr;</span> move <span>Enter</span> select <span>Esc</span> close</div>
+        </div>
+    </div>
+
+    <!-- ── text input ────────────────────────────────────────────────────── -->
+    <div id="pg-input" class="pg-panel pg-input hidden" role="dialog">
+        <div class="pg-head">
+            <div class="pg-title" id="pg-input-title"></div>
+            <div class="pg-rule"></div>
+        </div>
+        <div class="pg-input-body">
+            <input type="text" id="pg-input-field" autocomplete="off" spellcheck="false">
+            <div class="pg-input-note" id="pg-input-note"></div>
+        </div>
+        <div class="pg-foot pg-foot-buttons">
+            <button type="button" class="pg-btn pg-btn-primary" id="pg-input-submit">Confirm</button>
+            <button type="button" class="pg-btn pg-btn-close" id="pg-input-cancel">Cancel</button>
+        </div>
+    </div>
+
+    <!-- ── the player's own screen settings (/poggyui, 0.24.0) ────────── -->
+    <!-- The sample is drawn with the size, look and motion being tried; the
+         panel under it keeps the size it opened at (script.js undoes the
+         change of zoom on it) so the slider holds still under the pointer. -->
+    <div id="pg-scale" class="pg-scale hidden">
+        <div class="pg-panel pg-scale-sample" aria-hidden="true">
+            <div class="pg-head">
+                <div class="pg-title">General Store</div>
+                <div class="pg-subtitle">This is how Poggy screens will look</div>
+                <div class="pg-rule"></div>
+            </div>
+            <div class="pg-items">
+                <div class="pg-item selected"><div class="pg-label">Canned beans</div><div class="pg-right">$1.25</div></div>
+                <div class="pg-item"><div class="pg-label">Coffee</div><div class="pg-right">$0.75</div></div>
+                <div class="pg-item"><div class="pg-label">Tobacco</div><div class="pg-right">$2.10</div></div>
+            </div>
+            <div class="pg-desc"><div class="pg-desc-text">Small writing like this should be easy to read from where you sit.</div></div>
+        </div>
+        <div class="pg-panel pg-scale-bar" role="dialog" aria-label="Your screens">
+            <div class="pg-head">
+                <div class="pg-title">Your Screens</div>
+                <div class="pg-subtitle">How every Poggy screen looks, on your screen only</div>
+                <div class="pg-rule"></div>
+            </div>
+            <div class="pg-scale-row">
+                <div class="pg-scale-label">Size</div>
+                <button type="button" class="pg-btn pg-scale-step" id="pg-scale-down" aria-label="Smaller">&minus;</button>
+                <input type="range" id="pg-scale-range" min="50" max="200" step="5" value="100" aria-label="Size">
+                <button type="button" class="pg-btn pg-scale-step" id="pg-scale-up" aria-label="Bigger">+</button>
+                <div class="pg-scale-value" id="pg-scale-value">100%</div>
+            </div>
+            <div class="pg-scale-row pg-scale-row-end">
+                <button type="button" class="pg-btn pg-btn-quiet" id="pg-scale-fit">Fit my screen <span class="pg-scale-num"></span></button>
+                <button type="button" class="pg-btn pg-btn-quiet" id="pg-scale-reset">Reset to <span class="pg-scale-num">100%</span></button>
+            </div>
+            <div class="pg-scale-row pg-scale-row-top">
+                <div class="pg-scale-label">Look</div>
+                <div class="pg-scale-looks" id="pg-scale-looks" role="radiogroup" aria-label="Look"></div>
+            </div>
+            <div class="pg-scale-row">
+                <div class="pg-scale-label">Motion</div>
+                <button type="button" class="pg-btn pg-scale-chip" id="pg-scale-motion" aria-pressed="false">Less motion</button>
+                <div class="pg-scale-hint">No sliding, fading or spinning</div>
+            </div>
+            <div class="pg-scale-note" id="pg-scale-note">Kept for you on this server. Each Poggy screen takes it the next time it opens.</div>
+            <div class="pg-foot pg-foot-buttons">
+                <button type="button" class="pg-btn pg-btn-primary" id="pg-scale-done">Done</button>
+                <button type="button" class="pg-btn pg-btn-close" id="pg-scale-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── settings hub (/poggy) ───────────────────────────────────────── -->
+    <div id="poggy-hub" class="ph" hidden></div>
+
+    <script src="script.js"></script>
+    <script src="hub/md.js"></script>
+    <script src="hub/hub-core.js"></script>
+    <script src="hub/hub-state.js"></script>
+    <script src="hub/hub-fields.js"></script>
+    <script src="hub/hub-lists.js"></script>
+    <script src="hub/hub-pages.js"></script>
+    <script src="hub/hub-roles.js"></script>
+    <script src="hub/hub.js"></script>
+</body>
+</html>
