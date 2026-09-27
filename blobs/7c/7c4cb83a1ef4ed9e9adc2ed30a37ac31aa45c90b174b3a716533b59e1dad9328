@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Chess &amp; Checkers</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cfx-nui-poggy_core/ui/hub/theme.js"></script>
+</head>
+<body>
+
+<!-- clicks on the table's own board (the 3D one) -->
+<canvas id="overlay" class="hidden"></canvas>
+
+<!-- setting up, waiting, invitations, game over: one panel beside the table -->
+<section id="table-panel" class="pg-panel side hidden">
+    <div class="pg-panel-head">
+        <div>
+            <div class="pg-label kicker" id="tp-kicker"></div>
+            <h1 class="pg-title" id="tp-title"></h1>
+        </div>
+        <button class="pg-close" type="button" id="tp-close">&times;</button>
+    </div>
+    <div id="tp-body" class="stack"></div>
+</section>
+
+<!-- the game -->
+<div id="hud" class="hidden">
+    <div id="hud-top" class="pg-hud">
+        <div class="player" id="p-white"><span class="chip"></span><span class="player-name"></span><span class="player-rating"></span><span class="player-you"></span></div>
+        <span class="turn-mark" id="turn-mark"></span>
+        <div class="player right" id="p-black"><span class="chip"></span><span class="player-name"></span><span class="player-rating"></span><span class="player-you"></span></div>
+    </div>
+    <div id="hud-variant" class="pg-hud"></div>
+    <div id="hud-status" class="pg-hud"></div>
+
+    <aside id="hud-board" class="pg-panel">
+        <canvas id="mini" width="652" height="652"></canvas>
+        <div id="hud-material"></div>
+        <div id="evalbar" class="hidden">
+            <div class="bar"><i></i></div>
+            <div class="lbl"><span id="eval-label"></span><span id="eval-num"></span></div>
+        </div>
+    </aside>
+
+    <aside id="hud-side" class="pg-panel">
+        <div class="pg-label" id="moves-title"></div>
+        <ol id="moves"></ol>
+        <div id="hud-actions"></div>
+        <div class="keys" id="keys"></div>
+    </aside>
+
+    <div id="draw-banner" class="pg-panel hidden">
+        <div class="pg-text" id="draw-text"></div>
+        <div class="btn-row panel-actions">
+            <button class="pg-btn pg-btn--success-fill" type="button" id="draw-yes"></button>
+            <button class="pg-btn" type="button" id="draw-no"></button>
+        </div>
+    </div>
+</div>
+
+<!-- My Record and the game review -->
+<section id="record-panel" class="pg-panel wide hidden">
+    <div class="pg-panel-head">
+        <h1 class="pg-title" id="rec-title"></h1>
+        <button class="pg-close" type="button" id="rec-close">&times;</button>
+    </div>
+    <div class="filters" id="rec-filters"></div>
+    <div class="pg-tabs" id="rec-tabs"></div>
+    <div id="rec-body"></div>
+</section>
+
+<section id="review-panel" class="pg-panel wide hidden">
+    <div class="pg-panel-head">
+        <div>
+            <div class="row-sub pg-num kicker" id="rv-kicker"></div>
+            <h1 class="pg-title" id="rv-title"></h1>
+        </div>
+        <button class="pg-close" type="button" id="rv-close">&times;</button>
+    </div>
+    <div class="review">
+        <div>
+            <canvas id="rv-board" width="720" height="720"></canvas>
+            <div class="controls">
+                <button class="pg-btn" type="button" id="rv-first">|&lt;</button>
+                <button class="pg-btn" type="button" id="rv-prev">&lt;</button>
+                <button class="pg-btn" type="button" id="rv-next">&gt;</button>
+                <button class="pg-btn" type="button" id="rv-last">&gt;|</button>
+            </div>
+        </div>
+        <div class="stack">
+            <div class="pg-text" id="rv-result"></div>
+            <div class="pills" id="rv-pills"></div>
+            <div class="review-moves"><ol id="rv-moves"></ol></div>
+            <div class="hint-line" id="rv-note"></div>
+        </div>
+    </div>
+</section>
+
+<!-- small questions: promotion, resign, rules -->
+<div id="modal" class="pg-veil hidden">
+    <div class="pg-modal stack" id="modal-box"></div>
+</div>
+
+<div id="tip" class="pg-tip hidden" style="position:fixed"></div>
+
+<script src="app.js"></script>
+<script src="board.js"></script>
+<script src="screens.js"></script>
+<script src="play.js"></script>
+<script src="record.js"></script>
+</body>
+</html>

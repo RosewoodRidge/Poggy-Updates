@@ -1,0 +1,1078 @@
+{
+  "label": "Chess & Checkers",
+  "tagline": "Chess and checkers tables: friends, the AI, wagers and a record of every game",
+  "category": "Games",
+  "description": "Tables players sit down at to play chess or checkers against each other or the AI. Checkers comes in American, Russian, Brazilian and Pool rules, or house rules picked at the table. Wagers are held from both players until the game ends. Every game is kept, and players can review any of theirs move by move.",
+  "readme": "README.md",
+  "help": [
+    {
+      "title": "Adding a table",
+      "file": "docs/help/tables.md"
+    },
+    {
+      "title": "The AI opponent and its levels",
+      "file": "docs/help/ai.md"
+    },
+    {
+      "title": "Wagers, deaths and leaving a game",
+      "file": "docs/help/wagers.md"
+    },
+    {
+      "title": "Checkers variants",
+      "file": "docs/help/variants.md"
+    },
+    {
+      "title": "Ratings and the leaderboard",
+      "file": "docs/help/ratings.md"
+    }
+  ],
+  "commands": [
+    {
+      "command": "/chesstable",
+      "who": "Admins and the server console",
+      "description": "Lists every table and what is happening at it. With reset and a table id, ends any game there with no result (a wager is returned to both players), stands both players up and clears the board. With rerate, works every rating out again from the rated games (after changing the rating settings).",
+      "usage": "/chesstable [reset <table id> | rerate]",
+      "examples": [
+        "/chesstable",
+        "/chesstable reset rhodes_saloon",
+        "/chesstable rerate"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "id": "tables",
+      "label": "Tables",
+      "icon": "map"
+    },
+    {
+      "id": "games",
+      "label": "Games",
+      "icon": "puzzle"
+    },
+    {
+      "id": "ai",
+      "label": "The AI",
+      "icon": "cpu"
+    },
+    {
+      "id": "wagers",
+      "label": "Wagers",
+      "icon": "coins"
+    },
+    {
+      "id": "behaviour",
+      "label": "Sitting & keys",
+      "icon": "chair"
+    },
+    {
+      "id": "records",
+      "label": "Records",
+      "icon": "book"
+    },
+    {
+      "id": "screen",
+      "label": "Screen & sound",
+      "icon": "monitor"
+    },
+    {
+      "id": "text",
+      "label": "Text & language",
+      "icon": "language"
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced",
+      "icon": "wrench"
+    }
+  ],
+  "settings": {
+    "Config.Language": {
+      "label": "Language",
+      "tooltip": "Which language in translations.lua every message and screen uses. Only 'en' ships; to add one, copy Translations['en'] in translations.lua and give it a new key. Lines missing from a translation fall back to English.",
+      "tab": "text",
+      "group": "Language",
+      "ref": "Translations"
+    },
+    "Config.Debug": {
+      "label": "Debug output",
+      "tooltip": "Prints what the script is doing to the server console. Leave it off on a live server.",
+      "tab": "advanced",
+      "group": "Troubleshooting"
+    },
+    "Config.Games.Chess": {
+      "label": "Chess",
+      "tooltip": "Offer chess at the tables. Turned off, it is hidden from the start menu.",
+      "tab": "games",
+      "group": "Which games"
+    },
+    "Config.Games.Checkers": {
+      "label": "Checkers",
+      "tooltip": "Offer checkers at the tables. Turned off, it is hidden from the start menu.",
+      "tab": "games",
+      "group": "Which games"
+    },
+    "Config.Checkers.DefaultVariant": {
+      "label": "Checkers variant shown first",
+      "tooltip": "The variant the start menu opens on. Players can still pick any of them: American (English draughts), Russian, Brazilian, Pool, or house rules.",
+      "tab": "games",
+      "group": "Checkers",
+      "options": [
+        "american",
+        "russian",
+        "brazilian",
+        "pool",
+        "custom"
+      ]
+    },
+    "Config.Checkers.Draws.Repetition": {
+      "label": "Draw by repetition",
+      "tooltip": "A checkers game is drawn when the same position, with the same player to move, comes up this many times. 0 turns it off.",
+      "tab": "games",
+      "group": "Checkers",
+      "min": 0,
+      "max": 10,
+      "step": 1
+    },
+    "Config.Checkers.Draws.QuietMoves": {
+      "label": "Draw after quiet moves",
+      "tooltip": "A checkers game is drawn after this many moves by each player with no capture and no man moved (only kings moving about). 0 turns it off. American tournament rules use 40.",
+      "tab": "games",
+      "group": "Checkers",
+      "min": 0,
+      "max": 200,
+      "step": 1,
+      "unit": "moves"
+    },
+    "Config.Game.IdleClaimMinutes": {
+      "label": "Idle claim",
+      "tooltip": "In a game between two players, if one takes longer than this over a move, the other can claim the win. Keeps a wager from being held hostage by someone who walked away. 0 turns the claim off.",
+      "tab": "games",
+      "group": "Between players",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "min"
+    },
+    "Config.Interaction.SitRadius": {
+      "label": "Sit distance",
+      "tooltip": "How close a player must stand to a chair to see the Sit prompt, in metres.",
+      "tab": "tables",
+      "group": "Getting to a table",
+      "min": 0.5,
+      "max": 5,
+      "step": 0.1,
+      "unit": "m"
+    },
+    "Config.Interaction.FurnitureRadius": {
+      "label": "Show distance",
+      "tooltip": "Tables, boards and pieces appear for a player within this many metres of a table, and they can watch a game there. Keep it modest: every player places the props themselves.",
+      "tab": "tables",
+      "group": "Getting to a table",
+      "min": 5,
+      "max": 100,
+      "step": 1,
+      "unit": "m"
+    },
+    "Config.Interaction.LeaveDistance": {
+      "label": "Stand-up distance",
+      "tooltip": "A seated player found further than this from their table (teleported, dragged) is stood up by the server, which counts as leaving the table.",
+      "tab": "tables",
+      "group": "Getting to a table",
+      "min": 3,
+      "max": 50,
+      "step": 0.5,
+      "unit": "m",
+      "advanced": true
+    },
+    "Config.Interaction.KeySit": {
+      "label": "Sit key",
+      "tooltip": "Sits down at the chair in front of the player. Default G. A RedM control hash; a wrong value means the key never works.",
+      "tab": "behaviour",
+      "group": "Keys",
+      "picker": "key",
+      "advanced": true
+    },
+    "Config.Interaction.KeySelect": {
+      "label": "Select key",
+      "tooltip": "Picks the board square under the mouse, as a click does. Default G. A RedM control hash; a wrong value means the key never works.",
+      "tab": "behaviour",
+      "group": "Keys",
+      "picker": "key",
+      "advanced": true
+    },
+    "Config.Interaction.KeyBack": {
+      "label": "Undo key",
+      "tooltip": "Lets go of a piece, or takes back the last jump of a checkers capture being picked. Default F. A RedM control hash; a wrong value means the key never works.",
+      "tab": "behaviour",
+      "group": "Keys",
+      "picker": "key",
+      "advanced": true
+    },
+    "Config.Interaction.KeyStand": {
+      "label": "Stand-up key",
+      "tooltip": "Gets up from the table. Default E. A RedM control hash; a wrong value means the key never works.",
+      "tab": "behaviour",
+      "group": "Keys",
+      "picker": "key",
+      "advanced": true
+    },
+    "Config.Interaction.KeyCamera": {
+      "label": "Camera key",
+      "tooltip": "Cycles the table cameras. Default C. A RedM control hash; a wrong value means the key never works.",
+      "tab": "behaviour",
+      "group": "Keys",
+      "picker": "key",
+      "advanced": true
+    },
+    "Config.Interaction.KeyResign": {
+      "label": "Resign key",
+      "tooltip": "Held to resign the game. Default R. A RedM control hash; a wrong value means the key never works.",
+      "tab": "behaviour",
+      "group": "Keys",
+      "picker": "key",
+      "advanced": true
+    },
+    "Config.Interaction.KeyDraw": {
+      "label": "Draw key",
+      "tooltip": "Offers a draw. Default Z. A RedM control hash; a wrong value means the key never works.",
+      "tab": "behaviour",
+      "group": "Keys",
+      "picker": "key",
+      "advanced": true
+    },
+    "Config.Interaction.KeyHint": {
+      "label": "Hint key",
+      "tooltip": "Asks for a hint, in games against the AI. Default H. A RedM control hash; a wrong value means the key never works.",
+      "tab": "behaviour",
+      "group": "Keys",
+      "picker": "key",
+      "advanced": true
+    },
+    "Config.Interaction.KeyClaim": {
+      "label": "Claim key",
+      "tooltip": "Claims the win when the opponent has stopped playing. Default X. A RedM control hash; a wrong value means the key never works.",
+      "tab": "behaviour",
+      "group": "Keys",
+      "picker": "key",
+      "advanced": true
+    },
+    "Config.Seating.Walk": {
+      "label": "Walk to the chair",
+      "tooltip": "On: the character walks to the chair and sits down with the sitting scenario's own animation. Off: they are placed straight in the chair.",
+      "tab": "behaviour",
+      "group": "Sitting down"
+    },
+    "Config.Seating.WalkTimeoutMs": {
+      "label": "Give up walking after",
+      "tooltip": "If walking to the chair takes longer than this, the character is placed in it instead, in milliseconds.",
+      "tab": "behaviour",
+      "group": "Sitting down",
+      "min": 2000,
+      "max": 20000,
+      "step": 500,
+      "unit": "ms"
+    },
+    "Config.Seating.Scenario": {
+      "label": "Sitting scenario",
+      "tooltip": "The sitting scenario the character plays in the chair, walked to or placed. Change it only if characters sit oddly.",
+      "tab": "behaviour",
+      "group": "Sitting down",
+      "advanced": true
+    },
+    "Config.Seating.ScenarioHeight": {
+      "label": "Scenario height",
+      "tooltip": "How far above the chair the sitting scenario is played, in metres. Raise it if characters sink into the seat.",
+      "tab": "behaviour",
+      "group": "Sitting down",
+      "min": -1,
+      "max": 2,
+      "step": 0.05,
+      "unit": "m",
+      "advanced": true
+    },
+    "Config.Seating.ScenarioTurn": {
+      "label": "Scenario turn",
+      "tooltip": "How the scenario is turned against the chair, in degrees. 180 suits the default scenario.",
+      "tab": "behaviour",
+      "group": "Sitting down",
+      "min": 0,
+      "max": 359,
+      "step": 1,
+      "advanced": true
+    },
+    "Config.Death.Outcome": {
+      "label": "When a player dies",
+      "tooltip": "A seated player dying always ends the game at once and stands both players up. 'abandon': no result is recorded and any wager is returned to both. 'forfeit': the player who died loses (and loses the wager). Games against the AI are always abandoned.",
+      "tab": "behaviour",
+      "group": "Death",
+      "options": [
+        "abandon",
+        "forfeit"
+      ]
+    },
+    "Config.AIOpponent.Name": {
+      "label": "AI name",
+      "tooltip": "The name the AI opponent goes by in both games.",
+      "tab": "ai",
+      "group": "The AI opponent"
+    },
+    "Config.AIOpponent.Model": {
+      "label": "AI ped model",
+      "tooltip": "The ped that sits in the AI's chair. Any RedM ped model.",
+      "tab": "ai",
+      "group": "The AI opponent"
+    },
+    "Config.ChessAI.Enabled": {
+      "label": "Chess against the AI",
+      "tooltip": "Lets players play chess against the AI.",
+      "tab": "ai",
+      "group": "Chess AI"
+    },
+    "Config.ChessAI.DefaultLevel": {
+      "label": "Chess level shown first",
+      "tooltip": "The difficulty the start menu opens on: the id of one of the chess levels below.",
+      "tab": "ai",
+      "group": "Chess AI"
+    },
+    "Config.ChessAI.ApiUrl": {
+      "label": "Stockfish service",
+      "tooltip": "The chess-api.com address the stronger levels ask for moves. The server asks it directly; if it cannot be reached, the server's own engine plays instead.",
+      "tab": "ai",
+      "group": "Chess AI",
+      "advanced": true
+    },
+    "Config.ChessAI.ApiTimeoutMs": {
+      "label": "Stockfish wait",
+      "tooltip": "How long to wait for chess-api.com before using the server's own engine, in milliseconds.",
+      "tab": "ai",
+      "group": "Chess AI",
+      "min": 500,
+      "max": 15000,
+      "step": 250,
+      "unit": "ms",
+      "advanced": true
+    },
+    "Config.CheckersAI.Enabled": {
+      "label": "Checkers against the AI",
+      "tooltip": "Lets players play checkers against the AI.",
+      "tab": "ai",
+      "group": "Checkers AI"
+    },
+    "Config.CheckersAI.DefaultLevel": {
+      "label": "Checkers level shown first",
+      "tooltip": "The difficulty the start menu opens on: the id of one of the checkers levels below.",
+      "tab": "ai",
+      "group": "Checkers AI"
+    },
+    "Config.Hint.Enabled": {
+      "label": "Hints",
+      "tooltip": "Players may ask for a hint in games against the AI (never against another player).",
+      "tab": "ai",
+      "group": "Hints"
+    },
+    "Config.Hint.CooldownMs": {
+      "label": "Hint cooldown",
+      "tooltip": "Shortest time between two hints, in milliseconds.",
+      "tab": "ai",
+      "group": "Hints",
+      "min": 0,
+      "max": 120000,
+      "step": 1000,
+      "unit": "ms"
+    },
+    "Config.Hint.DisplayMs": {
+      "label": "Hint shown for",
+      "tooltip": "How long a hint stays highlighted on the board, in milliseconds.",
+      "tab": "ai",
+      "group": "Hints",
+      "min": 1000,
+      "max": 30000,
+      "step": 500,
+      "unit": "ms"
+    },
+    "Config.Hint.Depth": {
+      "label": "Chess hint depth",
+      "tooltip": "Stockfish search depth for a chess hint (1-18).",
+      "tab": "ai",
+      "group": "Hints",
+      "min": 1,
+      "max": 18,
+      "step": 1,
+      "advanced": true
+    },
+    "Config.Hint.ThinkMs": {
+      "label": "Chess hint time",
+      "tooltip": "Stockfish time limit for a chess hint, in milliseconds (1-100).",
+      "tab": "ai",
+      "group": "Hints",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "ms",
+      "advanced": true
+    },
+    "Config.Wagers.Enabled": {
+      "label": "Wagers",
+      "tooltip": "Players may stake money on a game against another player. Both stakes are taken when the game starts and held by the script; the winner receives both, a draw or an abandoned game returns each their own.",
+      "tab": "wagers",
+      "group": "Wagers"
+    },
+    "Config.Wagers.Currency": {
+      "label": "Currency",
+      "tooltip": "What wagers are paid in.",
+      "tab": "wagers",
+      "group": "Wagers",
+      "options": [
+        "cash",
+        "gold"
+      ]
+    },
+    "Config.Wagers.Min": {
+      "label": "Smallest wager",
+      "tooltip": "The smallest stake a player may propose.",
+      "tab": "wagers",
+      "group": "Wagers",
+      "min": 1,
+      "max": 100000,
+      "step": 1
+    },
+    "Config.Wagers.Max": {
+      "label": "Largest wager",
+      "tooltip": "The largest stake a player may propose.",
+      "tab": "wagers",
+      "group": "Wagers",
+      "min": 1,
+      "max": 100000,
+      "step": 1
+    },
+    "Config.Wagers.PayoutCheckSeconds": {
+      "label": "Payout check",
+      "tooltip": "How often, in seconds, the server looks for money it owes players who were away (a wager returned after a restart) and pays those who are online.",
+      "tab": "wagers",
+      "group": "Wagers",
+      "min": 30,
+      "max": 3600,
+      "step": 30,
+      "unit": "s",
+      "advanced": true
+    },
+    "Config.Ratings.Enabled": {
+      "label": "Ratings",
+      "tooltip": "Elo ratings and the leaderboard. One rating for chess and one for checkers, per character. Only finished games between two players are rated; games against the AI never are.",
+      "tab": "records",
+      "group": "Ratings"
+    },
+    "Config.Ratings.Start": {
+      "label": "Starting rating",
+      "tooltip": "Where every character starts. Changing it later affects only players who have no rating yet, unless you rebuild with /chesstable rerate.",
+      "tab": "records",
+      "group": "Ratings",
+      "min": 100,
+      "max": 3000,
+      "step": 50
+    },
+    "Config.Ratings.MinMoves": {
+      "label": "Moves before a game counts",
+      "tooltip": "A game needs at least this many moves (both players together) to be rated, so an instant resign or walk-away does not move anyone's rating.",
+      "tab": "records",
+      "group": "Ratings",
+      "min": 0,
+      "max": 40,
+      "step": 1
+    },
+    "Config.Ratings.LeaderboardMinGames": {
+      "label": "Games to be listed",
+      "tooltip": "Rated games a player needs before they appear on the leaderboard.",
+      "tab": "records",
+      "group": "Ratings",
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    "Config.Ratings.ProvisionalGames": {
+      "label": "Provisional games",
+      "tooltip": "For a player's first this-many rated games their rating moves faster (Provisional K), so it finds its level quickly.",
+      "tab": "records",
+      "group": "Ratings",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "advanced": true
+    },
+    "Config.Ratings.KProvisional": {
+      "label": "Provisional K",
+      "tooltip": "How far a rating can move in one game while provisional. FIDE uses 40.",
+      "tab": "records",
+      "group": "Ratings",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "advanced": true
+    },
+    "Config.Ratings.K": {
+      "label": "K",
+      "tooltip": "How far a rating can move in one game. FIDE uses 20.",
+      "tab": "records",
+      "group": "Ratings",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "advanced": true
+    },
+    "Config.Ratings.MasterRating": {
+      "label": "Master rating",
+      "tooltip": "From this rating up, Master K applies. FIDE uses 2400.",
+      "tab": "records",
+      "group": "Ratings",
+      "min": 1000,
+      "max": 3500,
+      "step": 50,
+      "advanced": true
+    },
+    "Config.Ratings.KMaster": {
+      "label": "Master K",
+      "tooltip": "How far a master's rating can move in one game. FIDE uses 10.",
+      "tab": "records",
+      "group": "Ratings",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "advanced": true
+    },
+    "Config.Records.HideAIByDefault": {
+      "label": "Hide AI games at first",
+      "tooltip": "'My record' opens with games against the AI hidden. Players can show them with one switch.",
+      "tab": "records",
+      "group": "My record"
+    },
+    "Config.Records.AbandonAfterDays": {
+      "label": "Close unfinished games after",
+      "tooltip": "Unfinished games nobody picks up for this many days are closed (recorded with no result) when the script starts. 0 keeps them forever.",
+      "tab": "records",
+      "group": "My record",
+      "min": 0,
+      "max": 365,
+      "step": 1,
+      "unit": "days"
+    },
+    "Config.UI.EvalBar": {
+      "label": "Evaluation bar",
+      "tooltip": "In chess against the AI, show how the AI rates the position. Never shown between two players.",
+      "tab": "screen",
+      "group": "The game screen"
+    },
+    "Config.UI.NotifyMs": {
+      "label": "Notification time",
+      "tooltip": "How long the script's notifications stay on screen, in milliseconds.",
+      "tab": "screen",
+      "group": "The game screen",
+      "min": 1000,
+      "max": 15000,
+      "step": 500,
+      "unit": "ms"
+    },
+    "Config.UI.SquareFill": {
+      "label": "Highlight size",
+      "tooltip": "How much of each board square a highlight fills (0.5 to 1).",
+      "tab": "screen",
+      "group": "The game screen",
+      "min": 0.5,
+      "max": 1,
+      "step": 0.05
+    },
+    "Config.Sounds.Volume": {
+      "label": "Sound volume",
+      "tooltip": "Volume of the move, capture and check sounds, 0 to 1.",
+      "tab": "screen",
+      "group": "Sound",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    "Config.TableLight.Enabled": {
+      "label": "Table light",
+      "tooltip": "A warm light over the table while a game is on. Only the two players see it.",
+      "tab": "screen",
+      "group": "Table light"
+    },
+    "Config.TableLight.Height": {
+      "label": "Light height",
+      "tooltip": "Metres above the table.",
+      "tab": "screen",
+      "group": "Table light",
+      "min": 0.5,
+      "max": 4,
+      "step": 0.1,
+      "unit": "m",
+      "advanced": true
+    },
+    "Config.TableLight.R": {
+      "label": "Light red",
+      "tooltip": "Colour of the light, 0-255.",
+      "tab": "screen",
+      "group": "Table light",
+      "min": 0,
+      "max": 255,
+      "step": 1,
+      "advanced": true
+    },
+    "Config.TableLight.G": {
+      "label": "Light green",
+      "tooltip": "Colour of the light, 0-255.",
+      "tab": "screen",
+      "group": "Table light",
+      "min": 0,
+      "max": 255,
+      "step": 1,
+      "advanced": true
+    },
+    "Config.TableLight.B": {
+      "label": "Light blue",
+      "tooltip": "Colour of the light, 0-255.",
+      "tab": "screen",
+      "group": "Table light",
+      "min": 0,
+      "max": 255,
+      "step": 1,
+      "advanced": true
+    },
+    "Config.TableLight.Intensity": {
+      "label": "Light strength",
+      "tooltip": "Brightness of the table light.",
+      "tab": "screen",
+      "group": "Table light",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "advanced": true
+    },
+    "Config.TableLight.Range": {
+      "label": "Light range",
+      "tooltip": "How far the light reaches, in metres.",
+      "tab": "screen",
+      "group": "Table light",
+      "min": 0.5,
+      "max": 10,
+      "step": 0.5,
+      "unit": "m",
+      "advanced": true
+    },
+    "Config.Models.Table": {
+      "label": "Table prop",
+      "tooltip": "The table model placed at each table.",
+      "tab": "advanced",
+      "group": "Props"
+    },
+    "Config.Models.Board": {
+      "label": "Board prop",
+      "tooltip": "The board model on the table.",
+      "tab": "advanced",
+      "group": "Props"
+    },
+    "Config.Models.Chair": {
+      "label": "Chair prop",
+      "tooltip": "The chair model placed on both sides.",
+      "tab": "advanced",
+      "group": "Props"
+    },
+    "Config.MoveAnim.DurationMs": {
+      "label": "Move animation",
+      "tooltip": "How long a piece takes to move across the board, in milliseconds.",
+      "tab": "advanced",
+      "group": "Pieces",
+      "min": 100,
+      "max": 3000,
+      "step": 50,
+      "unit": "ms"
+    },
+    "Config.MoveAnim.TickMs": {
+      "label": "Animation step",
+      "tooltip": "Milliseconds between animation steps. 16 is smooth.",
+      "tab": "advanced",
+      "group": "Pieces",
+      "min": 5,
+      "max": 100,
+      "step": 1,
+      "unit": "ms"
+    },
+    "Config.Geometry.PieceHeight": {
+      "label": "Piece height",
+      "tooltip": "Height of a piece's base above the table origin, in metres.",
+      "tab": "advanced",
+      "group": "Layout",
+      "step": 0.001,
+      "unit": "m"
+    },
+    "Config.Geometry.LiftHeight": {
+      "label": "Lift height",
+      "tooltip": "Top of a moving piece's arc above the table origin, in metres.",
+      "tab": "advanced",
+      "group": "Layout",
+      "step": 0.001,
+      "unit": "m"
+    },
+    "Config.Geometry.BoardDrop": {
+      "label": "Board drop",
+      "tooltip": "How far below the pieces the board prop sits, in metres.",
+      "tab": "advanced",
+      "group": "Layout",
+      "step": 0.001,
+      "unit": "m"
+    },
+    "Config.Geometry.BoardTurn": {
+      "label": "Board turn",
+      "tooltip": "Turn of the board prop against the table, in degrees.",
+      "tab": "advanced",
+      "group": "Layout",
+      "step": 1
+    },
+    "Translations": {
+      "label": "Messages and screen text",
+      "tooltip": "Every line players read: notifications, prompts, and the words on the table screens (the NUI block). Change a line to reword it; keep each %s and %d, they are filled with names and numbers.",
+      "tab": "text",
+      "group": "Language"
+    },
+    "Config.Models.Chess": {
+      "label": "Chess piece props",
+      "tooltip": "The prop for each chess piece: capital letters are white, small are black (P pawn, N knight, B bishop, R rook, Q queen, K king).",
+      "tab": "advanced",
+      "group": "Props"
+    },
+    "Config.Models.Checkers": {
+      "label": "Checkers props",
+      "tooltip": "The prop for each checker: r and b are men, R and B are kings.",
+      "tab": "advanced",
+      "group": "Props"
+    },
+    "Config.Models.PieceTurn": {
+      "label": "Piece turn",
+      "tooltip": "Extra turn, in degrees, for pieces that face one way (the knights).",
+      "tab": "advanced",
+      "group": "Props"
+    },
+    "Config.Geometry.BoardCorners": {
+      "label": "Board corners",
+      "tooltip": "The centres of the four corner squares, in metres from the table origin. Change them only for a different board prop.",
+      "tab": "advanced",
+      "group": "Layout"
+    },
+    "Config.Geometry.Chairs": {
+      "label": "Chairs",
+      "tooltip": "Where each chair stands against the table, and which way it faces. Change them only for a different table or chair prop.",
+      "tab": "advanced",
+      "group": "Layout"
+    },
+    "Config.Cameras": {
+      "label": "Cameras",
+      "tooltip": "The views for each seat, cycled with the camera key: pos is where the camera stands (metres from the table origin), look is the point it looks at, rot turns it instead.",
+      "tab": "advanced",
+      "group": "Cameras"
+    }
+  },
+  "lists": {
+    "Config.Tables": {
+      "label": "Tables",
+      "itemLabel": "table",
+      "tab": "tables",
+      "kind": "list",
+      "titleField": "label",
+      "subtitleField": "id",
+      "columns": [
+        {
+          "field": "label",
+          "label": "Name"
+        },
+        {
+          "field": "id",
+          "label": "Id"
+        },
+        {
+          "field": "origin",
+          "label": "Position"
+        },
+        {
+          "field": "blip.enabled",
+          "label": "Blip"
+        }
+      ],
+      "search": [
+        "label",
+        "id"
+      ],
+      "fields": {
+        "id": {
+          "label": "Id",
+          "tooltip": "A short name that never changes: it is saved with every game played here. Letters, numbers and underscores."
+        },
+        "label": {
+          "label": "Name",
+          "tooltip": "Shown to players above the prompts and on the game screens."
+        },
+        "origin": {
+          "label": "Position",
+          "tooltip": "The middle of the table, on the floor. The script places the table, board and both chairs around it. Stand where the table should be and use 'my position'.",
+          "picker": "coords"
+        },
+        "heading": {
+          "label": "Heading",
+          "tooltip": "Turns the whole table, in degrees. At 0 the white chair is on the east side.",
+          "picker": "heading"
+        },
+        "blip.enabled": {
+          "label": "Show map blip",
+          "tooltip": "Show this table on the map."
+        },
+        "blip.sprite": {
+          "label": "Blip icon",
+          "tooltip": "The blip sprite name, such as blip_player."
+        },
+        "blip.color": {
+          "label": "Blip colour",
+          "tooltip": "The blip colour modifier, such as BLIP_MODIFIER_MP_COLOR_32."
+        },
+        "blip.scale": {
+          "label": "Blip size",
+          "tooltip": "Size of the map blip.",
+          "min": 0.05,
+          "max": 2,
+          "step": 0.05
+        }
+      },
+      "template": {
+        "id": "new_table",
+        "label": "New Table",
+        "origin": {
+          "__type": "vec3",
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "heading": 0.0,
+        "blip": {
+          "enabled": true,
+          "sprite": "blip_player",
+          "color": "BLIP_MODIFIER_MP_COLOR_32",
+          "scale": 0.25
+        }
+      }
+    },
+    "Config.ChessAI.Levels": {
+      "label": "Chess levels",
+      "itemLabel": "level",
+      "tab": "ai",
+      "kind": "list",
+      "titleField": "id",
+      "subtitleField": "engine",
+      "columns": [
+        {
+          "field": "id",
+          "label": "Id"
+        },
+        {
+          "field": "engine",
+          "label": "Engine"
+        },
+        {
+          "field": "mistakeRate",
+          "label": "Mistakes"
+        }
+      ],
+      "fields": {
+        "id": {
+          "label": "Id",
+          "tooltip": "Saved with each game. Its name on screen comes from level_<id> in translations.lua (the id itself when there is none)."
+        },
+        "engine": {
+          "label": "Engine",
+          "tooltip": "'local': the server's own engine. 'api': Stockfish at chess-api.com, with the server's engine when it cannot be reached.",
+          "options": [
+            "local",
+            "api"
+          ]
+        },
+        "localDepth": {
+          "label": "Server engine depth",
+          "tooltip": "Moves the server's engine looks ahead, 1-3.",
+          "min": 1,
+          "max": 4,
+          "step": 1
+        },
+        "timeMs": {
+          "label": "Server engine time",
+          "tooltip": "Most time the server's engine may think, in ms.",
+          "min": 100,
+          "max": 5000,
+          "step": 100
+        },
+        "depth": {
+          "label": "Stockfish depth",
+          "tooltip": "Stockfish search depth, 1-18 (api levels).",
+          "min": 1,
+          "max": 18,
+          "step": 1
+        },
+        "apiThinkMs": {
+          "label": "Stockfish time",
+          "tooltip": "Stockfish time limit in ms, 1-100 (api levels).",
+          "min": 1,
+          "max": 100,
+          "step": 1
+        },
+        "variants": {
+          "label": "Moves offered",
+          "tooltip": "How many moves Stockfish suggests to choose from, 1-5.",
+          "min": 1,
+          "max": 5,
+          "step": 1
+        },
+        "targetWinChance": {
+          "label": "Target winning chance",
+          "tooltip": "The AI steers for this winning chance of its own, in %; lower plays softer. 0 always plays the best move.",
+          "min": 0,
+          "max": 100,
+          "step": 1
+        },
+        "noise": {
+          "label": "Target spread",
+          "tooltip": "Random spread on the target, in %.",
+          "min": 0,
+          "max": 30,
+          "step": 1
+        },
+        "mistakeRate": {
+          "label": "Mistake chance",
+          "tooltip": "Chance on each move of a deliberate slip, 0-1.",
+          "min": 0,
+          "max": 1,
+          "step": 0.01
+        },
+        "mistakeMinCp": {
+          "label": "Smallest slip",
+          "tooltip": "In hundredths of a pawn.",
+          "min": 0,
+          "max": 2000,
+          "step": 5
+        },
+        "mistakeMaxCp": {
+          "label": "Largest slip",
+          "tooltip": "In hundredths of a pawn.",
+          "min": 0,
+          "max": 2000,
+          "step": 5
+        },
+        "delayMs": {
+          "label": "Least thinking time",
+          "tooltip": "The AI never answers faster than this, in ms, so it feels like a person.",
+          "min": 0,
+          "max": 10000,
+          "step": 100
+        },
+        "drawMinMoves": {
+          "label": "Draws from move",
+          "tooltip": "It considers a draw offer only after this many moves each.",
+          "min": 0,
+          "max": 100,
+          "step": 1
+        },
+        "drawAcceptCp": {
+          "label": "Takes a draw up to",
+          "tooltip": "It takes a draw when it is ahead by no more than this, in hundredths of a pawn. 9999: always; -100: only when a pawn behind.",
+          "min": -9999,
+          "max": 9999,
+          "step": 10
+        }
+      },
+      "template": {
+        "id": "new_level",
+        "engine": "local",
+        "localDepth": 2,
+        "timeMs": 800,
+        "mistakeRate": 0.1,
+        "mistakeMinCp": 50,
+        "mistakeMaxCp": 200,
+        "delayMs": 1000,
+        "drawMinMoves": 8,
+        "drawAcceptCp": 100
+      }
+    },
+    "Config.CheckersAI.Levels": {
+      "label": "Checkers levels",
+      "itemLabel": "level",
+      "tab": "ai",
+      "kind": "list",
+      "titleField": "id",
+      "columns": [
+        {
+          "field": "id",
+          "label": "Id"
+        },
+        {
+          "field": "depth",
+          "label": "Depth"
+        },
+        {
+          "field": "noise",
+          "label": "Looseness"
+        }
+      ],
+      "fields": {
+        "id": {
+          "label": "Id",
+          "tooltip": "Saved with each game. Its name on screen comes from level_<id> in translations.lua."
+        },
+        "depth": {
+          "label": "Depth",
+          "tooltip": "Moves it looks ahead at most.",
+          "min": 1,
+          "max": 20,
+          "step": 1
+        },
+        "timeMs": {
+          "label": "Thinking time",
+          "tooltip": "Most time it may think, in ms. The search pauses for the server every few milliseconds, so a long think never stalls it.",
+          "min": 100,
+          "max": 5000,
+          "step": 100
+        },
+        "noise": {
+          "label": "Looseness",
+          "tooltip": "How loosely it picks among good moves, in men. 0 always plays the best.",
+          "min": 0,
+          "max": 3,
+          "step": 0.05
+        },
+        "delayMs": {
+          "label": "Least thinking time",
+          "tooltip": "It never answers faster than this, in ms.",
+          "min": 0,
+          "max": 10000,
+          "step": 100
+        },
+        "drawMinMoves": {
+          "label": "Draws from move",
+          "tooltip": "It considers a draw offer only after this many moves each.",
+          "min": 0,
+          "max": 100,
+          "step": 1
+        },
+        "drawAcceptMargin": {
+          "label": "Takes a draw up to",
+          "tooltip": "It takes a draw when it is ahead by no more than this many men (a king counts extra). 99: always; -99: never.",
+          "min": -99,
+          "max": 99,
+          "step": 1
+        }
+      },
+      "template": {
+        "id": "new_level",
+        "depth": 6,
+        "timeMs": 900,
+        "noise": 0.1,
+        "delayMs": 900,
+        "drawMinMoves": 5,
+        "drawAcceptMargin": 0
+      }
+    }
+  }
+}
