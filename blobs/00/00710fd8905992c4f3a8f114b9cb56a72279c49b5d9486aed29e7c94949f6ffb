@@ -1,0 +1,14 @@
+{
+  "label": "Poggy Badge Props",
+  "tagline": "37 badges and five armbands to pin on with Poggy Badge",
+  "category": "Roleplay",
+  "description": "A pack of 3D prop models: lawmen's badges from Deputy to Commissioner, eight town badges, medical and civic badges, and five cloth armbands in nine sizes each. It has no settings of its own. Use the model names as the Prop model of a badge grade in Poggy Badge.",
+  "readme": "README.md",
+  "help": [
+    {"title": "Using the props in Poggy Badge", "file": "docs/help/using-the-props.md"}
+  ],
+  "commands": [],
+  "tabs": [],
+  "settings": {},
+  "lists": {}
+}
