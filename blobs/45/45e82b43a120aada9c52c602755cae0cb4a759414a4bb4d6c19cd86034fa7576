@@ -1,0 +1,17 @@
+{
+  "label": "Poggy Chess Props",
+  "tagline": "The marble board and pieces for Poggy Chess",
+  "category": "Roleplay",
+  "description": "A pack of 3D prop models: a black and white marble chess board, and king, queen, bishop, knight, rook and pawn in white and in black marble. It has no settings of its own. Poggy Chess uses it at every table when it is running.",
+  "readme": "README.md",
+  "help": [
+    {
+      "title": "Using the marble set",
+      "file": "docs/help/using-the-set.md"
+    }
+  ],
+  "commands": [],
+  "tabs": [],
+  "settings": {},
+  "lists": {}
+}
