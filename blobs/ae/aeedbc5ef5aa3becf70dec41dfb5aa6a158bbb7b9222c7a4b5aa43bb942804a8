@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scene Placer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cfx-nui-poggy_core/ui/hub/theme.js"></script>
+</head>
+<body>
+
+  <div id="scene-root" class="hidden">
+
+    <!-- ── PHASE 1: Rich-text scene editor ── -->
+    <div id="scene-text-panel" class="panel hidden">
+      <header class="panel-header">
+        <span class="header-icon">✦</span>
+        <span class="header-title">Scene Editor</span>
+      </header>
+      <div class="panel-body">
+
+        <!-- Floating text or a sign board (shown only when the sign props are on the server) -->
+        <div id="scene-mode" class="seg hidden">
+          <button type="button" class="seg-btn active" data-mode="text">Floating text</button>
+          <button type="button" class="seg-btn" data-mode="sign">Sign board</button>
+        </div>
+
+        <div id="scene-text-mode" class="mode-body">
+        <!-- Toolbar -->
+        <div id="editor-toolbar">
+          <!-- A left / right switcher, not a dropdown: dropdowns leave marks on the screen in the game -->
+          <div id="editor-font-size" class="cc-stepper switcher" title="Font size">
+            <button type="button" class="step-btn step-left">◄</button>
+            <span class="switcher-value"></span>
+            <button type="button" class="step-btn step-right">►</button>
+          </div>
+
+          <div id="editor-colors">
+            <!-- Swatches populated dynamically from Config.sceneColors -->
+          </div>
+        </div>
+
+        <!-- Editable area -->
+        <div id="scene-text-input"
+             contenteditable="true"
+             spellcheck="false"
+             data-placeholder="Type your scene text…"
+        ></div>
+        </div><!-- /#scene-text-mode -->
+
+        <!-- Sign board: the board, the lettering, and the words (select part of them to change its size or paint) -->
+        <div id="scene-sign-mode" class="mode-body hidden">
+          <!-- The editor is in sections that fold away: only what is being worked on need be open. -->
+          <!-- Board, mount and light -->
+          <div class="sec open" data-sec="board">
+            <button type="button" class="sec-head"><span class="sec-arrow">▸</span>Board, mount and light</button>
+            <div class="sec-body">
+              <div class="sign-options">
+                <div class="sign-option">
+                  <span class="field-label">Board</span>
+                  <div id="sign-board" class="cc-stepper switcher" title="Board">
+                    <button type="button" class="step-btn step-left">◄</button>
+                    <span class="switcher-value"></span>
+                    <button type="button" class="step-btn step-right">►</button>
+                  </div>
+                </div>
+                <div class="sign-option">
+                  <span class="field-label">Board colour</span>
+                  <div id="sign-tone" class="seg"></div>
+                </div>
+              </div>
+              <!-- All optional: what holds the sign up, what lights it, a painted line inside the frame -->
+              <div class="sign-options">
+                <div class="sign-option">
+                  <span class="field-label">Mount</span>
+                  <div id="sign-mount" class="cc-stepper switcher" title="What holds the sign up">
+                    <button type="button" class="step-btn step-left">◄</button>
+                    <span class="switcher-value"></span>
+                    <button type="button" class="step-btn step-right">►</button>
+                  </div>
+                </div>
+                <div class="sign-option">
+                  <span class="field-label">Light</span>
+                  <div id="sign-light" class="cc-stepper switcher" title="What lights the sign">
+                    <button type="button" class="step-btn step-left">◄</button>
+                    <span class="switcher-value"></span>
+                    <button type="button" class="step-btn step-right">►</button>
+                  </div>
+                </div>
+              </div>
+              <div class="sign-options">
+                <div class="sign-option">
+                  <span class="field-label">Painted border</span>
+                  <div id="sign-border" class="editor-colors">
+                    <!-- "None" and one swatch per paint -->
+                  </div>
+                </div>
+                <div class="sign-option">
+                  <span class="field-label">Sides</span>
+                  <div id="sign-sides" class="seg" title="Both: the back says the same as the front">
+                    <button type="button" class="seg-btn active" data-sides="1">One</button>
+                    <button type="button" class="seg-btn" data-sides="2">Both</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- The words: always in view -->
+          <div class="sign-options">
+            <div class="sign-option">
+              <span class="field-label">Lettering</span>
+              <div id="sign-font" class="seg"></div>
+            </div>
+            <div class="sign-option">
+              <span class="field-label">Words run</span>
+              <div id="sign-dir" class="seg">
+                <button type="button" class="seg-btn active" data-dir="h">Across</button>
+                <button type="button" class="seg-btn" data-dir="v">Down</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="sign-toolbar" class="editor-toolbar">
+            <div id="sign-size" class="cc-stepper switcher" title="Letter size">
+              <button type="button" class="step-btn step-left">◄</button>
+              <span class="switcher-value"></span>
+              <button type="button" class="step-btn step-right">►</button>
+            </div>
+            <div id="sign-paints" class="editor-colors">
+              <!-- One swatch per paint, from the sign props -->
+            </div>
+          </div>
+
+          <div id="sign-text-input"
+               contenteditable="true"
+               spellcheck="false"
+               data-placeholder="Type the sign's words. Enter starts a new line."
+          ></div>
+          <div id="sign-status" class="hint-row"></div>
+
+
+          <!-- Symbols -->
+          <div class="sec" data-sec="symbols">
+            <button type="button" class="sec-head"><span class="sec-arrow">▸</span>Symbols</button>
+            <div class="sec-body">
+              <div class="sign-option">
+                <div class="hint-row hint-left">Click a symbol to write it in where you are typing. It takes the size and paint in use.</div>
+                            <div id="sign-symbols">
+                  <!-- One button per symbol, from the sign props -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Line spacing and height -->
+          <div class="sec" data-sec="spacing">
+            <button type="button" class="sec-head"><span class="sec-arrow">▸</span>Line spacing and height</button>
+            <div class="sec-body">
+              <!-- How the words sit on the board -->
+              <div id="sign-words" class="slider-group">
+                <div class="slider-row" data-key="gap">
+                  <span class="slider-label">Line spacing</span>
+                  <input type="range" class="slider" min="-6" max="30" step="0.5" value="3.5">
+                  <input type="number" class="slider-val" step="0.5" value="3.5">
+                </div>
+                <div class="slider-row" data-key="dz">
+                  <span class="slider-label">Words up / down</span>
+                  <input type="range" class="slider" min="-60" max="60" step="0.5" value="0">
+                  <input type="number" class="slider-val" step="0.5" value="0">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Position and rotation -->
+          <div class="sec open" data-sec="place">
+            <button type="button" class="sec-head"><span class="sec-arrow">▸</span>Position and rotation</button>
+            <div class="sec-body">
+              <!-- Placing the sign: sliders, as in Poggy Badges. It stands in the world while it is written. -->
+              <div id="sign-sliders" class="slider-block">
+                <div class="field-label">Position</div>
+                <div class="slider-group">
+                  <div class="slider-row" data-key="dx">
+                    <span class="slider-label">Left / right</span>
+                    <input type="range" class="slider" min="-4" max="4" step="0.01" value="0">
+                    <input type="number" class="slider-val" step="0.01" value="0">
+                  </div>
+                  <div class="slider-row" data-key="dy">
+                    <span class="slider-label">Near / far</span>
+                    <input type="range" class="slider" min="-4" max="4" step="0.01" value="0">
+                    <input type="number" class="slider-val" step="0.01" value="0">
+                  </div>
+                  <div class="slider-row" data-key="dz">
+                    <span class="slider-label">Down / up</span>
+                    <input type="range" class="slider" min="-3" max="5" step="0.01" value="0">
+                    <input type="number" class="slider-val" step="0.01" value="0">
+                  </div>
+                </div>
+                <div class="field-label">Rotation</div>
+                <div class="slider-group">
+                  <div class="slider-row" data-key="rz">
+                    <span class="slider-label">Turn</span>
+                    <input type="range" class="slider" min="-180" max="180" step="0.5" value="0">
+                    <input type="number" class="slider-val" step="0.5" value="0">
+                  </div>
+                  <div class="slider-row" data-key="rx">
+                    <span class="slider-label">Tilt</span>
+                    <input type="range" class="slider" min="-180" max="180" step="0.5" value="0">
+                    <input type="number" class="slider-val" step="0.5" value="0">
+                  </div>
+                  <div class="slider-row" data-key="ry">
+                    <span class="slider-label">Lean</span>
+                    <input type="range" class="slider" min="-180" max="180" step="0.5" value="0">
+                    <input type="number" class="slider-val" step="0.5" value="0">
+                  </div>
+                </div>
+              </div><!-- /sign-sliders -->
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button id="btn-text-remove"  class="btn-danger hidden">Remove</button>
+          <button id="btn-text-cancel"  class="btn-secondary">✕ Cancel</button>
+          <button id="btn-text-confirm" class="btn-primary">Confirm →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PHASE 2: Position editor ── -->
+    <div id="scene-position-panel" class="panel hidden">
+      <header class="panel-header">
+        <span class="header-icon">⊕</span>
+        <span class="header-title">Adjust Position</span>
+      </header>
+      <div class="panel-body">
+
+        <div class="scene-preview" id="scene-preview-text"></div>
+
+        <div class="axis-block">
+
+          <div class="axis-row">
+            <span class="axis-label">X</span>
+            <div class="cc-stepper" data-axis="x">
+              <button class="step-btn step-left">◄</button>
+              <input id="input-x" type="number" step="0.1" />
+              <button class="step-btn step-right">►</button>
+            </div>
+          </div>
+
+          <div class="axis-row">
+            <span class="axis-label">Y</span>
+            <div class="cc-stepper" data-axis="y">
+              <button class="step-btn step-left">◄</button>
+              <input id="input-y" type="number" step="0.1" />
+              <button class="step-btn step-right">►</button>
+            </div>
+          </div>
+
+          <div class="axis-row">
+            <span class="axis-label">Z</span>
+            <div class="cc-stepper" data-axis="z">
+              <button class="step-btn step-left">◄</button>
+              <input id="input-z" type="number" step="0.1" />
+              <button class="step-btn step-right">►</button>
+            </div>
+          </div>
+
+        </div><!-- /axis-block -->
+
+
+        <div class="hint-row">Scroll on a value or use ◄ ► to fine-tune</div>
+
+        <div class="btn-row">
+          <button id="btn-position-cancel" class="btn-secondary">✕ Cancel</button>
+          <button id="btn-position-place"  class="btn-primary">✓ Place</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /#scene-root -->
+
+  <!-- ── STATUS: Preset Manager (separate root, same bottom-right anchor) ── -->
+  <div id="status-root" class="hidden">
+    <div id="status-panel" class="panel">
+      <header class="panel-header">
+        <span class="header-icon">◈</span>
+        <span class="header-title">Set Status</span>
+      </header>
+      <div class="panel-body">
+        <label class="field-label">Status Text</label>
+
+        <!-- Status color toolbar -->
+        <div id="status-editor-toolbar" class="editor-toolbar">
+          <div id="status-editor-colors" class="editor-colors">
+            <!-- Swatches populated dynamically from Config.sceneColors -->
+          </div>
+        </div>
+
+        <!-- Editable area -->
+        <div id="status-text-input"
+             contenteditable="true"
+             spellcheck="false"
+             data-placeholder="Enter status text\u2026"
+        ></div>
+
+        <div class="preset-save-row">
+          <input id="status-name-input" type="text" class="name-input"
+            placeholder="Preset name (optional)…"
+            autocomplete="off" spellcheck="false" />
+          <button id="btn-status-save" class="btn-save-preset" title="Save preset">💾</button>
+        </div>
+
+        <div class="btn-row">
+          <button id="btn-status-cancel" class="btn-secondary">✕ Cancel</button>
+          <button id="btn-status-clear"  class="btn-secondary">■ Clear</button>
+          <button id="btn-status-apply"  class="btn-primary">▶ Apply</button>
+        </div>
+
+        <div class="presets-divider"></div>
+        <div class="field-label" style="margin-bottom:4px">Saved Presets</div>
+        <div id="status-presets-list" class="presets-list">
+          <div class="presets-empty">No saved presets</div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /#status-root -->
+
+  <!-- ── ME Display Box (top-center, below poodlechat input) ── -->
+  <div id="mebox-root" class="mebox-hidden">
+    <div id="mebox-container">
+      <div id="mebox-messages"></div>
+    </div>
+  </div>
+
+  <!-- Move-mode overlay for mebox repositioning -->
+  <div id="mebox-move-overlay" style="display:none; position:fixed; inset:0; z-index:9998; cursor:default;">
+    <div style="position:fixed; top:20px; left:50%; transform:translateX(-50%);
+                background:rgba(0,0,0,0.72); color:rgba(230,218,196,0.95);
+                padding:8px 20px; border-radius:6px; font-size:12px; font-weight:600;
+                letter-spacing:0.12em; text-transform:uppercase;
+                font-family:'Inter',system-ui,sans-serif;
+                pointer-events:none; white-space:nowrap;
+                text-shadow:0 1px 4px rgba(0,0,0,0.8);">
+      Drag me-box &bull; Press ESC to save &amp; exit
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
