@@ -1,0 +1,56 @@
+fx_version 'cerulean'
+game 'rdr3'
+rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
+lua54 'yes'
+
+poggy_id 'poggy_scene'
+author 'Poggy'
+description 'Poggy Scene - A collection of scene-related utilities and features for RedM.'
+version '1.4.0'
+poggy_core_min '0.27.0'
+
+dependencies {
+    'poggy_core',
+    'oxmysql',
+    '/assetpacks',
+    '/assetpacks-redm',
+}
+
+shared_scripts {
+    '@poggy_core/template/poggy.lua',
+    'config.lua',
+}
+
+client_scripts {
+    'client/main.lua',
+}
+
+server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'server/main.lua',
+    'server/hub.lua',
+}
+
+-- The screen is shown by poggy_core (0.27.0), not as a page of this script's own:
+-- an on-screen display, so it loads when the player joins, as before.
+poggy_ui 'ui/index.html'
+
+files {
+    'ui/index.html',
+    'ui/style.css',
+    'ui/script.js',
+    'docs/icon.png',
+}
+
+escrow_ignore {
+    'config.lua',
+    'client/main.lua',
+}
+
+-- Metadata only: the export server/hub.lua registers (the /poggy Scenes panel).
+server_exports {
+    'HubPanel',
+}
+
+dependency '/assetpacks'
+dependency '/assetpacks-redm'
