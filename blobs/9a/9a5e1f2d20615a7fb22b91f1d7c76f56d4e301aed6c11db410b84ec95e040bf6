@@ -1,0 +1,445 @@
+/* Built by tools/ui-vue from poggy_core/ui-src. Edit the source there, not this file. */
+/* ================================================================
+   The Poggy UI kit's stylesheet (poggy_core 0.28.0): ui/hub/poggy-ui.css
+
+   Built from poggy_core/ui-src by tools/ui-vue; edit it there. A screen
+   built on the kit (ui-src/*.vue, see ui-src/README.md) loads it first,
+   then its own app.css, then poggy_core's theme line, last in <head>:
+
+       <link rel="stylesheet" href="https://cfx-nui-poggy_core/ui/hub/poggy-ui.css">
+       <link rel="stylesheet" href="app.css">
+       <script src="https://cfx-nui-poggy_core/ui/hub/theme.js"></script>
+
+   It starts as docs/how-to-build-a-poggy-script/poggy-ui-starter.css (the
+   tokens and the .pg-* classes), and adds what the kit's components need
+   (from "the kit" below).
+
+   How it works: the :root block below repeats poggy_core's theme tokens
+   (ui/hub/theme.css) with the Rosewood (black and gold) values. theme.js
+   loads theme.css after this file and sets the owner's theme on <html>,
+   so every var(--pg-...) here takes the server's theme. With the theme
+   off (or the script on the owner's "keep their own colours" list), the
+   page is still Rosewood. A kit page is native: <html data-pg-native>
+   tells theme.js to load no skin over it.
+
+   Rules (docs/how-to-build-a-poggy-script/06a-the-poggy-look.md):
+   - Name no colour anywhere but the base block below. Everything else is
+     a token, or an alpha of a triple: rgba(var(--pg-accent-rgb), .2).
+   - Surfaces from --pg-text-rgb, wells from --pg-deep-rgb, black only
+     for shadows and veils (--pg-shade-rgb): the light Ledger theme flips
+     text and panel, and must stay readable.
+   - Titles, labels, tabs, buttons: --pg-font-display. Numbers, prices,
+     prose, inputs: --pg-font-body (the display font's figures are
+     old-style: "1" reads as "ı").
+   - Corners: var(--pg-radius) / var(--pg-radius-sm), square by default.
+
+   Keep the token block in step with poggy_core's ui/hub/theme.css:
+   tools\test-theme.py checks every token there is defined here.
+   ================================================================ */
+
+/* ── tokens: base (poggy_core's theme overrides these) ─────────────── */
+:root {
+    --pg-bg-rgb:        20, 20, 20;
+    --pg-deep-rgb:      14, 14, 14;
+    --pg-raise-rgb:     30, 30, 30;
+    --pg-text-rgb:      246, 239, 227;
+    --pg-accent-rgb:    214, 173, 104;
+    --pg-accent-hi-rgb: 232, 200, 142;
+    --pg-on-accent-rgb: 20, 20, 20;
+    --pg-success-rgb:   143, 191, 127;
+    --pg-danger-rgb:    212, 138, 138;
+    --pg-warning-rgb:   224, 179, 90;
+    --pg-info-rgb:      143, 179, 217;
+    --pg-shade-rgb:     0, 0, 0;
+    --pg-panel-alpha:   0.94;
+
+    --pg-font-display: 'IM Fell English', 'Source Serif 4', Georgia, 'Times New Roman', serif;
+    --pg-font-body:    'Segoe UI', Arial, Helvetica, sans-serif;
+    --pg-font-mono:    'Source Code Pro', Consolas, 'Courier New', monospace;
+    --pg-radius:       0px;
+    --pg-radius-sm:    0px;
+}
+
+/* ── tokens: derived (never set these; use them) ───────────────────── */
+:root {
+    --pg-bg:          rgb(var(--pg-bg-rgb));
+    --pg-panel:       rgba(var(--pg-bg-rgb), var(--pg-panel-alpha));
+    --pg-panel-solid: rgb(var(--pg-bg-rgb));
+    --pg-deep:        rgba(var(--pg-deep-rgb), 0.88);
+    --pg-raise:       rgba(var(--pg-raise-rgb), 0.99);
+
+    --pg-text:        rgb(var(--pg-text-rgb));
+    --pg-text-soft:   rgba(var(--pg-text-rgb), 0.82);
+    --pg-text-muted:  rgba(var(--pg-text-rgb), 0.60);
+    --pg-text-dim:    rgba(var(--pg-text-rgb), 0.35);
+
+    --pg-accent:       rgb(var(--pg-accent-rgb));
+    --pg-accent-hi:    rgb(var(--pg-accent-hi-rgb));
+    --pg-accent-soft:  rgba(var(--pg-accent-rgb), 0.35);
+    --pg-accent-glow:  rgba(var(--pg-accent-rgb), 0.50);
+    --pg-accent-faint: rgba(var(--pg-accent-rgb), 0.12);
+    --pg-on-accent:    rgb(var(--pg-on-accent-rgb));
+
+    --pg-success:      rgb(var(--pg-success-rgb));
+    --pg-success-soft: rgba(var(--pg-success-rgb), 0.14);
+    --pg-danger:       rgb(var(--pg-danger-rgb));
+    --pg-danger-soft:  rgba(var(--pg-danger-rgb), 0.14);
+    --pg-warning:      rgb(var(--pg-warning-rgb));
+    --pg-warning-soft: rgba(var(--pg-warning-rgb), 0.14);
+    --pg-info:         rgb(var(--pg-info-rgb));
+    --pg-info-soft:    rgba(var(--pg-info-rgb), 0.14);
+
+    --pg-surface:        rgba(var(--pg-text-rgb), 0.04);
+    --pg-surface-hover:  rgba(var(--pg-text-rgb), 0.08);
+    --pg-surface-strong: rgba(var(--pg-text-rgb), 0.12);
+
+    --pg-border:        rgba(var(--pg-text-rgb), 0.14);
+    --pg-border-soft:   rgba(var(--pg-text-rgb), 0.09);
+    --pg-border-strong: rgba(var(--pg-text-rgb), 0.24);
+
+    --pg-veil:          rgba(var(--pg-shade-rgb), 0.55);
+    --pg-shadow:        0 1.2rem 3rem rgba(var(--pg-shade-rgb), 0.45);
+    --pg-shadow-strong: 0 1.2rem 3rem rgba(var(--pg-shade-rgb), 0.70);
+
+    --pg-panel-bg:
+        linear-gradient(180deg, rgba(var(--pg-text-rgb), 0.06), transparent 12%),
+        radial-gradient(circle at top right, rgba(var(--pg-text-rgb), 0.06), transparent 28%),
+        linear-gradient(135deg, rgba(var(--pg-text-rgb), 0.02), transparent 40%),
+        var(--pg-panel);
+    --pg-popup-bg:
+        linear-gradient(180deg, rgba(var(--pg-text-rgb), 0.08), transparent 20%),
+        var(--pg-raise);
+    --pg-slot-bg:
+        radial-gradient(circle at top, rgba(var(--pg-text-rgb), 0.05), transparent 55%),
+        linear-gradient(180deg, rgba(var(--pg-text-rgb), 0.03), transparent 24%),
+        var(--pg-deep);
+
+    --pg-btn-bg:         rgba(var(--pg-text-rgb), 0.04);
+    --pg-btn-bg-hover:   rgba(var(--pg-text-rgb), 0.08);
+    --pg-btn-border:     rgba(var(--pg-text-rgb), 0.12);
+    --pg-btn-primary-bg: linear-gradient(180deg, var(--pg-accent-soft), rgba(var(--pg-shade-rgb), 0.20));
+    --pg-btn-danger-bg:  linear-gradient(180deg, rgba(var(--pg-danger-rgb), 0.30), rgba(var(--pg-shade-rgb), 0.20));
+    --pg-btn-success-bg: linear-gradient(180deg, rgba(var(--pg-success-rgb), 0.30), rgba(var(--pg-shade-rgb), 0.20));
+
+    --pg-input-bg:     rgba(var(--pg-deep-rgb), 0.70);
+    --pg-input-border: rgba(var(--pg-text-rgb), 0.15);
+    --pg-focus-ring:   0 0 0 1px var(--pg-accent-soft);
+}
+
+/* ── the page ──────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
+    margin: 0; width: 100%; height: 100%; overflow: hidden;
+    background: transparent;                 /* the game world shows around the panels */
+    color: var(--pg-text);
+    font-family: var(--pg-font-body);
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+.hidden { display: none !important; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: rgba(var(--pg-shade-rgb), 0.2); }
+::-webkit-scrollbar-thumb { background: var(--pg-accent-soft); }
+::-webkit-scrollbar-thumb:hover { background: var(--pg-accent); }
+::selection { background: var(--pg-accent-soft); color: var(--pg-text); }
+
+/* ── panel: the window everything sits in ──────────────────────────── */
+.pg-panel {
+    position: relative;
+    background: var(--pg-panel-bg);
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius);
+    box-shadow: var(--pg-shadow);
+    padding: 1rem 1.1rem;
+}
+.pg-panel-head {
+    display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+    padding-bottom: .7rem; margin-bottom: .8rem;
+    border-bottom: 1px solid var(--pg-border-soft);
+}
+
+/* ── type ──────────────────────────────────────────────────────────── */
+.pg-title {
+    margin: 0;
+    font-family: var(--pg-font-display); font-weight: 400;
+    font-size: 1.6rem; letter-spacing: .04em; color: var(--pg-text);
+}
+.pg-subtitle, .pg-label {
+    font-family: var(--pg-font-display);
+    font-size: .78rem; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--pg-text-muted);
+}
+.pg-text  { font-family: var(--pg-font-body); color: var(--pg-text-soft); line-height: 1.45; font-size: .88rem; }
+.pg-muted { color: var(--pg-text-muted); }
+.pg-num   { font-family: var(--pg-font-body); font-variant-numeric: tabular-nums; }
+.pg-price { font-family: var(--pg-font-body); color: var(--pg-accent); font-weight: 600; }
+.pg-gain  { color: var(--pg-success); }
+.pg-loss  { color: var(--pg-danger); }
+
+/* ── buttons ───────────────────────────────────────────────────────── */
+.pg-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .4em;
+    padding: .55rem .9rem;
+    background: var(--pg-btn-bg);
+    border: 1px solid var(--pg-btn-border);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text);
+    font-family: var(--pg-font-display); font-size: .78rem;
+    text-transform: uppercase; letter-spacing: .07em;
+    cursor: pointer;
+    transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+.pg-btn:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); }
+.pg-btn:focus-visible { outline: none; box-shadow: var(--pg-focus-ring); }
+.pg-btn[disabled] { opacity: .45; pointer-events: none; }
+.pg-btn--primary { background: var(--pg-btn-primary-bg); border-color: var(--pg-accent-soft); }
+.pg-btn--primary:hover { border-color: var(--pg-accent); }
+.pg-btn--danger  { color: var(--pg-danger); }
+.pg-btn--danger-fill  { background: var(--pg-btn-danger-bg);  border-color: rgba(var(--pg-danger-rgb), .45); }
+.pg-btn--success-fill { background: var(--pg-btn-success-bg); border-color: rgba(var(--pg-success-rgb), .45); }
+/* a label that is too long for a fixed-width button: title case, no spacing */
+.pg-btn--quiet { text-transform: none; letter-spacing: .02em; font-size: .85rem; }
+
+.pg-close {
+    width: 1.9rem; height: 1.9rem; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--pg-btn-bg); border: 1px solid var(--pg-btn-border);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text); font-size: 1rem; cursor: pointer;
+}
+.pg-close:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft); }
+
+/* ── tabs ──────────────────────────────────────────────────────────── */
+.pg-tabs { display: flex; gap: 1.4rem; border-bottom: 1px solid var(--pg-border-soft); margin-bottom: .8rem; }
+.pg-tab {
+    padding: .5rem 0; background: none; border: 0; border-bottom: 2px solid transparent;
+    font-family: var(--pg-font-display); font-size: .95rem;
+    color: var(--pg-text-muted); cursor: pointer;
+}
+.pg-tab:hover { color: var(--pg-text); }
+.pg-tab.is-active { color: var(--pg-accent); border-bottom-color: var(--pg-accent); }
+
+/* ── inputs ────────────────────────────────────────────────────────── */
+.pg-input, .pg-select, .pg-textarea {
+    width: 100%; padding: .5rem .65rem;
+    background: var(--pg-input-bg);
+    border: 1px solid var(--pg-input-border);
+    border-radius: var(--pg-radius-sm);
+    color: var(--pg-text); font-family: var(--pg-font-body); font-size: .9rem;
+    outline: none; user-select: text;
+}
+.pg-input::placeholder, .pg-textarea::placeholder { color: var(--pg-text-dim); }
+.pg-input:focus, .pg-select:focus, .pg-textarea:focus { border-color: var(--pg-accent); box-shadow: var(--pg-focus-ring); }
+
+/* ── rows, slots, cards ────────────────────────────────────────────── */
+.pg-row {
+    display: flex; align-items: center; gap: .6rem; padding: .55rem .7rem;
+    background: var(--pg-surface); border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+.pg-row:hover { background: var(--pg-surface-hover); border-color: var(--pg-accent-soft); }
+.pg-row.is-selected { border-color: var(--pg-accent-soft); box-shadow: inset 0 0 0 1px var(--pg-accent-soft); }
+
+.pg-slot {
+    position: relative; aspect-ratio: 1 / 1; padding: .2rem;
+    background: var(--pg-slot-bg); border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+.pg-slot:hover { border-color: var(--pg-accent-soft); }
+.pg-slot img { width: 100%; height: 100%; object-fit: contain; }
+.pg-slot-count {
+    position: absolute; right: .2rem; bottom: .12rem; padding: .05rem .28rem;
+    font-family: var(--pg-font-body); font-size: .85rem; font-weight: 700;
+    color: var(--pg-text); background: rgba(var(--pg-deep-rgb), .75);
+}
+
+.pg-box { padding: .5rem .65rem; background: var(--pg-surface); border: 1px solid var(--pg-border-soft); }
+
+/* ── pills and badges ──────────────────────────────────────────────── */
+.pg-pill {
+    display: inline-flex; align-items: center; gap: .3em; padding: .12rem .45rem;
+    background: var(--pg-surface); border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+    font-family: var(--pg-font-body); font-size: .72rem; letter-spacing: .04em;
+    color: var(--pg-text-soft); text-transform: uppercase;
+}
+.pg-pill--accent  { background: var(--pg-accent-faint);  border-color: var(--pg-accent-soft); color: var(--pg-accent); }
+.pg-pill--success { background: var(--pg-success-soft); border-color: rgba(var(--pg-success-rgb), .35); color: var(--pg-success); }
+.pg-pill--danger  { background: var(--pg-danger-soft);  border-color: rgba(var(--pg-danger-rgb), .35);  color: var(--pg-danger); }
+.pg-pill--warning { background: var(--pg-warning-soft); border-color: rgba(var(--pg-warning-rgb), .35); color: var(--pg-warning); }
+.pg-pill--info    { background: var(--pg-info-soft);    border-color: rgba(var(--pg-info-rgb), .35);    color: var(--pg-info); }
+
+/* ── bars ──────────────────────────────────────────────────────────── */
+.pg-bar { height: 6px; background: var(--pg-deep); border: 1px solid var(--pg-border-soft); overflow: hidden; }
+.pg-bar > i { display: block; height: 100%; background: var(--pg-accent); }
+.pg-bar--danger > i { background: var(--pg-danger); }
+
+/* ── modals, tooltips ──────────────────────────────────────────────── */
+.pg-veil { position: fixed; inset: 0; background: var(--pg-veil); display: flex; align-items: center; justify-content: center; }
+.pg-modal {
+    min-width: 16rem; max-width: 26rem; padding: 1.1rem 1.3rem 1rem;
+    background: var(--pg-popup-bg); border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius); box-shadow: var(--pg-shadow-strong);
+}
+.pg-tip {
+    padding: .5rem .65rem; max-width: 18rem;
+    background: var(--pg-popup-bg); border: 1px solid var(--pg-border);
+    box-shadow: var(--pg-shadow-strong);
+    font-family: var(--pg-font-body); font-size: .8rem; color: var(--pg-text-soft);
+    pointer-events: none;
+}
+
+/* ── HUD: text straight over the game world ────────────────────────── */
+/* It cannot trust what is behind it, and on the light Ledger theme the
+   text is dark: give it a small panel of its own. */
+.pg-hud {
+    padding: .3rem .6rem;
+    background: var(--pg-panel); border: 1px solid var(--pg-border-soft);
+    color: var(--pg-text); font-family: var(--pg-font-body);
+    text-shadow: none;
+}
+
+/* ── divider ───────────────────────────────────────────────────────── */
+.pg-rule { height: 1px; background: var(--pg-border-soft); border: 0; margin: .8rem 0; }
+
+/* ================================================================
+   The kit: what the components in ui-src/components draw with.
+   Same rules as above: tokens only, square corners, numbers in the
+   body font, everything on a panel.
+   ================================================================ */
+
+/* ── a screen: the whole page, centring its window ─────────────────── */
+.pg-screen {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;                    /* the game shows through around the window */
+}
+.pg-screen > * { pointer-events: auto; }
+.pg-screen.is-veiled { background: var(--pg-veil); pointer-events: auto; }
+.pg-fade-enter-active, .pg-fade-leave-active { transition: opacity 180ms ease; }
+.pg-fade-enter-from, .pg-fade-leave-to { opacity: 0; }
+
+/* ── a window: a panel with a title bar and a body ─────────────────── */
+.pg-window {
+    display: flex; flex-direction: column;
+    max-width: 96vw; max-height: 94vh;
+    padding: 0;
+}
+.pg-window > .pg-panel-head { padding: .85rem 1.1rem .7rem; margin: 0; }
+.pg-window-head-extra { display: flex; align-items: center; gap: .5rem; margin-left: auto; }
+.pg-window-body { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: .9rem 1.1rem 1rem; }
+
+/* ── layout helpers ─────────────────────────────────────────────────── */
+.pg-stack { display: flex; flex-direction: column; gap: .6rem; min-height: 0; }
+.pg-line  { display: flex; align-items: center; gap: .6rem; }
+.pg-grow  { flex: 1; min-width: 0; min-height: 0; }
+.pg-scroll { overflow-y: auto; min-height: 0; }
+.pg-split { display: flex; gap: 1rem; min-height: 0; flex: 1; }
+.pg-actions { display: flex; gap: .6rem; justify-content: flex-end; margin-top: auto; padding-top: .8rem; }
+.pg-actions > .pg-btn { min-width: 7rem; }
+
+/* ── a field: label over an input ──────────────────────────────────── */
+.pg-field { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+.pg-input:disabled { background: var(--pg-surface); color: var(--pg-text-muted); border-color: var(--pg-border-soft); }
+.pg-input[type="number"] { font-variant-numeric: tabular-nums; }
+
+/* ── switcher: ◄ value ► in place of a dropdown (dropdowns leave marks in game) ── */
+.pg-switch {
+    display: flex; align-items: center; gap: .2rem; min-width: 11rem;
+    padding: .15rem;
+    background: var(--pg-input-bg); border: 1px solid var(--pg-input-border);
+    border-radius: var(--pg-radius-sm);
+    user-select: none;
+}
+.pg-switch:hover { border-color: var(--pg-accent-soft); }
+.pg-switch-btn {
+    width: 1.7rem; height: 1.7rem; padding: 0; flex: none;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: none; border: 0; border-radius: var(--pg-radius-sm);
+    color: var(--pg-text-muted); font-size: .62rem; cursor: pointer;
+}
+.pg-switch-btn:hover { background: var(--pg-surface-hover); color: var(--pg-accent); }
+.pg-switch-value {
+    flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-family: var(--pg-font-body); font-size: .88rem; color: var(--pg-text);
+}
+
+/* ── lists of rows ─────────────────────────────────────────────────── */
+.pg-list { display: flex; flex-direction: column; gap: .3rem; }
+.pg-row.is-clickable { cursor: pointer; }
+.pg-row.is-selected { background: var(--pg-accent-faint); }
+.pg-row.is-selected .pg-row-title { color: var(--pg-accent); }
+.pg-row.is-current { box-shadow: inset 2px 0 0 var(--pg-accent); }
+.pg-row.is-dim { opacity: .7; }
+.pg-row-main { flex: 1; min-width: 0; }
+.pg-row-title { font-family: var(--pg-font-display); font-size: .98rem; letter-spacing: .02em; color: var(--pg-text); }
+.pg-row-sub { font-family: var(--pg-font-body); font-size: .78rem; color: var(--pg-text-muted); margin-top: .1rem; }
+.pg-row-actions { display: flex; gap: .35rem; flex: none; }
+.pg-row-actions .pg-btn { padding: .32rem .6rem; font-size: .7rem; }
+.pg-group-head {
+    display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+    padding: .45rem .7rem; cursor: pointer;
+    background: var(--pg-surface); border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+    font-family: var(--pg-font-display); font-size: .95rem; letter-spacing: .04em; color: var(--pg-accent);
+}
+.pg-group-head:hover { background: var(--pg-surface-hover); border-color: var(--pg-accent-soft); }
+.pg-group-head.is-sub { color: var(--pg-text-soft); font-size: .9rem; margin-left: .6rem; }
+.pg-group-head .pg-chevron { color: var(--pg-text-muted); font-size: .7rem; font-family: var(--pg-font-body); }
+.pg-group-body { display: flex; flex-direction: column; gap: .3rem; padding-left: .6rem; }
+.pg-group-body.is-sub { padding-left: 1.2rem; }
+.pg-empty { padding: 1rem; text-align: center; font-style: italic; color: var(--pg-text-dim); font-size: .88rem; }
+
+/* ── table ─────────────────────────────────────────────────────────── */
+.pg-table-wrap {
+    overflow: auto; min-height: 0;
+    background: var(--pg-deep); border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius);
+}
+.pg-table { width: 100%; border-collapse: collapse; font-family: var(--pg-font-body); font-size: .85rem; }
+.pg-table thead { position: sticky; top: 0; z-index: 1; background: var(--pg-raise); }
+.pg-table th {
+    padding: .6rem .7rem; text-align: left; white-space: nowrap;
+    font-family: var(--pg-font-display); font-weight: 400; font-size: .74rem;
+    letter-spacing: .07em; text-transform: uppercase; color: var(--pg-text-muted);
+    border-bottom: 1px solid var(--pg-border);
+}
+.pg-table th.is-sortable { cursor: pointer; }
+.pg-table th.is-sortable:hover { color: var(--pg-text); background: var(--pg-surface-hover); }
+.pg-table th.is-sorted { color: var(--pg-text); }
+.pg-table .pg-sort { margin-left: .35em; font-family: var(--pg-font-body); font-size: .65rem; opacity: .5; }
+.pg-table th.is-sorted .pg-sort { opacity: 1; color: var(--pg-accent); }
+.pg-table td { padding: .5rem .7rem; color: var(--pg-text-soft); border-bottom: 1px solid var(--pg-border-soft); }
+.pg-table tbody tr:hover { background: var(--pg-surface-hover); }
+.pg-table .is-num { text-align: center; font-variant-numeric: tabular-nums; }
+.pg-table .pg-btn { padding: .3rem .6rem; font-size: .7rem; }
+
+/* ── progress bar with a set duration ──────────────────────────────── */
+.pg-bar > i { width: 0; }
+.pg-bar.is-running > i { transition-property: width; transition-timing-function: linear; }
+
+/* ── picture: an image in a frame, enlargeable ─────────────────────── */
+.pg-picture {
+    display: block; width: 100%; overflow: hidden; cursor: zoom-in;
+    background: var(--pg-deep); border: 1px solid var(--pg-border-soft);
+    border-radius: var(--pg-radius-sm);
+}
+.pg-picture img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 300ms ease; }
+.pg-picture:hover { border-color: var(--pg-accent-soft); }
+.pg-picture:hover img { transform: scale(1.04); }
+.pg-lens {
+    position: absolute; width: 150px; height: 150px; pointer-events: none;
+    transform: translate(-50%, -50%); border-radius: 50%;
+    border: 2px solid var(--pg-accent); box-shadow: var(--pg-shadow-strong);
+    background-repeat: no-repeat;
+}
+.pg-viewer { position: relative; max-width: 85vmin; max-height: 85vmin; border: 1px solid var(--pg-border); box-shadow: var(--pg-shadow-strong); }
+.pg-viewer img { display: block; max-width: 85vmin; max-height: 85vmin; object-fit: contain; }
+.pg-viewer .pg-close { position: absolute; top: .6rem; right: .6rem; z-index: 2; }
+
+/* ── HUD placement (PgHud) ─────────────────────────────────────────── */
+.pg-hud-placed { position: fixed; left: 50%; transform: translateX(-50%); pointer-events: none; }
+.pg-hud-placed.is-bottom { bottom: 90px; }
+.pg-hud-placed.is-top { top: 60px; }

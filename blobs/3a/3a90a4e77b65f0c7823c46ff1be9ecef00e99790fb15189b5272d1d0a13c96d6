@@ -1,0 +1,6 @@
+/* Built by tools/ui-vue from redm/poggy_trashbins/ui-src. Edit the source there, not this file. */
+
+.tb-progress { width: 360px; padding: .55rem .8rem .7rem;
+}
+.tb-label { text-align: center; margin-bottom: .45rem; color: var(--pg-text);
+}

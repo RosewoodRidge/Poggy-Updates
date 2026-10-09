@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<!-- Built by tools/ui-vue from poggy_trashbins/ui-src. Edit the source there, not this file.
+     A Poggy UI kit page: Vue and the kit come from poggy_core 0.28.0+; app.js is App.vue. -->
+<html lang="en" data-pg-native>
+<head>
+    <meta charset="UTF-8">
+    <title>Search Progress</title>
+    <link rel="stylesheet" href="https://cfx-nui-poggy_core/ui/hub/poggy-ui.css">
+    <link rel="stylesheet" href="app.css">
+    <script src="https://cfx-nui-poggy_core/ui/hub/theme.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+    <script src="https://cfx-nui-poggy_core/ui/hub/vue.runtime.global.prod.js"></script>
+    <script src="https://cfx-nui-poggy_core/ui/hub/poggy-ui.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

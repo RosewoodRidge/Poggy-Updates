@@ -1,0 +1,28 @@
+/* Built by tools/ui-vue from redm/poggy_multijob/ui-src. Edit the source there, not this file. */
+
+.mj-side { width: 270px; flex: none; padding-right: 1rem; border-right: 1px solid var(--pg-border-soft);
+}
+.mj-head { display: flex; align-items: center; justify-content: space-between; margin-top: .3rem;
+}
+.mj-jobs { max-height: 190px; padding: .4rem; background: var(--pg-deep); border: 1px solid var(--pg-border-soft);
+}
+.mj-well { padding: .5rem; background: var(--pg-deep); border: 1px solid var(--pg-border-soft);
+}
+.mj-form { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem;
+}
+.mj-wide { grid-column: 1 / -1;
+}
+.mj-foot { justify-content: space-between; align-items: center;
+}
+.mj-name { color: var(--pg-text);
+}
+.mj-code { font-family: var(--pg-font-mono); font-size: .8rem; padding: .05rem .35rem; background: var(--pg-surface); border: 1px solid var(--pg-border-soft);
+}
+.mj-grade { color: var(--pg-accent); font-weight: 600;
+}
+.mj-login { color: var(--pg-text-muted);
+}
+.mj-login.mj-recent { color: var(--pg-success);
+}
+.mj-login.mj-old { color: var(--pg-danger);
+}
