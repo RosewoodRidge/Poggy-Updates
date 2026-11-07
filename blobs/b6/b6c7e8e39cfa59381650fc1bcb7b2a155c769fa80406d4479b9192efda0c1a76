@@ -1,0 +1,231 @@
+/* Built by tools/ui-vue from redm/poggy_scenes_2/ui-src. Edit the source there, not this file. */
+
+/* Poggy Scenes 2.0. Tokens only: the colours named in this screen are content (the game's text
+   colours, the paints and the board faces), and they come from Lua with the data. */
+html, body { background: transparent; overflow: hidden;
+}
+
+/* ── the panels, bottom right ── */
+.sc-dock {
+    position: fixed; right: 22px; bottom: 22px;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+    pointer-events: none;
+}
+.sc-dock > * { pointer-events: auto;
+}
+.sc-dock .pg-window { max-height: calc(100vh - 44px);
+}
+.sc-dock .pg-window-body { overflow-y: auto;
+}
+.sc-dock .pg-stack > * { flex-shrink: 0;
+}      /* a tall editor scrolls; its parts never squash */
+.sc-dock, .sc-dock * { user-select: none;
+}
+.sc-dock .sc-words, .sc-dock .sc-words *, .sc-dock input { user-select: text;
+}
+.sc-toolbar { flex-wrap: wrap; gap: .5rem;
+}
+.sc-switch-small { min-width: 8rem;
+}
+.sc-options { display: flex; gap: .7rem;
+}
+.sc-option { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .3rem;
+}
+.sc-option .pg-switch { min-width: 0;
+}
+.sc-seg { display: flex;
+}
+.sc-seg > .pg-btn { flex: 1; padding-left: .4rem; padding-right: .4rem;
+}
+.sc-seg > .pg-btn + .pg-btn { margin-left: -1px;
+}
+.sc-hint { font-family: var(--pg-font-body); font-size: .74rem; color: var(--pg-text-muted); text-align: center;
+}
+.sc-hint-left { text-align: left;
+}
+.sc-hint.is-bad { color: var(--pg-danger);
+}
+.sc-hint.is-over { color: var(--pg-warning);
+}
+.sc-actions { padding-top: .4rem;
+}
+.sc-actions > .pg-btn { min-width: 0; flex: 1;
+}
+
+/* ── colour swatches ── */
+.sc-swatches { display: flex; flex-wrap: wrap; gap: 3px;
+}
+.sc-swatch {
+    width: 18px; height: 18px; flex: none; cursor: pointer;
+    border: 2px solid var(--pg-border); border-radius: var(--pg-radius-sm);
+    transition: transform .12s, border-color .12s;
+}
+.sc-swatch:hover { transform: scale(1.15);
+}
+.sc-swatch.is-active { border-color: var(--pg-accent); box-shadow: 0 0 0 1px var(--pg-accent-glow);
+}
+.sc-swatch.is-none {
+    background: linear-gradient(to top right, transparent calc(50% - 1px), var(--pg-text-muted) calc(50% - 1px),
+                var(--pg-text-muted) calc(50% + 1px), transparent calc(50% + 1px));
+}
+
+/* ── the word boxes: the game's text colours read on a dark well, as they do in the world ── */
+.sc-words {
+    position: relative; width: 100%; outline: none; overflow-y: auto;
+    border: 1px solid var(--pg-input-border); border-radius: var(--pg-radius-sm);
+    padding: .6rem .75rem; text-transform: uppercase;
+    word-wrap: break-word; overflow-wrap: break-word;
+}
+.sc-words:focus { border-color: var(--pg-accent); box-shadow: var(--pg-focus-ring);
+}
+.sc-scene-words, .sc-status-words { background: rgba(var(--pg-shade-rgb), .78);
+}
+.sc-scene-words {
+    min-height: 100px; max-height: 220px; text-align: center;
+    font-family: 'Bebas Neue', var(--pg-font-body); font-size: 22px; letter-spacing: .5px; line-height: 1.3;
+}
+.sc-status-words { min-height: 80px; max-height: 180px; font-family: var(--pg-font-body); font-size: 13px; line-height: 1.55;
+}
+.sc-scene-words:empty::before, .sc-status-words:empty::before {
+    content: attr(data-placeholder); pointer-events: none;
+    font-family: var(--pg-font-body); font-size: 13px; font-style: italic; text-transform: none; opacity: .55;
+}
+/* the default text colour is white in the game, whatever the theme */
+.sc-scene-words, .sc-status-words { color: #fff;
+}
+
+/* the sign's words, on the board's own face (from Lua) in its lettering */
+.sc-sign-words {
+    min-height: 84px; max-height: 180px; text-align: center; white-space: pre-wrap;
+    background: var(--pg-input-bg); font-size: 30px; line-height: 1.15; letter-spacing: .04em;
+}
+.sc-sign-words.empty::before {
+    position: absolute; left: 0; right: 0; top: 14px; content: attr(data-placeholder); pointer-events: none;
+    font-family: var(--pg-font-body); font-size: 13px; font-style: italic; letter-spacing: .02em; text-transform: none; opacity: .6;
+}
+.sc-sign-words.sign-font-r { font-family: 'Bebas Neue', sans-serif;
+}
+.sc-sign-words.sign-font-s { font-family: 'Cinzel', serif; font-weight: 600; letter-spacing: .02em;
+}
+.sc-sign-words.sign-down {
+    writing-mode: vertical-lr; text-orientation: upright; letter-spacing: 0;
+    height: 240px; max-height: 240px; overflow-x: auto;
+}
+.sc-sign-words ::selection { background: transparent; color: currentColor;
+}   /* our own tint shows it */
+.sl { min-height: 1.15em;
+}
+.si { white-space: pre;
+}
+.si.sel { background: rgba(var(--pg-info-rgb), .45);
+}
+.si-sym { cursor: default;
+}
+
+/* a painted symbol: its picture cut out of the text's own colour, as tall as a capital */
+.sym {
+    display: inline-block; height: .74em; width: calc(var(--w, 1) * .74em); margin: 0 .1em;
+    pointer-events: none; vertical-align: baseline; background-color: currentColor;
+    -webkit-mask-position: center; -webkit-mask-repeat: no-repeat; -webkit-mask-size: 100% 100%;
+}
+.sym.sym-flourish { height: .19em; width: calc(var(--w, 1) * .19em); vertical-align: middle;
+}
+.sc-sign-words.sign-down .sym { margin: .12em 0;
+}
+
+/* ── the parts of the sign editor that fold ── */
+.sc-sec .pg-group-head { font-size: .82rem; padding: .35rem .6rem;
+}
+.sc-sec .pg-group-body { padding-left: 0;
+}
+.sc-sec-body { display: flex; flex-direction: column; gap: .5rem; padding: .5rem .1rem .3rem;
+}
+#sign-symbols { display: flex; flex-wrap: wrap; gap: 4px;
+}
+.sc-sym-btn {
+    height: 26px; min-width: 28px; padding: 0 5px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--pg-btn-bg); border: 1px solid var(--pg-btn-border); border-radius: var(--pg-radius-sm);
+    color: var(--pg-text); font-size: 20px; line-height: 1;
+}
+.sc-sym-btn:hover { background: var(--pg-btn-bg-hover); border-color: var(--pg-accent-soft);
+}
+.sc-sym-btn .sym { margin: 0;
+}
+.sc-sym-btn.is-wide { font-size: 30px;
+}
+
+/* ── sliders ── */
+.sc-slider { display: flex; align-items: center; gap: .5rem;
+}
+.sc-slider-label { width: 7.2rem; flex: none; white-space: nowrap; font-family: var(--pg-font-body); font-size: .8rem; color: var(--pg-text-soft);
+}
+.sc-range { flex: 1; min-width: 0; height: 4px; -webkit-appearance: none; appearance: none; background: var(--pg-border); outline: none; cursor: pointer;
+}
+.sc-range::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--pg-accent); border: 2px solid var(--pg-panel-solid); cursor: grab;
+}
+.sc-slider-num { width: 4.6rem; flex: none; padding: .25rem .4rem; text-align: right;
+}
+.sc-slider-num::-webkit-outer-spin-button, .sc-slider-num::-webkit-inner-spin-button,
+.sc-stepper-num::-webkit-outer-spin-button, .sc-stepper-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0;
+}
+
+/* ── Adjust Position ── */
+.sc-preview { font-family: var(--pg-font-body); font-size: .82rem; font-style: italic; color: var(--pg-accent-hi);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sc-axis-label { width: 1.4rem; flex: none; text-align: center;
+}
+.sc-stepper { flex: 1; min-width: 0;
+}
+.sc-stepper-num {
+    flex: 1; min-width: 0; text-align: center; background: none; border: 0; outline: none;
+    color: var(--pg-text); font-size: .9rem;
+}
+
+/* ── Status presets ── */
+.sc-presets { max-height: 190px;
+}
+
+/* ── the /me box ── */
+.sc-mebox {
+    position: fixed; top: 7%; left: 50%; transform: translateX(-50%);
+    width: 40%; max-width: 800px; z-index: 800; pointer-events: none;
+    opacity: 1; transition: opacity 1s ease, width .25s ease;
+}
+.sc-mebox.is-small  { width: 20%; max-width: 400px;
+}
+.sc-mebox.is-normal { width: 30%; max-width: 600px;
+}
+.sc-mebox.is-large  { width: 40%; max-width: 800px;
+}
+.sc-mebox.is-hidden { opacity: 0;
+}
+.sc-mebox.is-hidden .sc-mebox-list { pointer-events: none;
+}
+.sc-mebox.is-fading { opacity: 0; transition: opacity 1.5s ease;
+}
+.sc-mebox.is-moving { pointer-events: auto; cursor: grab; z-index: 9999;
+}
+.sc-mebox.is-moving .sc-mebox-list { pointer-events: none;
+}
+.sc-mebox-list {
+    pointer-events: auto; max-height: 16vh; overflow-y: auto; padding: 6px 10px;
+    font-family: var(--pg-font-body); font-size: 1.55vh; line-height: 1.5; color: var(--pg-text);
+}
+.mebox-line { padding: 2px 0; overflow-wrap: break-word;
+}
+.mebox-name { font-weight: 700; margin-right: 4px; color: var(--pg-accent-hi);
+}
+.mebox-text { font-style: italic;
+}
+.mebox-move-placeholder { color: var(--pg-text-muted); font-style: italic; text-align: center;
+}
+.sc-move-overlay { position: fixed; inset: 0; z-index: 9998;
+}
+.sc-move-hint {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%); pointer-events: none; white-space: nowrap;
+    font-size: .78rem; letter-spacing: .1em; text-transform: uppercase;
+}
